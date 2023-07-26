@@ -20,12 +20,18 @@ class FnoDataProcessor:
 
         self.hist_data_obj = None
         self.historical_data_df = None
+        self.data_end_datetime = None
+        self.data_start_datetime = None
         self.last_close_price = None
         self.ti_1_value = None
         self.ti_2_value = None
         self.ti_3_value = None
         self.ti_4_value = None
         self.ti_5_value = None
+
+        self.ti_1_sl_value = None
+        self.ti_2_sl_value = None
+        self.ti_3_sl_value = None
 
         self.ti_1_signal = None
         self.ti_2_signal = None
@@ -56,9 +62,9 @@ class FnoDataProcessor:
 
     def set_hist_data(self):
         self.hist_data_obj = HistoricalData(self.kite_obj, self.instru_token, self.candle_interval)
-        end_datetime = dt.datetime.now().date()
-        start_datetime = end_datetime - dt.timedelta(days=90)
-        self.historical_data_df = self.hist_data_obj.fetch(start_datetime, end_datetime)
+        self.data_end_datetime = dt.datetime.now().date()
+        self.data_start_datetime = self.data_end_datetime - dt.timedelta(days=90)
+        self.historical_data_df = self.hist_data_obj.fetch(self.data_start_datetime, self.data_end_datetime)
 
     def set_last_close_price(self):
         self.last_close_price = self.historical_data_df.iloc[-1]["close"].values
@@ -92,6 +98,10 @@ class FnoDataProcessor:
             self.ti_5_value, self.ti_5_signal = indicators.stochastic(self.historical_data_df, config["ti_5_config"])
         else:
             pass
+
+        self.ti_1_sl_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_1_sl_config"])
+        self.ti_2_sl_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_2_sl_config"])
+        self.ti_3_sl_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti__sl_config"])
 
     def set_level_signal(self):
         if self.instru_name == "NIFTY":

@@ -1,5 +1,5 @@
 import pandas as pd
-from kite_make_connection import Kite
+from utilsall.kite_make_connection import Kite
 from pprint import pprint
 
 class FNOContractSelector:

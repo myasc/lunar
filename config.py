@@ -8,7 +8,7 @@ config = {"program_trade_live": True,
           "options_max_prev_days": 60,
           "max_trades_per_day": 3,
           "max_stoploss_per_day": 2,
-          "num_of_sets": 1,
+          "num_of_sets": 1, # quantity is decided based on lotsperset not numofsets
           "lots_per_set": 3,
           "option_buy_underlying": "NIFTY",
           "nifty_strike_ce": 17000,
@@ -19,6 +19,9 @@ config = {"program_trade_live": True,
           "nifty_level_down": 17000,
           "banknifty_level_up": 41800,
           "banknifty_level_down": 41500,
+          "ti_1_sl_config": 10,
+          "ti_2_sl_config": 15,
+          "ti_3_sl_config": 20,
           "ti_1_config": 20,
           "ti_2_config": "VWAP",
           "ti_3_config": [7, 3],
@@ -36,5 +39,6 @@ config = {"program_trade_live": True,
           "second_lot_exit": 30,  # if set is of 3 then exit 1 lot here
           "final_exit": "ind_sl",  # [based on technical indicator]
           "global_sl": 45,  # [odd events]
-          "entry_order_valid_min": 2  # min (this is after valid signal)
+          "entry_order_wait_min": 2,  # min (this is after valid signal)
+          "entry_order_valid_min": 3  # wait time for order fill
           }
