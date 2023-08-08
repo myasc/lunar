@@ -61,7 +61,6 @@ def printer_logger(mssg, logger, loglevel="info", print_=False):
 def add_row_to_csv(row, file_path, print_=False):
     timestamp = str(dt.datetime.now().isoformat())
     row.append(timestamp)
-
     mode = 'a' if os.path.exists(file_path) else 'w'
     with open(file_path, mode, newline='') as csvfile:
         writer = csv.writer(csvfile)

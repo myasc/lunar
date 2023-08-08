@@ -1,6 +1,5 @@
 import pandas as pd
 import datetime as dt
-from kite_make_connection import Kite
 
 class HistoricalData:
     def __init__(self, kite_obj, instrument_id, timeframe):

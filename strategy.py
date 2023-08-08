@@ -7,12 +7,14 @@ from fnodataprocessor import FnoDataProcessor
 from utilsall.utils import fetch_instru_token
 from utilsall.Orders import Orders
 from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv
+from utilsall.misc import create_print_dict
 
 
 class Strategy:
-    def __init__(self, kite_obj, config):
+    def __init__(self, kite_obj, config, testing=False):
         self.kite_obj = kite_obj
         self.config = config
+        self.testing = testing
         self.nf_fut_obj = None
         self.nf_ce_obj = None
         self.nf_pe_obj = None
@@ -20,7 +22,7 @@ class Strategy:
         self.bnf_ce_obj = None
         self.bnf_pe_obj = None
         self.candle_interval = self.config["candle_interval"]
-        self.orders = Orders(self.kite_obj)
+        self.orders = Orders(self.kite_obj, self.testing)
 
         self.logger = None
         self.trading_security = None
@@ -77,17 +79,16 @@ class Strategy:
 
     def _set_dataprocessor_obj(self):
         nf_fut_token = fetch_instru_token(self.kite_obj, "NIFTY", None, "FUT")
-        nf_ce_token = fetch_instru_token(self.kite_obj, "NIFTY", self.config["nifty_strike_ce"], "CE")
-        nf_pe_token = fetch_instru_token(self.kite_obj, "NIFTY", self.config["nifty_strike_pe"], "PE")
-        bnf_fut_token = fetch_instru_token(self.kite_obj, "BANKNIFTY", None, "FUT")
-        bnf_ce_token = fetch_instru_token(self.kite_obj, "BANKNIFTY", self.config["banknifty_strike_ce"], "CE")
-        bnf_pe_token = fetch_instru_token(self.kite_obj, "BANKNIFTY", self.config["banknifty_strike_pe"], "PE")
-
         self.nf_fut_obj = FnoDataProcessor(self.kite_obj, nf_fut_token, self.candle_interval)
+        nf_ce_token = fetch_instru_token(self.kite_obj, "NIFTY", self.config["nifty_strike_ce"], "CE")
         self.nf_ce_obj = FnoDataProcessor(self.kite_obj, nf_ce_token, self.candle_interval)
+        nf_pe_token = fetch_instru_token(self.kite_obj, "NIFTY", self.config["nifty_strike_pe"], "PE")
         self.nf_pe_obj = FnoDataProcessor(self.kite_obj, nf_pe_token, self.candle_interval)
+        bnf_fut_token = fetch_instru_token(self.kite_obj, "BANKNIFTY", None, "FUT")
         self.bnf_fut_obj = FnoDataProcessor(self.kite_obj, bnf_fut_token, self.candle_interval)
+        bnf_ce_token = fetch_instru_token(self.kite_obj, "BANKNIFTY", self.config["banknifty_strike_ce"], "CE")
         self.bnf_ce_obj = FnoDataProcessor(self.kite_obj, bnf_ce_token, self.candle_interval)
+        bnf_pe_token = fetch_instru_token(self.kite_obj, "BANKNIFTY", self.config["banknifty_strike_pe"], "PE")
         self.bnf_pe_obj = FnoDataProcessor(self.kite_obj, bnf_pe_token, self.candle_interval)
 
     def _init_dataprocessor(self):
@@ -134,6 +135,7 @@ class Strategy:
             self.trading_security = None
 
     def place_order_process(self):
+        self.send_buy_order_ifvalid()
         if self.order_dict["entryorder"]["oid"] == "":
             printer_logger("buy not triggered", self.logger, "info", True)
         else:
@@ -153,13 +155,19 @@ class Strategy:
         # d. CLOSE-NWT = program is running, SL Limit Hit/Global SL, No further action for day
         # e. #OFF= program is not running or in exception
         # f. Update the changes to program log file
-
+        print_data_indicator = create_print_dict(self.nf_fut_obj,
+                                                 self.nf_ce_obj,
+                                                 self.nf_pe_obj,
+                                                 self.bnf_fut_obj,
+                                                 self.bnf_ce_obj,
+                                                 self.bnf_pe_obj)
+        print_data_strategy = {"status_beacon": self.strategy_state_dict["status_beacon"],
+                               "day pnl": "",
+                               }
         print("current time: ", dt.datetime.now())
-        print("program beacon running status", self.strategy_state_dict["status_beacon"])
-        print("start date considered for FUT and Option", self.nf_fut_obj.data_start_datetime)
-        print("end date considered for FUT and Option", self.nf_fut_obj.data_end_datetime)
         print("Indicator signal/value/rank")
-        # print("1", self.nf_fut_obj.rank)
+        print(print_data_indicator)
+        print(print_data_strategy)
         print("current open positions")
         print("day pnl")
         print("no of SL hit today")
@@ -289,15 +297,32 @@ class Strategy:
             else:
                 print(f"none stoploss orders, security set as {self.trading_security}, passing")
 
-            self.order_dict["slorder1"]["oid"] = self.orders.place_sl_market_sell_nfo(self.order_dict["slorder1"]["symbol"],
-                                                 self.order_dict["slorder1"]["quantity"],
-                                                 self.order_dict["slorder1"]["limit_price"],
-                                                 "sl1stlot")
-            self.order_dict["slorder2"]["oid"] = self.orders.place_sl_market_sell_nfo(self.order_dict["slorder2"]["symbol"],
-                                                 self.order_dict["slorder2"]["quantity"],
-                                                 self.order_dict["slorder2"]["limit_price"],
-                                                 "sl2ndlot")
-            self.order_dict["slorder3"]["oid"] = self.orders.place_sl_market_sell_nfo(self.order_dict["slorder3"]["symbol"],
-                                                 self.order_dict["slorder3"]["quantity"],
-                                                 self.order_dict["slorder3"]["limit_price"],
-                                                 "sl3rdlot")
+            self.order_dict["slorder1"]["oid"] = self.orders.place_sl_market_sell_nfo(
+                self.order_dict["slorder1"]["symbol"],
+                self.order_dict["slorder1"]["quantity"],
+                self.order_dict["slorder1"]["limit_price"],
+                "sl1stlot")
+            self.order_dict["slorder2"]["oid"] = self.orders.place_sl_market_sell_nfo(
+                self.order_dict["slorder2"]["symbol"],
+                self.order_dict["slorder2"]["quantity"],
+                self.order_dict["slorder2"]["limit_price"],
+                "sl2ndlot")
+            self.order_dict["slorder3"]["oid"] = self.orders.place_sl_market_sell_nfo(
+                self.order_dict["slorder3"]["symbol"],
+                self.order_dict["slorder3"]["quantity"],
+                self.order_dict["slorder3"]["limit_price"],
+                "sl3rdlot")
+
+    def initialise(self):
+        self.initialise_logs_n_files()
+        self.prepare_strategy_dict_n_json()
+        self.read_latest_strategy_dict()
+        self._set_dataprocessor_obj()
+        self._init_dataprocessor()
+        self._update_dataprocessor()
+        self.set_trading_security()
+        self.place_order_process()
+
+    def update(self):
+        self._update_dataprocessor()
+        self.place_order_process()

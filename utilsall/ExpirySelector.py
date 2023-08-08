@@ -9,7 +9,7 @@ class ExpirySelector:
         self.get_holidays()
 
     def get_holidays(self):
-        marketHolidays_obj = MarketHolidays("market_holidays_2005_to_2023.csv")
+        marketHolidays_obj = MarketHolidays("utilsall/market_holidays_2005_to_2023.csv")
         self.holidays = marketHolidays_obj.holiday_dates_dt
 
     def get_nearest_weekly(self):

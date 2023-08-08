@@ -45,9 +45,17 @@ class FnoDataProcessor:
         self.ti_4_enabled = None
         self.ti_5_enabled = None
 
+        self.ti_1_weight = None
+        self.ti_2_weight = None
+        self.ti_3_weight = None
+        self.ti_4_weight = None
+        self.ti_5_weight = None
+        self.level_weight = None
+
         self.rank = None
 
         self.level_signal = None
+        self.level_value = None
 
     def get_instru_basic_data(self):
         instruments = self.kite_obj.instruments(exchange="NFO")
@@ -108,6 +116,7 @@ class FnoDataProcessor:
             if config["nifty_level_up"] is not None:
                 if self.last_close_price > config["nifty_level_up"]:
                     self.level_signal = 1
+                    self.level_value = config["nifty_level_up"]
                 else:
                     self.level_signal = 0
             else:
@@ -115,7 +124,8 @@ class FnoDataProcessor:
 
             if config["nifty_level_down"] is not None:
                 if self.last_close_price < config["nifty_level_down"]:
-                    self.level_signal = -1
+                    self.level_signal = 1
+                    self.level_value = config["nifty_level_down"]
                 else:
                     self.level_signal = 0
             else:
@@ -124,6 +134,7 @@ class FnoDataProcessor:
             if config["banknifty_level_up"] is not None:
                 if self.last_close_price > config["banknifty_level_up"]:
                     self.level_signal = 1
+                    self.level_value = config["banknifty_level_up"]
                 else:
                     self.level_signal = 0
             else:
@@ -131,7 +142,8 @@ class FnoDataProcessor:
 
             if config["banknifty_level_down"] is not None:
                 if self.last_close_price < config["banknifty_level_down"]:
-                    self.level_signal = -1
+                    self.level_signal = 1
+                    self.level_value = config["banknifty_level_down"]
                 else:
                     self.level_signal = 0
             else:
@@ -140,14 +152,14 @@ class FnoDataProcessor:
             self.level_signal = 0
 
     def set_rank(self):
-        ti_1_weight = config["ti_1_rank"] if (self.ti_1_enabled and self.ti_1_signal == 1) else 0
-        ti_2_weight = config["ti_2_rank"] if (self.ti_2_enabled and self.ti_2_signal == 1) else 0
-        ti_3_weight = config["ti_3_rank"] if (self.ti_3_enabled and self.ti_3_signal == 1) else 0
-        ti_4_weight = config["ti_4_rank"] if (self.ti_4_enabled and self.ti_4_signal == 1) else 0
-        ti_5_weight = config["ti_5_rank"] if (self.ti_5_enabled and self.ti_5_signal == 1) else 0
-        level_weight = self.level_signal * config["future_levels_rank"]
+        self.ti_1_weight = config["ti_1_rank"] if (self.ti_1_enabled and self.ti_1_signal == 1) else 0
+        self.ti_2_weight = config["ti_2_rank"] if (self.ti_2_enabled and self.ti_2_signal == 1) else 0
+        self.ti_3_weight = config["ti_3_rank"] if (self.ti_3_enabled and self.ti_3_signal == 1) else 0
+        self.ti_4_weight = config["ti_4_rank"] if (self.ti_4_enabled and self.ti_4_signal == 1) else 0
+        self.ti_5_weight = config["ti_5_rank"] if (self.ti_5_enabled and self.ti_5_signal == 1) else 0
+        self.level_weight = self.level_signal * config["future_levels_rank"]
 
-        self.rank = ti_1_weight + ti_2_weight + ti_3_weight + ti_4_weight + ti_5_weight + level_weight
+        self.rank = self.ti_1_weight + self.ti_2_weight + self.ti_3_weight + self.ti_4_weight + self.ti_5_weight + self.level_weight
 
     def initialise(self):
         self.get_instru_basic_data()

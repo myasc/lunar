@@ -1,3 +1,5 @@
+import sys
+
 import pandas as pd
 from utilsall.kite_make_connection import Kite
 from pprint import pprint
@@ -31,9 +33,11 @@ class FNOContractSelector:
                 return filterd_df.tradingsymbol.values[0]
         except Exception as e:
             print(e)
+            raise(e)
             return -1
 
     def get_instrument_id(self):
+        filterd_dict = []
         self._get_instruments("NFO")
         try:
             filter_1 = (self.all_instruments_df.name == self.underlying)
@@ -42,14 +46,26 @@ class FNOContractSelector:
             filter_4 = (self.all_instruments_df.instrument_type == self.instrument)
             if self.instrument in ["CE", "PE"]:
                 filterd_df = self.all_instruments_df[filter_1 & filter_2 & filter_3 & filter_4]
-                return filterd_df.instrument_token.values[0]
+                filterd_dict = filterd_df.to_dict("records")
             elif self.instrument == "FUT":
                 filterd_df = self.all_instruments_df[filter_1 & filter_2 & filter_4]
-                pprint(filterd_df.to_dict("records"))
-                return filterd_df.instrument_token.values[0]
+                filterd_dict = filterd_df.to_dict("records")
+            else:
+                exception_str = f"Invalid instrument, not in [CE, PE, FUT]"
+                raise Exception(exception_str)
+
+            if len(filterd_dict) == 0:
+                exception_str = f"None matching instrument found {{'underlying': {self.underlying}," \
+                                f"'expiry': {self.expiry},'strike': {self.strike}, 'instrument': {self.instrument}}}"
+                raise Exception(exception_str)
+            elif len(filterd_dict) > 1:
+                exception_str = f"More than 1 matching instrument found {{'underlying': {self.underlying},"\
+                                f"'expiry': {self.expiry},'strike': {self.strike}, 'instrument': {self.instrument}}}"
+                raise Exception(exception_str)
+            else:
+                return filterd_dict.get("instrument_token")
         except Exception as e:
-            print(e)
-            return -1
+            raise e
 
 if __name__ == "__main__":
     import datetime as dt

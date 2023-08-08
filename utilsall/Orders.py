@@ -3,9 +3,10 @@ import datetime as dt
 
 
 class Orders:
-    def __init__(self, kite_connection_obj):
+    def __init__(self, kite_connection_obj, testing):
         self.kite_obj = kite_connection_obj
         self.csv_filepath = None
+        self.testing = testing
         self.initialise_csv_logs()
 
     def initialise_csv_logs(self):
@@ -41,41 +42,76 @@ class Orders:
             return total
 
     def place_market_buy_nfo(self, trading_symbol, quantity, remark="None"):
-        self.kite_obj.place_order(tradingsymbol=trading_symbol,
-                                  exchange=self.kite_obj.EXCHANGE_NFO,
-                                  transaction_type=self.kite_obj.TRANSACTION_TYPE_BUY,
-                                  quantity=quantity,
-                                  order_type=self.kite_obj.ORDER_TYPE_MARKET,
-                                  product=self.kite_obj.PRODUCT_NRML,
-                                  variety=self.kite_obj.VARIETY_REGULAR)
+        if not self.testing:
+            self.kite_obj.place_order(tradingsymbol=trading_symbol,
+                                      exchange=self.kite_obj.EXCHANGE_NFO,
+                                      transaction_type=self.kite_obj.TRANSACTION_TYPE_BUY,
+                                      quantity=quantity,
+                                      order_type=self.kite_obj.ORDER_TYPE_MARKET,
+                                      product=self.kite_obj.PRODUCT_NRML,
+                                      variety=self.kite_obj.VARIETY_REGULAR)
+        else:
+            print(f"test: {trading_symbol} "
+                  f"{self.kite_obj.EXCHANGE_NFO} "
+                  f"{self.kite_obj.TRANSACTION_TYPE_BUY} "
+                  f"{quantity} "
+                  f"{self.kite_obj.ORDER_TYPE_MARKET}"
+                  f"{self.kite_obj.PRODUCT_NRML}"
+                  f"{self.kite_obj.VARIETY_REGULAR}")
         add_row_to_csv(row=["market", "buy", quantity, trading_symbol, " ", remark],
                        file_path=self.csv_filepath,
                        print_=True)
 
     def place_sl_market_sell_nfo(self, trading_symbol, quantity, limit_price, remark="None"):
-        self.kite_obj.place_order(price=limit_price,
-                                  trigger_price=limit_price,
-                                  quantity=quantity,
-                                  tradingsymbol=trading_symbol,
-                                  exchange=self.kite_obj.EXCHANGE_NFO,
-                                  transaction_type=self.kite_obj.TRANSACTION_TYPE_SELL,
-                                  order_type=self.kite_obj.ORDER_TYPE_SL,
-                                  product=self.kite_obj.PRODUCT_NRML,
-                                  variety=self.kite_obj.VARIETY_REGULAR)
+        if not self.testing:
+            self.kite_obj.place_order(price=limit_price,
+                                      trigger_price=limit_price,
+                                      quantity=quantity,
+                                      tradingsymbol=trading_symbol,
+                                      exchange=self.kite_obj.EXCHANGE_NFO,
+                                      transaction_type=self.kite_obj.TRANSACTION_TYPE_SELL,
+                                      order_type=self.kite_obj.ORDER_TYPE_SL,
+                                      product=self.kite_obj.PRODUCT_NRML,
+                                      variety=self.kite_obj.VARIETY_REGULAR)
+        else:
+            print(f"test: {limit_price} {quantity} {trading_symbol}")
         add_row_to_csv(row=["market", "sell", quantity, trading_symbol, limit_price, remark],
                        file_path=self.csv_filepath,
                        print_=True)
 
     def place_limit_buy_nfo(self, trading_symbol, quantity, limit_price, remark="None"):
-        self.kite_obj.place_order(price=limit_price,
-                                  trigger_price=limit_price,
-                                  quantity=quantity,
-                                  tradingsymbol=trading_symbol,
-                                  exchange=self.kite_obj.EXCHANGE_NFO,
-                                  transaction_type=self.kite_obj.TRANSACTION_TYPE_BUY,
-                                  order_type=self.kite_obj.ORDER_TYPE_LIMIT,
-                                  product=self.kite_obj.PRODUCT_NRML,
-                                  variety=self.kite_obj.VARIETY_REGULAR)
+        if not self.testing:
+            self.kite_obj.place_order(price=limit_price,
+                                      trigger_price=limit_price,
+                                      quantity=quantity,
+                                      tradingsymbol=trading_symbol,
+                                      exchange=self.kite_obj.EXCHANGE_NFO,
+                                      transaction_type=self.kite_obj.TRANSACTION_TYPE_BUY,
+                                      order_type=self.kite_obj.ORDER_TYPE_LIMIT,
+                                      product=self.kite_obj.PRODUCT_NRML,
+                                      variety=self.kite_obj.VARIETY_REGULAR)
+        else:
+            print(f"test: {limit_price} {quantity} {trading_symbol}")
+        add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price, remark],
+                       file_path=self.csv_filepath,
+                       print_=True)
+
+    def place_validity_limit_buy_nfo(self, trading_symbol, quantity, limit_price, valid_mins, remark="None"):
+        # todo test inbuilt validity order instead of your validity checking and cancelling
+        if not self.testing:
+            self.kite_obj.place_order(price=limit_price,
+                                      trigger_price=limit_price,
+                                      quantity=quantity,
+                                      tradingsymbol=trading_symbol,
+                                      exchange=self.kite_obj.EXCHANGE_NFO,
+                                      transaction_type=self.kite_obj.TRANSACTION_TYPE_BUY,
+                                      order_type=self.kite_obj.ORDER_TYPE_LIMIT,
+                                      product=self.kite_obj.PRODUCT_NRML,
+                                      variety=self.kite_obj.VARIETY_REGULAR,
+                                      validity=self.kite_obj.VALIDITY_TTL,
+                                      validity_ttl=valid_mins)
+        else:
+            print(f"test: {limit_price} {quantity} {trading_symbol}")
         add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price, remark],
                        file_path=self.csv_filepath,
                        print_=True)
