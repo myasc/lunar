@@ -47,6 +47,7 @@ class Kite:
         with open(file, "r") as f:
             token_dict = json.load(f)
 
+
         recorded_at = dt.datetime.strptime(token_dict["recorded_at"], "%Y-%m-%d_%H:%M")
         print("Recorded at: ", recorded_at)
         # print(dt.datetime.now() > recorded_at + dt.timedelta(hours=6))
