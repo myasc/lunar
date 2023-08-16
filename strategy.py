@@ -5,7 +5,7 @@ from time import sleep
 import utilsall.utils
 from fnodataprocessor import FnoDataProcessor
 from utilsall.utils import fetch_instru_token
-from utilsall.Orders import Orders
+from utilsall.orders import Orders
 from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv
 from utilsall.misc import create_print_dict
 

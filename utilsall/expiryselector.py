@@ -1,5 +1,6 @@
 import datetime as dt
-from utilsall.MarketHolidays import MarketHolidays
+from utilsall.marketholidays import MarketHolidays
+
 
 class ExpirySelector:
     def __init__(self):
@@ -9,8 +10,8 @@ class ExpirySelector:
         self.get_holidays()
 
     def get_holidays(self):
-        marketHolidays_obj = MarketHolidays("utilsall/market_holidays_2005_to_2023.csv")
-        self.holidays = marketHolidays_obj.holiday_dates_dt
+        market_holidays_obj = MarketHolidays("/Users/asc/Documents/atdv/lunar/utilsall/market_holidays_2005_to_2023.csv")
+        self.holidays = market_holidays_obj.holiday_dates_dt
 
     def get_nearest_weekly(self):
         if self.dt_now.weekday() == 3:
@@ -34,7 +35,6 @@ class ExpirySelector:
             while finding_date in self.holidays:
                 finding_date = finding_date - dt.timedelta(days=1)
             self.expiry_date = finding_date
-
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 import datetime as dt
 import pandas as pd
-from utilsall.HistoricalData import HistoricalData
+from utilsall.historicaldata import HistoricalData
 from utilsall import indicators
 from config import config
 

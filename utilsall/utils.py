@@ -2,7 +2,7 @@ import csv
 import os
 import logging
 import datetime as dt
-from utilsall.ExpirySelector import ExpirySelector
+from utilsall.expiryselector import ExpirySelector
 from utilsall.fnocontractselector import FNOContractSelector
 import json
 
