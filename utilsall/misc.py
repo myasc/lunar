@@ -121,7 +121,7 @@ def create_print_dict(nf_fut, nf_ce, nf_pe, bnf_fut, bnf_ce, bnf_pe):
                       "data_start_datetime": nf_pe.data_start_datetime,
                       "data_end_datetime": nf_pe.data_end_datetime,
                       },
-            "bnf_fut": {"sma": {"value": bnf_fut.ti_1_value,
+            "bnf_fu": {"sma": {"value": bnf_fut.ti_1_value,
                               "signal": bnf_fut.ti_1_signal,
                               "weight": bnf_fut.ti_1_weight,
                               "enabled": bnf_fut.ti_1_enabled},

@@ -12,12 +12,16 @@ class FNOContractSelector:
         self.strike = strike
         self.instrument = instrument
         self.all_instruments_df = None
+        self.instruments_fetched = False
 
     def _get_instruments(self, exchange="NFO"):
-        instruments = self.kite_connection_obj.instruments(exchange)
-        time.sleep(1)
-        self.all_instruments_df = pd.DataFrame(instruments)
-        self.all_instruments_df.to_csv(f"{exchange}_instruments.csv")
+        if self.instruments_fetched:
+            self.all_instruments_df = pd.read_csv(f"{exchange}_instruments.csv")
+        else:
+            instruments = self.kite_connection_obj.instruments(exchange)
+            self.all_instruments_df = pd.DataFrame(instruments)
+            self.all_instruments_df.to_csv(f"{exchange}_instruments.csv")
+            self.instruments_fetched = True
         return
 
     def get_instrument_symbol(self):

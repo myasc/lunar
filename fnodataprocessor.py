@@ -59,11 +59,20 @@ class FnoDataProcessor:
         self.level_signal = None
         self.level_value = None
 
+        self.instruments_fetched = False
+
+    def read_instruments_df(self):
+        if self.instruments_fetched:
+            instru_df = pd.read_csv("NFO_instruments.csv")
+        else:
+            instru = self.kite_obj.instruments(exchange="NFO")
+            instru_df = pd.DataFrame(instru)
+            instru_df.to_csv("NFO_instruments.csv")
+            self.instruments_fetched = True
+        return instru_df
+
     def get_instru_basic_data(self):
-        # todo read from daily instru csv instead of hiting api to save rate limit
-        instruments = self.kite_obj.instruments(exchange="NFO")
-        time.sleep(1)
-        nfo_instruments_df = pd.DataFrame(instruments)
+        nfo_instruments_df = self.read_instruments_df()
         this_instru_data = nfo_instruments_df[nfo_instruments_df["instrument_token"] == self.instru_token].to_dict("records")[0]
         self.instru_name = this_instru_data["name"]
         self.trading_symbol = this_instru_data["tradingsymbol"]
@@ -174,6 +183,8 @@ class FnoDataProcessor:
         self.set_indicator_value_signal()
         self.set_level_signal()
         self.set_rank()
+        print(self.trading_symbol)
+        time.sleep(5)
 
     def update(self):
         self.set_hist_data()
