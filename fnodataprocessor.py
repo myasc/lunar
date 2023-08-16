@@ -1,4 +1,6 @@
 import datetime as dt
+import time
+
 import pandas as pd
 from utilsall.historicaldata import HistoricalData
 from utilsall import indicators
@@ -58,7 +60,9 @@ class FnoDataProcessor:
         self.level_value = None
 
     def get_instru_basic_data(self):
+        # todo read from daily instru csv instead of hiting api to save rate limit
         instruments = self.kite_obj.instruments(exchange="NFO")
+        time.sleep(1)
         nfo_instruments_df = pd.DataFrame(instruments)
         this_instru_data = nfo_instruments_df[nfo_instruments_df["instrument_token"] == self.instru_token].to_dict("records")[0]
         self.instru_name = this_instru_data["name"]
@@ -70,12 +74,13 @@ class FnoDataProcessor:
 
     def set_hist_data(self):
         self.hist_data_obj = HistoricalData(self.kite_obj, self.instru_token, self.candle_interval)
+        time.sleep(0.5)
         self.data_end_datetime = dt.datetime.now().date()
         self.data_start_datetime = self.data_end_datetime - dt.timedelta(days=90)
         self.historical_data_df = self.hist_data_obj.fetch(self.data_start_datetime, self.data_end_datetime)
 
     def set_last_close_price(self):
-        self.last_close_price = self.historical_data_df.iloc[-1]["close"].values
+        self.last_close_price = self.historical_data_df.iloc[-1]["close"]
 
     def set_indicator_enable(self):
         enable_indi_list = config["ti_enabled_list"]
@@ -109,7 +114,7 @@ class FnoDataProcessor:
 
         self.ti_1_sl_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_1_sl_config"])
         self.ti_2_sl_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_2_sl_config"])
-        self.ti_3_sl_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti__sl_config"])
+        self.ti_3_sl_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_3_sl_config"])
 
     def set_level_signal(self):
         if self.instru_name == "NIFTY":

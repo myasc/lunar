@@ -11,7 +11,7 @@ class Orders:
 
     def initialise_csv_logs(self):
         date_str = str(dt.datetime.now().date()).replace("-", "")
-        self.csv_filepath = f"/Users/asc/Documents/atdv/Lunar/csv_files/orders_{date_str}.csv"
+        self.csv_filepath = f"/Users/anirudh/Documents/lunar/csv_files/orders_{date_str}.csv"
         add_row_to_csv(row=["type", "side", "qty", "symbol", "price", "remark"],
                        file_path=self.csv_filepath,
                        print_=True)

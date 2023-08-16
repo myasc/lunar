@@ -36,7 +36,7 @@ def logger_intialise(logfile_suffix):
     formatter = logging.Formatter("%(levelname)s:%(name)s:%(asctime)s:%(message)s")
     dt_str = str(dt.datetime.now()).replace(" ", "_").replace("-", "").replace(":", "").split(".")[0]
     filename = logfile_suffix + dt_str
-    file_handler = logging.FileHandler(f"/Users/asc/Documents/atdv/Lunar/log_files/{filename}.log")
+    file_handler = logging.FileHandler(f"/Users/asc/Documents/atdv/lunar/log_files/{filename}.log")
     file_handler.setFormatter(formatter)
     logger_obj.addHandler(file_handler)
     return logger_obj
@@ -61,10 +61,15 @@ def printer_logger(mssg, logger, loglevel="info", print_=False):
 def add_row_to_csv(row, file_path, print_=False):
     timestamp = str(dt.datetime.now().isoformat())
     row.append(timestamp)
+    # todo this throws error sometimes filenotfoounderror, create emtpy file not working
     mode = 'a' if os.path.exists(file_path) else 'w'
-    with open(file_path, mode, newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(row)
+    if mode == 'a':
+        with open(file_path, mode, newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(row)
+    else:
+        with open(file_path, mode) as csvfile:
+            pass
     if print_:
         print("added to csv: " + str(row))
 

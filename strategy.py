@@ -1,6 +1,7 @@
 import pandas as pd
 import datetime as dt
 from time import sleep
+from pprint import pprint
 
 import utilsall.utils
 from fnodataprocessor import FnoDataProcessor
@@ -66,7 +67,7 @@ class Strategy:
         # todo order csv&logger logs for all orders place, cancel, sl, exits
         self.logger = logger_intialise("strategy")
         add_row_to_csv(row=["timestamp", "process", "pnl"],
-                       file_path="/Users/asc/Documents/atdv/Lunar/csv_files/startegy.csv",
+                       file_path="/Users/asc/Documents/atdv/lunar/csv_files/startegy.csv",
                        print_=True)
         printer_logger("logs and json initialised", self.logger, print_=True)
 
@@ -74,7 +75,7 @@ class Strategy:
         pass
 
     def read_latest_strategy_dict(self):
-        strategy_json_filepath = "/Users/asc/Documents/atdv/Lunar/json_files/startegy.json"
+        strategy_json_filepath = "/Users/asc/Documents/atdv/lunar/json_files/startegy.json"
         self.strategy_state_dict = utilsall.utils.get_latest_json_dict(strategy_json_filepath)
 
     def _set_dataprocessor_obj(self):
@@ -166,12 +167,12 @@ class Strategy:
                                }
         print("current time: ", dt.datetime.now())
         print("Indicator signal/value/rank")
-        print(print_data_indicator)
-        print(print_data_strategy)
-        print("current open positions")
-        print("day pnl")
-        print("no of SL hit today")
-        print("no of exit done today")
+        pprint(print_data_indicator)
+        # print(print_data_strategy)
+        print("current open positions:", 0)
+        print("day pnl:", 0)
+        print("no of SL hit today:", 0)
+        print("no of exit done today:", 0)
         print()
 
     def send_buy_order_ifvalid(self):

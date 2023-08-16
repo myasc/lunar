@@ -9,7 +9,7 @@ dict_["qty"] = 1807
 dict_["orderid"] = "99ZK"
 dict_["createdat"] = str(dt.datetime.now().isoformat())
 
-file_path = "/Users/asc/Documents/atdv/Lunar/rough/test_order2.json"
+file_path = "/Users/asc/Documents/atdv/lunar/rough/test_order2.json"
 
 
 def save_dictionary_to_json_file(dictionary, json_file_path):

@@ -1,4 +1,4 @@
-import sys
+import time
 
 import pandas as pd
 from utilsall.kite_make_connection import Kite
@@ -15,7 +15,9 @@ class FNOContractSelector:
 
     def _get_instruments(self, exchange="NFO"):
         instruments = self.kite_connection_obj.instruments(exchange)
+        time.sleep(1)
         self.all_instruments_df = pd.DataFrame(instruments)
+        self.all_instruments_df.to_csv(f"{exchange}_instruments.csv")
         return
 
     def get_instrument_symbol(self):
@@ -63,7 +65,7 @@ class FNOContractSelector:
                                 f"'expiry': {self.expiry},'strike': {self.strike}, 'instrument': {self.instrument}}}"
                 raise Exception(exception_str)
             else:
-                return filterd_dict.get("instrument_token")
+                return filterd_dict[0]["instrument_token"]
         except Exception as e:
             raise e
 
