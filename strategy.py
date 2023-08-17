@@ -67,7 +67,7 @@ class Strategy:
         # todo order csv&logger logs for all orders place, cancel, sl, exits
         self.logger = logger_intialise("strategy")
         add_row_to_csv(row=["timestamp", "process", "pnl"],
-                       file_path="/Users/asc/Documents/atdv/lunar/csv_files/startegy.csv",
+                       file_path="/Users/anirudh/Documents/lunar/csv_files/startegy.csv",
                        print_=True)
         printer_logger("logs and json initialised", self.logger, print_=True)
 
@@ -75,7 +75,7 @@ class Strategy:
         pass
 
     def read_latest_strategy_dict(self):
-        strategy_json_filepath = "/Users/asc/Documents/atdv/lunar/json_files/startegy.json"
+        strategy_json_filepath = "/Users/anirudh/Documents/lunar/json_files/startegy.json"
         self.strategy_state_dict = utilsall.utils.get_latest_json_dict(strategy_json_filepath)
 
     def _set_dataprocessor_obj(self):

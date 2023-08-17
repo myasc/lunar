@@ -51,7 +51,7 @@ class Kite:
         recorded_at = dt.datetime.strptime(token_dict["recorded_at"], "%Y-%m-%d_%H:%M")
         print("Recorded at: ", recorded_at)
         # print(dt.datetime.now() > recorded_at + dt.timedelta(hours=6))
-        if dt.datetime.now() > (recorded_at + dt.timedelta(hours=25)):
+        if dt.datetime.now() > (recorded_at + dt.timedelta(hours=12)):
             token = None
         else:
             token = token_dict["access_token"]

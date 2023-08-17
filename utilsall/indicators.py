@@ -44,19 +44,19 @@ def supertrend(ohlcv_df, period, multiplier):
     df["atr"] = atr(df, period)
     df["upper"] = ((df["high"] + df["low"]) / 2) + (multiplier * df["atr"])
     df["lower"] = ((df["high"] + df["low"]) / 2) - (multiplier * df["atr"])
-    df["super"] = df["upper"]
+    df["super"] = df["upper"].copy()
     for i in range(1, len(df["close"])):
         if (df["close"].loc[i] < df["upper"].loc[i]):  # and (df["close"].loc[i-1] > df["lower"].loc[i-1]):
-            df["super"].loc[i] = df["upper"].loc[i]
+            df.loc[i, "super"] = df["upper"].loc[i].copy()
         elif (df["close"].loc[i] > df["lower"].loc[i]):  # and (df["close"].loc[i-1] < df["upper"].loc[i-1]):
-            df["super"].loc[i] = df["lower"].loc[i]
+            df.loc[i, "super"] = df["lower"].loc[i].copy()
         else:
-            df["super"].loc[i] = df["super"].loc[i-1]
+            df.loc[i, "super"] = df["super"].loc[i-1].copy()
 
     up_signal_mask = (df["close"] > df["super"]) & (df["close"].shift(1) < df["super"].shift(1))
     down_signal_mask = (df["close"] < df["super"]) & (df["close"].shift(1) > df["super"].shift(1))
     # todo this might be fixed after adding shift to super, check once
-    df["signal"] = np.where(up_signal_mask, 1, np.where(down_signal_mask, -1, 0))
+    df.loc[:, "signal"] = np.where(up_signal_mask, 1, np.where(down_signal_mask, -1, 0))
     df = df.reset_index(drop=True)
     # print(df[["super", "close", "lower", "upper", "signal"]].tail(50))
     indi_last_value = df["super"].values[-1]

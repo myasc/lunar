@@ -60,6 +60,7 @@ class FnoDataProcessor:
         self.level_value = None
 
         self.instruments_fetched = False
+        print(__class__, __name__, self.instru_token, "object created")
 
     def read_instruments_df(self):
         if self.instruments_fetched:

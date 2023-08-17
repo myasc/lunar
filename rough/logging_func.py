@@ -8,7 +8,7 @@ def printer_logger(logfile_suffix):
     formatter = logging.Formatter("%(levelname)s:%(name)s:%(asctime)s:%(message)s")
     dt_str = str(dt.datetime.now().date()).replace("-", "")[4:]
     filename = logfile_suffix + dt_str
-    file_handler = logging.FileHandler(f"/Users/asc/Documents/atdv/lunar/log_files/{filename}.log")
+    file_handler = logging.FileHandler(f"/Users/anirudh/Documents/lunar/log_files/{filename}.log")
     file_handler.setFormatter(formatter)
     logger_obj.addHandler(file_handler)
     return logger_obj
