@@ -58,6 +58,7 @@ def supertrend(ohlcv_df, period, multiplier):
     # todo this might be fixed after adding shift to super, check once
     df.loc[:, "signal"] = np.where(up_signal_mask, 1, np.where(down_signal_mask, -1, 0))
     df = df.reset_index(drop=True)
+    print(df.tail(50))
     # print(df[["super", "close", "lower", "upper", "signal"]].tail(50))
     indi_last_value = df["super"].values[-1]
     signal_last_value = df["signal"].values[-1]

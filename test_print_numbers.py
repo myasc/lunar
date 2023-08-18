@@ -5,7 +5,7 @@ from time import sleep
 from pprint import pprint
 import warnings
 import pandas as pd
-pd.set_option("display.max_columns",50)
+pd.set_option("display.max_columns", 50)
 warnings.filterwarnings("ignore")
 
 kite_obj = Kite()

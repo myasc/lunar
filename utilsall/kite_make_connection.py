@@ -1,3 +1,4 @@
+import os
 import sys
 
 from kiteconnect import KiteConnect
@@ -14,7 +15,7 @@ class Kite:
         self.object = None
 
     def _create_kite_lib_obj(self):
-        self._read_api_credentials(filepath="../api_credentials.json")
+        self._read_api_credentials(filepath="/Users/anirudh/Documents/api_credentials.json")
         self.object = KiteConnect(api_key=self.api_key)
         return
 
@@ -35,7 +36,7 @@ class Kite:
         token = input('Provide Request token from above url: ')
         return token
 
-    def _save_access_token(self, token, file="../access_token.json"):
+    def _save_access_token(self, token, file="/Users/anirudh/Documents/access_token.json"):
         """access taken valid till 6am the next day"""
 
         with open(file, "w") as f:
@@ -43,7 +44,7 @@ class Kite:
             token_dict = {"access_token": token, "recorded_at": time.strftime("%Y-%m-%d_%H:%M")}
             json.dump(token_dict, f)
 
-    def _read_access_token(self, file="../access_token.json"):
+    def _read_access_token(self, file="/Users/anirudh/Documents/access_token.json"):
         with open(file, "r") as f:
             token_dict = json.load(f)
 

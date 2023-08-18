@@ -1,6 +1,7 @@
 import pandas as pd
 import datetime as dt
 
+
 class HistoricalData:
     def __init__(self, kite_obj, instrument_id, timeframe):
         self.kite_obj = kite_obj
@@ -28,6 +29,7 @@ class HistoricalData:
                             )
         data.set_index("date", inplace=True)
         return data
+
 
 if __name__ == "__main__":
     kite = Kite()

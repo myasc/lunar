@@ -82,15 +82,20 @@ class FnoDataProcessor:
         self.lot_size = this_instru_data["lot_size"]
         self.instru_type = this_instru_data["instrument_type"]
 
+    def create_hist_data_obj(self):
+        self.hist_data_obj = HistoricalData(self.kite_obj, self.instru_token, self.candle_interval)
+
     def set_hist_data(self):
         self.hist_data_obj = HistoricalData(self.kite_obj, self.instru_token, self.candle_interval)
-        time.sleep(0.5)
         self.data_end_datetime = dt.datetime.now().date()
         self.data_start_datetime = self.data_end_datetime - dt.timedelta(days=90)
-        self.historical_data_df = self.hist_data_obj.fetch(self.data_start_datetime, self.data_end_datetime)
+        data_w_lastcandle_changing = self.hist_data_obj.fetch(self.data_start_datetime, self.data_end_datetime)
+        self.historical_data_df = data_w_lastcandle_changing.iloc[:-1].copy()
+        print(data_w_lastcandle_changing.tail(5))
+        print(self.historical_data_df.tail(5))
 
     def set_last_close_price(self):
-        self.last_close_price = self.historical_data_df.iloc[-1]["close"]
+            self.last_close_price = self.historical_data_df.iloc[-1]["close"]
 
     def set_indicator_enable(self):
         enable_indi_list = config["ti_enabled_list"]
@@ -178,6 +183,7 @@ class FnoDataProcessor:
 
     def initialise(self):
         self.get_instru_basic_data()
+        self.create_hist_data_obj
         self.set_hist_data()
         self.set_last_close_price()
         self.set_indicator_enable()
