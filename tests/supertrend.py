@@ -10,9 +10,9 @@ kite_obj.establish_connection()
 
 instru_token = 8963842
 start_dt = dt.datetime(2023, 8, 16)
-end_dt = dt.datetime(2023, 8, 18)
+end_dt = dt.datetime(2023, 8, 19)
 hd = HistoricalData(kite_obj.object, instru_token, "5minute")
 df = hd.fetch(start_dt, end_dt)
-# print(df)
+print(df)
 
-x, y = indicators.supertrend(df, 14, 3)
+indicators.supertrend(df, 14, 3)
