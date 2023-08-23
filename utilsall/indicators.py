@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+pd.set_option("display.max_columns", 50)
 
 
 def simple_moving_average(ohlcv_df, period):

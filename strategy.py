@@ -1,4 +1,5 @@
 import pandas as pd
+pd.set_option("display.max_columns", 50)
 import datetime as dt
 from time import sleep
 from pprint import pprint
@@ -168,20 +169,26 @@ class Strategy:
         print("current time: ", dt.datetime.now())
         print("Indicator signal/value/rank")
         # pprint(print_data_indicator)
+        print("-"*30)
         print(self.nf_fut_obj.trading_symbol)
         print(pd.DataFrame(print_data_indicator["nf_fu"]))
+        print("-"*30)
         print(self.nf_ce_obj.trading_symbol)
         print(pd.DataFrame(print_data_indicator["nf_ce"]))
+        print("-"*30)
         print(self.nf_pe_obj.trading_symbol)
         print(pd.DataFrame(print_data_indicator["nf_pe"]))
+        print("-"*30)
         print(self.bnf_fut_obj.trading_symbol)
         print(pd.DataFrame(print_data_indicator["bnf_fu"]))
+        print("-"*30)
         print(self.bnf_ce_obj.trading_symbol)
         print(pd.DataFrame(print_data_indicator["bnf_ce"]))
+        print("-"*30)
         print(self.bnf_pe_obj.trading_symbol)
         print(pd.DataFrame(print_data_indicator["bnf_pe"]))
-
-        # print(print_data_strategy)
+        print("-" * 30)
+        print(print_data_strategy)
         print("current open positions:", 0)
         print("day pnl:", 0)
         print("no of SL hit today:", 0)

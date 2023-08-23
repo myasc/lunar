@@ -2,6 +2,7 @@ import datetime as dt
 import time
 
 import pandas as pd
+pd.set_option("display.max_columns", 50)
 from utilsall.historicaldata import HistoricalData
 from utilsall import indicators
 from config import config
@@ -91,8 +92,8 @@ class FnoDataProcessor:
         self.data_start_datetime = self.data_end_datetime - dt.timedelta(days=90)
         data_w_lastcandle_changing = self.hist_data_obj.fetch(self.data_start_datetime, self.data_end_datetime)
         self.historical_data_df = data_w_lastcandle_changing.iloc[:-1].copy()
-        print(data_w_lastcandle_changing.tail(5))
-        print(self.historical_data_df.tail(5))
+        # print(data_w_lastcandle_changing.tail(5))
+        # print(self.historical_data_df.tail(5))
 
     def set_last_close_price(self):
             self.last_close_price = self.historical_data_df.iloc[-1]["close"]
@@ -183,7 +184,7 @@ class FnoDataProcessor:
 
     def initialise(self):
         self.get_instru_basic_data()
-        self.create_hist_data_obj
+        self.create_hist_data_obj()
         self.set_hist_data()
         self.set_last_close_price()
         self.set_indicator_enable()
