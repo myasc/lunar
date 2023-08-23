@@ -48,9 +48,7 @@ def supertrend(ohlcv_df, period, multiplier):
     df["f_up"] = 0
     df["f_low"] = 0
     df["super"] = 0
-
-    print(df.head(3))
-    print(df.tail(3))
+    df["signal"] = 0
 
     for i in df.index:
         if i <= period-1:
@@ -65,7 +63,7 @@ def supertrend(ohlcv_df, period, multiplier):
         if i <= period-1:
             pass
         else:
-            if (df.loc[i, "lower"] < df.loc[i - 1, "f_low"]) | (df.loc[i - 1, "close"] > df.loc[i - 1, "f_low"]):
+            if (df.loc[i, "lower"] > df.loc[i - 1, "f_low"]) | (df.loc[i - 1, "close"] < df.loc[i - 1, "f_low"]):
                 df.loc[i, "f_low"] = df.loc[i, "lower"]
             else:
                 df.loc[i, "f_low"] = df.loc[i - 1, "f_low"]
@@ -77,94 +75,25 @@ def supertrend(ohlcv_df, period, multiplier):
             df.loc[i, "super"] = df.loc[i, "f_up"]
         elif df.loc[i-1, "super"] == df.loc[i-1, "f_up"] and df.loc[i, "close"] > df.loc[i, "f_up"]:
             df.loc[i, "super"] = df.loc[i, "f_low"]
+            df.loc[i, "signal"] = 1
         elif df.loc[i-1, "super"] == df.loc[i-1, "f_low"] and df.loc[i, "close"] > df.loc[i, "f_low"]:
             df.loc[i, "super"] = df.loc[i, "f_low"]
         elif df.loc[i-1, "super"] == df.loc[i-1, "f_low"] and df.loc[i, "close"] < df.loc[i, "f_low"]:
             df.loc[i, "super"] = df.loc[i, "f_up"]
-    print(df.head(15))
-    print(df.tail(15))
+            df.loc[i, "signal"] = -1
 
     df = df.reset_index(drop=True)
     columns_to_round = ["upper", "super", "lower", "f_up", "f_low"]
     df[columns_to_round] = df[columns_to_round].applymap(lambda x: round(x, 2))
 
-    print_cols = ["high", "low", "upper", "f_up", "super", "lower", "f_low", "close"]
+    print_cols = ["date","f_up", "super", "f_low","signal"]
     df_print = df[print_cols].copy()
-    print(df_print.head(25))
-    print(df_print.tail(25))
+    # print(df_print.head(50))
+    # print(df_print.tail(50))
 
-    # indi_last_value = df["super"].values[-1]
-    # signal_last_value = df["signal"].values[-1]
-    # return indi_last_value, signal_last_value
-
-
-def supertrend2(ohlcv_df, period, multiplier):
-    df = ohlcv_df.reset_index().copy()
-    df["atr"] = atr(df, period)
-    upper_band = ((df["high"] + df["low"]) / 2) + (multiplier * df["atr"])
-    lower_band = ((df["high"] + df["low"]) / 2) - (multiplier * df["atr"])
-    df["upper"] = upper_band
-    df["lower"] = lower_band
-    close = df["close"].copy()
-
-    # FINAL UPPER BAND
-    final_bands = pd.DataFrame(columns=['upper', 'lower'])
-    final_bands.iloc[:, 0] = [x for x in upper_band - upper_band]
-    final_bands.iloc[:, 1] = final_bands.iloc[:, 0]
-
-    for i in range(len(final_bands)):
-        if i == 0:
-            final_bands.iloc[i, 0] = 0
-        else:
-            if (upper_band[i] < final_bands.iloc[i - 1, 0]) | (close[i - 1] > final_bands.iloc[i - 1, 0]):
-                final_bands.iloc[i, 0] = upper_band[i]
-            else:
-                final_bands.iloc[i, 0] = final_bands.iloc[i - 1, 0]
-    # FINAL LOWER BAND
-    for i in range(len(final_bands)):
-        if i == 0:
-            final_bands.iloc[i, 1] = 0
-        else:
-            if (lower_band[i] > final_bands.iloc[i - 1, 1]) | (close[i - 1] < final_bands.iloc[i - 1, 1]):
-                final_bands.iloc[i, 1] = lower_band[i]
-            else:
-                final_bands.iloc[i, 1] = final_bands.iloc[i - 1, 1]
-    df["f_upper"] = final_bands["upper"]
-    df["f_lower"] = final_bands["lower"]
-    # SUPERTREND
-
-    supertrend = pd.DataFrame(columns=[f'supertrend_{period}'])
-    supertrend.iloc[:, 0] = [x for x in final_bands['upper'] - final_bands['upper']]
-
-    for i in range(len(supertrend)):
-        if i == 0:
-            supertrend.iloc[i, 0] = 0
-        elif supertrend.iloc[i - 1, 0] == final_bands.iloc[i - 1, 0] and close[i] < final_bands.iloc[i, 0]:
-            supertrend.iloc[i, 0] = final_bands.iloc[i, 0]
-        elif supertrend.iloc[i - 1, 0] == final_bands.iloc[i - 1, 0] and close[i] > final_bands.iloc[i, 0]:
-            supertrend.iloc[i, 0] = final_bands.iloc[i, 1]
-        elif supertrend.iloc[i - 1, 0] == final_bands.iloc[i - 1, 1] and close[i] > final_bands.iloc[i, 1]:
-            supertrend.iloc[i, 0] = final_bands.iloc[i, 1]
-        elif supertrend.iloc[i - 1, 0] == final_bands.iloc[i - 1, 1] and close[i] < final_bands.iloc[i, 1]:
-            supertrend.iloc[i, 0] = final_bands.iloc[i, 0]
-
-    supertrend = supertrend.set_index(upper_band.index)
-    supertrend = supertrend.dropna()[1:]
-    print(supertrend)
-    df["super"] = supertrend[f'supertrend_{period}']
-
-    df = df.reset_index(drop=True)
-    columns_to_round = ["upper", "super", "lower"]
-    df[columns_to_round] = df[columns_to_round].applymap(lambda x: round(x, 2))
-
-    print_cols = ["high", "low", "upper","f_upper", "super", "lower", "f_lower", "close"]
-    df_print = df[print_cols].copy()
-    print(df_print.head(25))
-    print(df_print.tail(25))
-
-    # indi_last_value = df["super"].values[-1]
-    # signal_last_value = df["signal"].values[-1]
-    # return indi_last_value, signal_last_value
+    indi_last_value = df["super"].values[-1]
+    signal_last_value = df["signal"].values[-1]
+    return indi_last_value, signal_last_value
 
 
 def macd(ohlcv_df, period1, period2, period3):
