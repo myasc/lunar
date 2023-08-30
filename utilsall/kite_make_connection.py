@@ -8,17 +8,22 @@ import json
 
 class Kite:
 
-    def __init__(self):
+    def __init__(self, cred_filepath=None, token_filepath=None):
         self.api_key = None
         self.api_secret = None
         self.request_token = None
         self.object = None
+        self.cred_filepath = cred_filepath
+        self.token_filepath = token_filepath
 
     def _create_kite_lib_obj(self):
-        pwd = os.getcwd()
-        reach_project_dir()
-        self._read_api_credentials(filepath="../api_credentials.json")
-        os.chdir(pwd)
+        if self.cred_filepath is None:
+            pwd = os.getcwd()
+            reach_project_dir()
+            self._read_api_credentials(filepath="../api_credentials.json")
+            os.chdir(pwd)
+        else:
+            self._read_api_credentials(filepath=self.cred_filepath)
         self.object = KiteConnect(api_key=self.api_key)
         return
 
@@ -42,10 +47,14 @@ class Kite:
     def _save_access_token(self, token):
         """access taken valid till 6am the next day"""
 
-        pwd = os.getcwd()
-        reach_project_dir()
-        file = "../access_token.json"
-        os.chdir(pwd)
+
+        if self.token_filepath is None:
+            pwd = os.getcwd()
+            reach_project_dir()
+            file = "../access_token.json"
+            os.chdir(pwd)
+        else:
+            file = self.token_filepath
 
         with open(file, "w") as f:
             time = dt.datetime.now()
@@ -54,10 +63,13 @@ class Kite:
 
     def _read_access_token(self):
 
-        pwd = os.getcwd()
-        reach_project_dir()
-        file = "../access_token.json"
-        os.chdir(pwd)
+        if self.token_filepath is None:
+            pwd = os.getcwd()
+            reach_project_dir()
+            file = "../access_token.json"
+            os.chdir(pwd)
+        else:
+            file = self.token_filepath
 
         with open(file, "r") as f:
             token_dict = json.load(f)
