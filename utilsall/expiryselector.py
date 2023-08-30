@@ -1,5 +1,7 @@
 import datetime as dt
 from utilsall.marketholidays import MarketHolidays
+import os
+from utilsall.misc import reach_project_dir
 
 
 class ExpirySelector:
@@ -10,7 +12,11 @@ class ExpirySelector:
         self.get_holidays()
 
     def get_holidays(self):
-        market_holidays_obj = MarketHolidays("/Users/anirudh/Documents/lunar/utilsall/market_holidays_2005_to_2023.csv")
+        pwd = os.getcwd()
+        reach_project_dir()
+        file = "utilsall/market_holidays_2005_to_2023.csv"
+        market_holidays_obj = MarketHolidays(file)
+        os.chdir(pwd)
         self.holidays = market_holidays_obj.holiday_dates_dt
 
     def get_nearest_weekly(self):

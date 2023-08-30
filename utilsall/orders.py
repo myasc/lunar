@@ -1,6 +1,7 @@
 from utilsall.utils import add_row_to_csv
+from utilsall.misc import reach_project_dir
 import datetime as dt
-
+import os
 
 class Orders:
     def __init__(self, kite_connection_obj, testing):
@@ -11,7 +12,11 @@ class Orders:
 
     def initialise_csv_logs(self):
         date_str = str(dt.datetime.now().date()).replace("-", "")
-        self.csv_filepath = f"/Users/anirudh/Documents/lunar/csv_files/orders_{date_str}.csv"
+        pwd = os.getcwd()
+        reach_project_dir()
+        file = f"csv_files/orders_{date_str}.csv"
+        self.csv_filepath = file
+        os.chdir(pwd)
         add_row_to_csv(row=["type", "side", "qty", "symbol", "price", "remark"],
                        file_path=self.csv_filepath,
                        print_=True)

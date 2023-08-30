@@ -6,6 +6,8 @@ from utilsall.expiryselector import ExpirySelector
 from utilsall.fnocontractselector import FNOContractSelector
 import json
 
+from utilsall.misc import reach_project_dir
+
 
 def fetch_instru_token(kite_obj, underlying, strike, instrument):
     """
@@ -36,7 +38,11 @@ def logger_intialise(logfile_suffix):
     formatter = logging.Formatter("%(levelname)s:%(name)s:%(asctime)s:%(message)s")
     dt_str = str(dt.datetime.now()).replace(" ", "_").replace("-", "").replace(":", "").split(".")[0]
     filename = logfile_suffix + dt_str
-    file_handler = logging.FileHandler(f"/Users/anirudh/Documents/lunar/log_files/{filename}.log")
+    pwd = os.getcwd()
+    reach_project_dir()
+    file = f"log_files/{filename}.log"
+    file_handler = logging.FileHandler(file)
+    os.chdir(pwd)
     file_handler.setFormatter(formatter)
     logger_obj.addHandler(file_handler)
     return logger_obj
@@ -77,7 +83,7 @@ def add_row_to_csv(row, file_path, print_=False):
 def init_csv_logger(filename):
     dt_str = str(dt.datetime.now().date()).replace("-", "")[4:]
     # filename = str(self.event_id) + str(self.strategy_no) + dt_str
-    csvlog_filepath = f"csv_logs/{filename}.csv"
+    csvlog_filepath = f"csv_files/{filename}.csv"
     first_row = ['datetime', 'price', 'qty']
     add_row_to_csv(first_row, csvlog_filepath)
 
@@ -112,3 +118,4 @@ def get_latest_json_dict(json_file_path):
                     latest_dict = dict_
 
         return latest_dict
+

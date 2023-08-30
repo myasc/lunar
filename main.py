@@ -15,7 +15,7 @@ if __name__ == '__main__':
         print("__class__", __name__, "main initialised")
     except Exception as e:
         print(e)
-        # raise e
+        raise e
     while True:
         try:
             strat_obj.update()

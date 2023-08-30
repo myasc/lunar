@@ -1,3 +1,6 @@
+import os
+
+
 def create_print_dict(nf_fut, nf_ce, nf_pe, bnf_fut, bnf_ce, bnf_pe):
     return {"nf_fu": {"sma": {"value": nf_fut.ti_1_value,
                               "signal": nf_fut.ti_1_signal,
@@ -252,3 +255,9 @@ def creat_empty_order_dict():
             "limit_price": 0,
             "oid": "",
             "state": ""}
+
+
+def reach_project_dir():
+    project_dir = "/Users/anirudh/Documents/lunar"
+    os.chdir(project_dir)
+    return

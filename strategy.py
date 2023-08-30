@@ -3,13 +3,12 @@ pd.set_option("display.max_columns", 50)
 import datetime as dt
 from time import sleep
 from pprint import pprint
-
-import utilsall.utils
+import os
 from fnodataprocessor import FnoDataProcessor
 from utilsall.utils import fetch_instru_token
 from utilsall.orders import Orders
-from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv
-from utilsall.misc import create_print_dict, creat_empty_order_dict
+from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv, get_latest_json_dict
+from utilsall.misc import create_print_dict, creat_empty_order_dict, reach_project_dir
 
 
 class Strategy:
@@ -47,17 +46,25 @@ class Strategy:
     def initialise_logs_n_files(self):
         # todo order csv&logger logs for all orders place, cancel, sl, exits
         self.logger = logger_intialise("strategy")
+        pwd = os.getcwd()
+        reach_project_dir()
+        file = "csv_files/startegy.csv"
         add_row_to_csv(row=["timestamp", "process", "pnl"],
-                       file_path="/Users/anirudh/Documents/lunar/csv_files/startegy.csv",
+                       file_path=file,
                        print_=True)
+        os.chdir(pwd)
         printer_logger("logs and json initialised", self.logger, print_=True)
 
     def prepare_strategy_dict_n_json(self):
         pass
 
     def read_latest_strategy_dict(self):
-        strategy_json_filepath = "/Users/anirudh/Documents/lunar/json_files/startegy.json"
-        self.strategy_state_dict = utilsall.utils.get_latest_json_dict(strategy_json_filepath)
+        pwd = os.getcwd()
+        reach_project_dir()
+        file = "/json_files/startegy.json"
+        strategy_json_filepath = file
+        os.chdir(pwd)
+        self.strategy_state_dict = get_latest_json_dict(strategy_json_filepath)
 
     def _set_dataprocessor_obj(self):
         nf_fut_token = fetch_instru_token(self.kite_obj, "NIFTY", None, "FUT")

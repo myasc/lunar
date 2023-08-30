@@ -1,6 +1,6 @@
 import os
 import sys
-
+from utilsall.misc import reach_project_dir
 from kiteconnect import KiteConnect
 import datetime as dt
 import json
@@ -15,7 +15,10 @@ class Kite:
         self.object = None
 
     def _create_kite_lib_obj(self):
-        self._read_api_credentials(filepath="/Users/anirudh/Documents/api_credentials.json")
+        pwd = os.getcwd()
+        reach_project_dir()
+        self._read_api_credentials(filepath="../api_credentials.json")
+        os.chdir(pwd)
         self.object = KiteConnect(api_key=self.api_key)
         return
 
@@ -36,15 +39,26 @@ class Kite:
         token = input('Provide Request token from above url: ')
         return token
 
-    def _save_access_token(self, token, file="/Users/anirudh/Documents/access_token.json"):
+    def _save_access_token(self, token):
         """access taken valid till 6am the next day"""
+
+        pwd = os.getcwd()
+        reach_project_dir()
+        file = "../access_token.json"
+        os.chdir(pwd)
 
         with open(file, "w") as f:
             time = dt.datetime.now()
             token_dict = {"access_token": token, "recorded_at": time.strftime("%Y-%m-%d_%H:%M")}
             json.dump(token_dict, f)
 
-    def _read_access_token(self, file="/Users/anirudh/Documents/access_token.json"):
+    def _read_access_token(self):
+
+        pwd = os.getcwd()
+        reach_project_dir()
+        file = "../access_token.json"
+        os.chdir(pwd)
+
         with open(file, "r") as f:
             token_dict = json.load(f)
 
