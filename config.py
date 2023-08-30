@@ -33,6 +33,7 @@ config = {"program_trade_live": True,
           "ti_4_rank": 20,
           "ti_5_rank": 20,
           "future_levels_rank": 20,
+          "future_levels_enabled": True,
           "ti_enabled_list": [1,2, 3, 4,5],
           "intraday_algo": True,
           "first_lot_exit": 15,  # if set is of 3 then exit 1 lot here

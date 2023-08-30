@@ -178,7 +178,7 @@ class FnoDataProcessor:
         self.ti_3_weight = config["ti_3_rank"] if (self.ti_3_enabled and self.ti_3_signal == 1) else 0
         self.ti_4_weight = config["ti_4_rank"] if (self.ti_4_enabled and self.ti_4_signal == 1) else 0
         self.ti_5_weight = config["ti_5_rank"] if (self.ti_5_enabled and self.ti_5_signal == 1) else 0
-        self.level_weight = self.level_signal * config["future_levels_rank"]
+        self.level_weight = self.level_signal * config["future_levels_rank"] if config["future_levels_enabled"] else 0
 
         self.rank = self.ti_1_weight + self.ti_2_weight + self.ti_3_weight + self.ti_4_weight + self.ti_5_weight + self.level_weight
 
@@ -192,7 +192,7 @@ class FnoDataProcessor:
         self.set_level_signal()
         self.set_rank()
         print(self.trading_symbol)
-        time.sleep(5)
+        # time.sleep(5)
 
     def update(self):
         self.set_hist_data()
