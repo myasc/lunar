@@ -50,6 +50,9 @@ class Orders:
                                       order_type=self.kite_obj.ORDER_TYPE_MARKET,
                                       product=self.kite_obj.PRODUCT_NRML,
                                       variety=self.kite_obj.VARIETY_REGULAR)
+            add_row_to_csv(row=["market", "buy", quantity, trading_symbol, " ", remark],
+                           file_path=self.csv_filepath,
+                           print_=True)
         else:
             print(f"test: {trading_symbol} "
                   f"{self.kite_obj.EXCHANGE_NFO} "
@@ -58,9 +61,9 @@ class Orders:
                   f"{self.kite_obj.ORDER_TYPE_MARKET}"
                   f"{self.kite_obj.PRODUCT_NRML}"
                   f"{self.kite_obj.VARIETY_REGULAR}")
-        add_row_to_csv(row=["market", "buy", quantity, trading_symbol, " ", remark],
-                       file_path=self.csv_filepath,
-                       print_=True)
+            add_row_to_csv(row=["market", "buy", quantity, trading_symbol, " ", "testing"],
+                           file_path=self.csv_filepath,
+                           print_=True)
 
     def place_sl_market_sell_nfo(self, trading_symbol, quantity, limit_price, remark="None"):
         if not self.testing:
@@ -73,11 +76,14 @@ class Orders:
                                       order_type=self.kite_obj.ORDER_TYPE_SL,
                                       product=self.kite_obj.PRODUCT_NRML,
                                       variety=self.kite_obj.VARIETY_REGULAR)
+            add_row_to_csv(row=["market", "sell", quantity, trading_symbol, limit_price, remark],
+                           file_path=self.csv_filepath,
+                           print_=True)
         else:
             print(f"test: {limit_price} {quantity} {trading_symbol}")
-        add_row_to_csv(row=["market", "sell", quantity, trading_symbol, limit_price, remark],
-                       file_path=self.csv_filepath,
-                       print_=True)
+            add_row_to_csv(row=["market", "sell", quantity, trading_symbol, limit_price, "testing"],
+                           file_path=self.csv_filepath,
+                           print_=True)
 
     def place_limit_buy_nfo(self, trading_symbol, quantity, limit_price, remark="None"):
         if not self.testing:
@@ -90,11 +96,14 @@ class Orders:
                                       order_type=self.kite_obj.ORDER_TYPE_LIMIT,
                                       product=self.kite_obj.PRODUCT_NRML,
                                       variety=self.kite_obj.VARIETY_REGULAR)
+            add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price, remark],
+                           file_path=self.csv_filepath,
+                           print_=True)
         else:
             print(f"test: {limit_price} {quantity} {trading_symbol}")
-        add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price, remark],
-                       file_path=self.csv_filepath,
-                       print_=True)
+            add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price, "testing"],
+                           file_path=self.csv_filepath,
+                           print_=True)
 
     def place_validity_limit_buy_nfo(self, trading_symbol, quantity, limit_price, valid_mins, remark="None"):
         # todo test inbuilt validity order instead of your validity checking and cancelling
@@ -110,11 +119,14 @@ class Orders:
                                       variety=self.kite_obj.VARIETY_REGULAR,
                                       validity=self.kite_obj.VALIDITY_TTL,
                                       validity_ttl=valid_mins)
+            add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price, remark],
+                           file_path=self.csv_filepath,
+                           print_=True)
         else:
             print(f"test: {limit_price} {quantity} {trading_symbol}")
-        add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price, remark],
-                       file_path=self.csv_filepath,
-                       print_=True)
+            add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price, "testing"],
+                           file_path=self.csv_filepath,
+                           print_=True)
 
     def place_raw(self, price, trigger_price, quantity, trading_symbol, exchange, transaction_type, order_type, product,
                   variety):
