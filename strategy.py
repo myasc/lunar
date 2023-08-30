@@ -9,7 +9,7 @@ from fnodataprocessor import FnoDataProcessor
 from utilsall.utils import fetch_instru_token
 from utilsall.orders import Orders
 from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv
-from utilsall.misc import create_print_dict
+from utilsall.misc import create_print_dict, creat_empty_order_dict
 
 
 class Strategy:
@@ -38,31 +38,11 @@ class Strategy:
         self.strategy_state_dict["status_beacon"] = None  # -1
 
         self.order_dict = dict()
-        self.order_dict["entryorder"] = {"symbol": "",
-                                         "quantity": 0,
-                                         "limit_price": 0,
-                                         "oid": "",
-                                         "state": ""}
-        self.order_dict["slorder1"] = {"symbol": "",
-                                       "quantity": 0,
-                                       "limit_price": 0,
-                                       "oid": "",
-                                       "state": ""}
-        self.order_dict["slorder2"] = {"symbol": "",
-                                       "quantity": 0,
-                                       "limit_price": 0,
-                                       "oid": "",
-                                       "state": ""}
-        self.order_dict["slorder3"] = {"symbol": "",
-                                       "quantity": 0,
-                                       "limit_price": 0,
-                                       "oid": "",
-                                       "state": ""}
-        self.order_dict["slorderglobal"] = {"symbol": "",
-                                            "quantity": 0,
-                                            "limit_price": 0,
-                                            "oid": "",
-                                            "state": ""}
+        self.order_dict["entryorder"] = creat_empty_order_dict()
+        self.order_dict["slorder1"] = creat_empty_order_dict()
+        self.order_dict["slorder2"] = creat_empty_order_dict()
+        self.order_dict["slorder3"] = creat_empty_order_dict()
+        self.order_dict["slorderglobal"] = creat_empty_order_dict()
 
     def initialise_logs_n_files(self):
         # todo order csv&logger logs for all orders place, cancel, sl, exits

@@ -245,3 +245,10 @@ def create_print_dict(nf_fut, nf_ce, nf_pe, bnf_fut, bnf_ce, bnf_pe):
                       "data_end_datetime": bnf_pe.data_end_datetime,
                       }
             }
+
+def creat_empty_order_dict():
+    return {"symbol": "",
+            "quantity": 0,
+            "limit_price": 0,
+            "oid": "",
+            "state": ""}
