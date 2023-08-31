@@ -261,3 +261,7 @@ def reach_project_dir():
     project_dir = "/Users/anirudh/Documents/lunar"
     os.chdir(project_dir)
     return
+
+def test_prints(mssg, toprint=False):
+    if toprint:
+        print("testprints: " + mssg)

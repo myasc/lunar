@@ -6,7 +6,7 @@ pd.set_option("display.max_columns", 50)
 from utilsall.historicaldata import HistoricalData
 from utilsall import indicators
 from config import config
-
+from utilsall.misc import test_prints
 
 class FnoDataProcessor:
 # todo avoid last row from historical data as it keeps getting updated in realtime
@@ -61,7 +61,7 @@ class FnoDataProcessor:
         self.level_value = None
 
         self.instruments_fetched = False
-        print(__class__, __name__, self.instru_token, "object created")
+        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object created")
 
     def read_instruments_df(self):
         if self.instruments_fetched:
@@ -71,6 +71,8 @@ class FnoDataProcessor:
             instru_df = pd.DataFrame(instru)
             instru_df.to_csv("NFO_instruments.csv")
             self.instruments_fetched = True
+
+        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, fetched instuments df from kite")
         return instru_df
 
     def get_instru_basic_data(self):
@@ -83,8 +85,13 @@ class FnoDataProcessor:
         self.lot_size = this_instru_data["lot_size"]
         self.instru_type = this_instru_data["instrument_type"]
 
+        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set instument meta data")
+
+
     def create_hist_data_obj(self):
         self.hist_data_obj = HistoricalData(self.kite_obj, self.instru_token, self.candle_interval)
+        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, historical data object created")
+
 
     def set_hist_data(self):
         self.hist_data_obj = HistoricalData(self.kite_obj, self.instru_token, self.candle_interval)
@@ -94,9 +101,13 @@ class FnoDataProcessor:
         self.historical_data_df = data_w_lastcandle_changing.iloc[:-1].copy()
         # print(data_w_lastcandle_changing.tail(5))
         # print(self.historical_data_df.tail(5))
+        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, fetched historical data ")
+
 
     def set_last_close_price(self):
-            self.last_close_price = self.historical_data_df.iloc[-1]["close"]
+        self.last_close_price = self.historical_data_df.iloc[-1]["close"]
+        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set last close price")
+
 
     def set_indicator_enable(self):
         enable_indi_list = config["ti_enabled_list"]
@@ -105,6 +116,8 @@ class FnoDataProcessor:
         self.ti_3_enabled = True if 3 in enable_indi_list else False
         self.ti_4_enabled = True if 4 in enable_indi_list else False
         self.ti_5_enabled = True if 5 in enable_indi_list else False
+        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set which indicator enabled")
+
 
     def set_indicator_value_signal(self):
         if self.ti_1_enabled:
@@ -131,6 +144,8 @@ class FnoDataProcessor:
         self.ti_1_sl_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_1_sl_config"])
         self.ti_2_sl_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_2_sl_config"])
         self.ti_3_sl_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_3_sl_config"])
+        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, indicator value&signal set")
+
 
     def set_level_signal(self):
         if self.instru_name == "NIFTY":
@@ -172,6 +187,9 @@ class FnoDataProcessor:
         else:
             self.level_signal = 0
 
+        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set levels signal")
+
+
     def set_rank(self):
         self.ti_1_weight = config["ti_1_rank"] if (self.ti_1_enabled and self.ti_1_signal == 1) else 0
         self.ti_2_weight = config["ti_2_rank"] if (self.ti_2_enabled and self.ti_2_signal == 1) else 0
@@ -181,6 +199,8 @@ class FnoDataProcessor:
         self.level_weight = self.level_signal * config["future_levels_rank"] if config["future_levels_enabled"] else 0
 
         self.rank = self.ti_1_weight + self.ti_2_weight + self.ti_3_weight + self.ti_4_weight + self.ti_5_weight + self.level_weight
+        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set rank from weight, enabled, signal")
+
 
     def initialise(self):
         self.get_instru_basic_data()
@@ -192,6 +212,8 @@ class FnoDataProcessor:
         self.set_level_signal()
         self.set_rank()
         print(self.trading_symbol)
+        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object initialised")
+
         # time.sleep(5)
 
     def update(self):
@@ -200,6 +222,8 @@ class FnoDataProcessor:
         self.set_indicator_value_signal()
         self.set_level_signal()
         self.set_rank()
+        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object updated")
+
 
 if __name__ == "__main__":
     from utilsall.kite_make_connection import Kite
