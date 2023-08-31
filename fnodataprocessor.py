@@ -10,7 +10,7 @@ from utilsall.misc import test_prints
 
 class FnoDataProcessor:
 # todo avoid last row from historical data as it keeps getting updated in realtime
-    def __init__(self, kite_obj, instru_token, candle_interval):
+    def __init__(self, kite_obj, instru_token, candle_interval, last_fut_close_price=None):
         self.kite_obj = kite_obj
         self.instru_token = instru_token
         self.candle_interval = candle_interval
@@ -26,6 +26,7 @@ class FnoDataProcessor:
         self.data_end_datetime = None
         self.data_start_datetime = None
         self.last_close_price = None
+        self.last_fut_close_price = last_fut_close_price
         self.ti_1_value = None
         self.ti_2_value = None
         self.ti_3_value = None
@@ -106,6 +107,7 @@ class FnoDataProcessor:
 
     def set_last_close_price(self):
         self.last_close_price = self.historical_data_df.iloc[-1]["close"]
+        self.last_fut_close_price = self.last_fut_close_price if self.last_fut_close_price is not None else self.last_close_price
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set last close price")
 
 
@@ -150,7 +152,7 @@ class FnoDataProcessor:
     def set_level_signal(self):
         if self.instru_name == "NIFTY":
             if config["nifty_level_up"] is not None:
-                if self.last_close_price > config["nifty_level_up"]:
+                if self.last_fut_close_price > config["nifty_level_up"]:
                     self.level_signal = 1
                     self.level_value = config["nifty_level_up"]
                 else:
@@ -159,7 +161,7 @@ class FnoDataProcessor:
                 self.level_signal = 0
 
             if config["nifty_level_down"] is not None:
-                if self.last_close_price < config["nifty_level_down"]:
+                if self.last_fut_close_price < config["nifty_level_down"]:
                     self.level_signal = 1
                     self.level_value = config["nifty_level_down"]
                 else:
@@ -168,7 +170,7 @@ class FnoDataProcessor:
                 self.level_signal = 0
         elif self.instru_name == "BANKNIFTY":
             if config["banknifty_level_up"] is not None:
-                if self.last_close_price > config["banknifty_level_up"]:
+                if self.last_fut_close_price > config["banknifty_level_up"]:
                     self.level_signal = 1
                     self.level_value = config["banknifty_level_up"]
                 else:
@@ -177,7 +179,7 @@ class FnoDataProcessor:
                 self.level_signal = 0
 
             if config["banknifty_level_down"] is not None:
-                if self.last_close_price < config["banknifty_level_down"]:
+                if self.last_fut_close_price < config["banknifty_level_down"]:
                     self.level_signal = 1
                     self.level_value = config["banknifty_level_down"]
                 else:

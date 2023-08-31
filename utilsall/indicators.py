@@ -9,7 +9,7 @@ def simple_moving_average(ohlcv_df, period):
     df["signal"] = np.where(df["sma"] < df["close"], 1, np.where(df["sma"] > df["close"], -1, 0))
     indi_last_value = df["sma"].values[-1]
     signal_last_value = df["signal"].values[-1]
-    return indi_last_value, signal_last_value
+    return np.round(indi_last_value,2), signal_last_value
 
 
 def not_anchored_vwap(ohlcv_df):
@@ -28,7 +28,7 @@ def not_anchored_vwap(ohlcv_df):
         signal_value = -1
     else:
         signal_value = 0
-    return indi_value, signal_value
+    return np.round(indi_value, 2), signal_value
 
 
 def atr(ohlcv_df, period):
@@ -38,7 +38,7 @@ def atr(ohlcv_df, period):
     df["lmpc"] = abs(df['low'] - df['close'].shift(1))
     df["tr"] = df[["hml", "hmpc", "lmpc"]].max(axis=1)
     avg_tr = df["tr"].rolling(period).mean()
-    return avg_tr
+    return np.round(avg_tr, 2)
 
 def supertrend(ohlcv_df, period, multiplier):
     df = ohlcv_df.reset_index().copy()
@@ -94,7 +94,7 @@ def supertrend(ohlcv_df, period, multiplier):
 
     indi_last_value = df["super"].values[-1]
     signal_last_value = df["signal"].values[-1]
-    return indi_last_value, signal_last_value
+    return np.round(indi_last_value, 2), signal_last_value
 
 
 def macd(ohlcv_df, period1, period2, period3):
@@ -111,7 +111,7 @@ def macd(ohlcv_df, period1, period2, period3):
     indi_last_value = df["macd_signal"].values[-1]
     signal_last_value = df["signal"].values[-1]
     # print(df[["macd_histogram", "signal"]].iloc[-100:-40])
-    return indi_last_value, signal_last_value
+    return np.round(indi_last_value, 2), signal_last_value
 
 
 def stochastic(ohlcv_df, period, k=3):
@@ -128,7 +128,7 @@ def stochastic(ohlcv_df, period, k=3):
     indi_last_value = df["%k"].values[-1]
     signal_last_value = df["signal"].values[-1]
     # print(df[["%k", "%d", "histogram", "signal"]].iloc[-100:-40])
-    return indi_last_value, signal_last_value
+    return np.round(indi_last_value, 2), signal_last_value
 
 
 if __name__ == "__main__":

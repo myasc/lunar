@@ -19,5 +19,5 @@ strat.print_to_console()
 while True:
     strat._update_dataprocessor()
     strat.print_to_console()
-    sleep(60*4)
+    sleep(60*1)
 
