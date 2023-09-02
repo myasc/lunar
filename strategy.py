@@ -130,11 +130,28 @@ class Strategy:
         else:
             printer_logger("buy triggered", self.logger, "info", True)
             self.strategy_state_dict["signals"] += 1
-            if self.is_order_filled_timely(self.order_dict["entryorder"]["oid"]):
+            if self.get_order_status(self.order_dict["entryorder"]["oid"]) == "complete":
                 self.buy_complete_process()
                 self.strategy_state_dict["trades"] += 1
+            elif self.get_order_status(self.order_dict["entryorder"]["oid"]) == "cancel":
+                self.buy_cancel_process()
             else:
-                self.buy_not_complete_process()
+                self.buy_notyet_complete_process()
+
+    def get_order_status(self, oid):
+        while True:
+            orders_df = self.kite_obj.orders()
+            # todo this might need to be converted to dataframe, above
+            this_order = orders_df[orders_df["order_id"] == oid].to_dict("records")[0]
+            if this_order["status"] == "COMPLETE":
+                printer_logger(f"order complete intime {oid}", self.logger, "info", True)
+                return "complete"
+            elif this_order["status"] == "CANCELLED":
+                printer_logger(f"order not complete intime {oid}", self.logger, "info", True)
+                return "cancel"
+            else:
+                return this_order["status"]
+
 
     def print_to_console(self):
         # status beacon
@@ -215,31 +232,22 @@ class Strategy:
                                                        "entry")
             self.order_dict["entryorder"]["oid"] = buy_resp["data"]["order_id"]
 
-    def is_order_filled_timely(self, oid):
-        while True:
-            orders_df = self.kite_obj.orders()
-            this_order = orders_df[orders_df["order_id"] == oid].to_dict("records")[0]
-            order_time = pd.to_datetime(this_order["order_timestamp"])
-            now_time = dt.datetime.now()
-            waittill_time = order_time + dt.timedelta(minutes=self.config["entry_order_valid_min"])
-            if this_order["status"] == "COMPLETE":
-                printer_logger(f"order complete intime {oid}", self.logger, "info", True)
-                return True
-            elif now_time > waittill_time:
-                printer_logger(f"order not complete intime {oid}", self.logger, "info", True)
-                return False
-            sleep(30)
 
-    def buy_not_complete_process(self):
-        cancel_resp = self.kite_obj.cancel_order(self.kite_obj.VARIETY_REGULAR, self.order_dict["entryorder"]["oid"])
-        self.trading_security = None
+    def buy_notyet_complete_process(self):
+        pass
         printer_logger("buy not complete process initiated", self.logger, "info", True)
+
+    def buy_cancel_process(self):
+        self.trading_security = None
+        printer_logger("buy order cancelled process initiated", self.logger, "info", True)
 
     def buy_complete_process(self):
         self.strategy_state_dict["status_beacon"] = "IN-POS"
         self.send_stoploss_orders()
         self.send_global_sl_order()
         printer_logger("buy complete process initiated", self.logger, "info", True)
+
+
 
     def send_global_sl_order(self):
         self.order_dict["slorderglobal"]["symbol"] = self.order_dict["entryorder"]["symbol"]
