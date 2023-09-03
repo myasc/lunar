@@ -2,6 +2,7 @@ from utilsall.utils import add_row_to_csv
 from utilsall.misc import reach_project_dir
 import datetime as dt
 import os
+from utilsall.testprint import test_prints
 
 class Orders:
     def __init__(self, kite_connection_obj, testing):
@@ -9,6 +10,7 @@ class Orders:
         self.csv_filepath = None
         self.testing = testing
         self.initialise_csv_logs()
+        test_prints(f"{__class__.__name__}, object created")
 
     def initialise_csv_logs(self):
         date_str = str(dt.datetime.now().date()).replace("-", "")
@@ -20,6 +22,8 @@ class Orders:
         add_row_to_csv(row=["type", "side", "qty", "symbol", "price", "remark"],
                        file_path=self.csv_filepath,
                        print_=True)
+        test_prints(f"{__class__.__name__}, initialise csv logs")
+
 
     def calculate_transaction_charges(self, buy_price, sell_price, quantity, asset_type):
         """return transaction charges after trade exit for zerodha"""
@@ -34,6 +38,7 @@ class Orders:
             sebi_charges = (buy_value + sell_value) * 0.000001
             stamp_charges = buy_value * 0.00002
             total = brokerage_buy + brokerage_sell + stt + transaction_charges + gst + sebi_charges + stamp_charges
+            test_prints(f"{__class__.__name__}, calc transactions charges")
             return total
         elif asset_type in ['OPT', 'PE', 'CE']:
             brokerage_buy = 20
@@ -44,6 +49,7 @@ class Orders:
             sebi_charges = (buy_value + sell_value) * 0.000001
             stamp_charges = buy_value * 0.00003
             total = brokerage_buy + brokerage_sell + stt + transaction_charges + gst + sebi_charges + stamp_charges
+            test_prints(f"{__class__.__name__}, calc transactions charges")
             return total
 
     def place_market_buy_nfo(self, trading_symbol, quantity, remark="None"):
@@ -58,6 +64,7 @@ class Orders:
             add_row_to_csv(row=["market", "buy", quantity, trading_symbol, " ", remark],
                            file_path=self.csv_filepath,
                            print_=True)
+            test_prints(f"{__class__.__name__}, place market buy order")
         else:
             print(f"test: {trading_symbol} "
                   f"{self.kite_obj.EXCHANGE_NFO} "
@@ -69,6 +76,8 @@ class Orders:
             add_row_to_csv(row=["market", "buy", quantity, trading_symbol, " ", "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
+            test_prints(f"{__class__.__name__}, place  test market buy order")
+
 
     def place_sl_market_sell_nfo(self, trading_symbol, quantity, limit_price, remark="None"):
         if not self.testing:
@@ -84,11 +93,14 @@ class Orders:
             add_row_to_csv(row=["market", "sell", quantity, trading_symbol, limit_price, remark],
                            file_path=self.csv_filepath,
                            print_=True)
+            test_prints(f"{__class__.__name__}, place sl market sell order")
         else:
             print(f"test: {limit_price} {quantity} {trading_symbol}")
             add_row_to_csv(row=["market", "sell", quantity, trading_symbol, limit_price, "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
+            test_prints(f"{__class__.__name__}, place test sl market sell order")
+
 
     def place_limit_buy_nfo(self, trading_symbol, quantity, limit_price, remark="None"):
         if not self.testing:
@@ -104,11 +116,14 @@ class Orders:
             add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price, remark],
                            file_path=self.csv_filepath,
                            print_=True)
+            test_prints(f"{__class__.__name__}, place limit buy order")
+
         else:
             print(f"test: {limit_price} {quantity} {trading_symbol}")
             add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price, "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
+            test_prints(f"{__class__.__name__}, place test limit buy order")
 
     def place_validity_limit_buy_nfo(self, trading_symbol, quantity, limit_price, valid_mins, remark="None"):
         # todo test inbuilt validity order instead of your validity checking and cancelling
@@ -127,11 +142,14 @@ class Orders:
             add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price, remark],
                            file_path=self.csv_filepath,
                            print_=True)
+            test_prints(f"{__class__.__name__}, place valididty limit buy order")
         else:
             print(f"test: {limit_price} {quantity} {trading_symbol}")
             add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price, "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
+            test_prints(f"{__class__.__name__}, place test valididty limit buy order")
+
 
     def place_raw(self, price, trigger_price, quantity, trading_symbol, exchange, transaction_type, order_type, product,
                   variety):
@@ -144,7 +162,7 @@ class Orders:
                                   order_type=order_type,
                                   product=product,
                                   variety=variety)
-
+        test_prints(f"{__class__.__name__}, place raw order")
 
 if __name__ == "__main__":
     orders_obj = Orders("dummy")

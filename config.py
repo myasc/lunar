@@ -1,4 +1,7 @@
 import datetime as dt
+from utilsall.testprint import test_prints
+
+test_prints(f"NoClassDefined, config.py config dict read")
 
 config = {"program_trade_live": True,
           "program_start_time": dt.time(9, 30),

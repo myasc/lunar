@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 pd.set_option("display.max_columns", 50)
+from utilsall.testprint import test_prints
 
 
 def simple_moving_average(ohlcv_df, period):
@@ -9,6 +10,7 @@ def simple_moving_average(ohlcv_df, period):
     df["signal"] = np.where(df["sma"] < df["close"], 1, np.where(df["sma"] > df["close"], -1, 0))
     indi_last_value = df["sma"].values[-1]
     signal_last_value = df["signal"].values[-1]
+    test_prints(f"NoClassDefined, simple_moving_average, period: {period}, indicator calculated")
     return np.round(indi_last_value,2), signal_last_value
 
 
@@ -28,6 +30,7 @@ def not_anchored_vwap(ohlcv_df):
         signal_value = -1
     else:
         signal_value = 0
+    test_prints(f"NoClassDefined, not_anchored_vwap, indicator calculated")
     return np.round(indi_value, 2), signal_value
 
 
@@ -38,6 +41,7 @@ def atr(ohlcv_df, period):
     df["lmpc"] = abs(df['low'] - df['close'].shift(1))
     df["tr"] = df[["hml", "hmpc", "lmpc"]].max(axis=1)
     avg_tr = df["tr"].rolling(period).mean()
+    test_prints(f"NoClassDefined, atr, period: {period}, indicator calculated")
     return np.round(avg_tr, 2)
 
 def supertrend(ohlcv_df, period, multiplier):
@@ -94,6 +98,7 @@ def supertrend(ohlcv_df, period, multiplier):
 
     indi_last_value = df["super"].values[-1]
     signal_last_value = df["signal"].values[-1]
+    test_prints(f"NoClassDefined, supertrend, period: {period}, multiplier: {multiplier}, indicator calculated")
     return np.round(indi_last_value, 2), signal_last_value
 
 
@@ -111,6 +116,7 @@ def macd(ohlcv_df, period1, period2, period3):
     indi_last_value = df["macd_signal"].values[-1]
     signal_last_value = df["signal"].values[-1]
     # print(df[["macd_histogram", "signal"]].iloc[-100:-40])
+    test_prints(f"NoClassDefined, supertrend, period1: {period1}, period2: {period2}, period3: {period3}, indicator calculated")
     return np.round(indi_last_value, 2), signal_last_value
 
 
@@ -128,6 +134,7 @@ def stochastic(ohlcv_df, period, k=3):
     indi_last_value = df["%k"].values[-1]
     signal_last_value = df["signal"].values[-1]
     # print(df[["%k", "%d", "histogram", "signal"]].iloc[-100:-40])
+    test_prints(f"NoClassDefined, supertrend, period: {period}, k: {k} , indicator calculated")
     return np.round(indi_last_value, 2), signal_last_value
 
 

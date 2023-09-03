@@ -1,5 +1,6 @@
 import pandas as pd
 import datetime as dt
+from utilsall.testprint import test_prints
 
 
 class HistoricalData:
@@ -7,6 +8,7 @@ class HistoricalData:
         self.kite_obj = kite_obj
         self.instrument_id = instrument_id
         self.timeframe = timeframe
+        test_prints(f"{__class__.__name__}, instruId: {self.instrument_id}, timeframe: {self.timeframe}, object created")
 
     def fetch(self, start_datetime, end_datetime):
         data = pd.DataFrame(self.kite_obj.historical_data(self.instrument_id,
@@ -15,6 +17,7 @@ class HistoricalData:
                                                           self.timeframe)
                             )
         data.set_index("date", inplace=True)
+        test_prints(f"{__class__.__name__}, instruId: {self.instrument_id}, timeframe: {self.timeframe}, data fetched {start_datetime} to {end_datetime}")
         return data
 
     def fetch_intraday(self):
@@ -28,6 +31,7 @@ class HistoricalData:
                                                           self.timeframe)
                             )
         data.set_index("date", inplace=True)
+        test_prints(f"{__class__.__name__}, instruId: {self.instrument_id}, timeframe: {self.timeframe}, data fetched only today's")
         return data
 
 

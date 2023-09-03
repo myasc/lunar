@@ -1,7 +1,9 @@
 import os
+from utilsall.testprint import test_prints
 
 
 def create_print_dict(nf_fut, nf_ce, nf_pe, bnf_fut, bnf_ce, bnf_pe):
+    test_prints(f"NoClassDefined, misc.py createprintdict, create dictionary for each instru for prints")
     return {"nf_fu": {"sma": {"value": nf_fut.ti_1_value,
                               "signal": nf_fut.ti_1_signal,
                               "weight": nf_fut.ti_1_weight,
@@ -249,7 +251,10 @@ def create_print_dict(nf_fut, nf_ce, nf_pe, bnf_fut, bnf_ce, bnf_pe):
                       }
             }
 
+
+
 def creat_empty_order_dict():
+    test_prints(f"NoClassDefined, misc.py createemtpyorderdict, create dictionary to store order details")
     return {"symbol": "",
             "quantity": 0,
             "limit_price": 0,
@@ -260,8 +265,6 @@ def creat_empty_order_dict():
 def reach_project_dir():
     project_dir = "/Users/anirudh/Documents/lunar"
     os.chdir(project_dir)
+    test_prints(f"NoClassDefined, misc.py reachprojectdirectory, change directory to project directory")
     return
 
-def test_prints(mssg, toprint=False):
-    if toprint:
-        print("testprints: " + mssg)

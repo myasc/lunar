@@ -9,7 +9,7 @@ from utilsall.utils import fetch_instru_token
 from utilsall.orders import Orders
 from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv, get_latest_json_dict
 from utilsall.misc import create_print_dict, creat_empty_order_dict, reach_project_dir
-
+from utilsall.testprint import test_prints
 
 class Strategy:
     def __init__(self, kite_obj, config, testing=False):
@@ -42,6 +42,7 @@ class Strategy:
         self.order_dict["slorder2"] = creat_empty_order_dict()
         self.order_dict["slorder3"] = creat_empty_order_dict()
         self.order_dict["slorderglobal"] = creat_empty_order_dict()
+        test_prints(f"{__class__.__name__}, object created")
 
     def initialise_logs_n_files(self):
         # todo order csv&logger logs for all orders place, cancel, sl, exits
@@ -54,8 +55,11 @@ class Strategy:
                        print_=True)
         os.chdir(pwd)
         printer_logger("logs and json initialised", self.logger, print_=True)
+        test_prints(f"{__class__.__name__}, initialise csv and logs")
+
 
     def prepare_strategy_dict_n_json(self):
+        test_prints(f"{__class__.__name__}, pre strat dict n json")
         pass
 
     def read_latest_strategy_dict(self):
@@ -65,6 +69,7 @@ class Strategy:
         strategy_json_filepath = file
         os.chdir(pwd)
         self.strategy_state_dict = get_latest_json_dict(strategy_json_filepath)
+        test_prints(f"{__class__.__name__}, read last strategy dict")
 
     def _set_dataprocessor_obj(self):
         nf_fut_token = fetch_instru_token(self.kite_obj, "NIFTY", None, "FUT")
@@ -79,6 +84,7 @@ class Strategy:
         self.bnf_ce_obj = FnoDataProcessor(self.kite_obj, bnf_ce_token, self.candle_interval, self.bnf_fut_obj.last_close_price)
         bnf_pe_token = fetch_instru_token(self.kite_obj, "BANKNIFTY", self.config["banknifty_strike_pe"], "PE")
         self.bnf_pe_obj = FnoDataProcessor(self.kite_obj, bnf_pe_token, self.candle_interval, self.bnf_fut_obj.last_close_price)
+        test_prints(f"{__class__.__name__}, fetch token and create dataproc object")
 
     def _init_dataprocessor(self):
         self.nf_fut_obj.initialise()
@@ -87,6 +93,8 @@ class Strategy:
         self.bnf_fut_obj.initialise()
         self.bnf_ce_obj.initialise()
         self.bnf_pe_obj.initialise()
+        test_prints(f"{__class__.__name__}, initi dataproc object")
+
 
     def _update_dataprocessor(self):
         self.nf_fut_obj.update()
@@ -95,6 +103,8 @@ class Strategy:
         self.bnf_fut_obj.update()
         self.bnf_ce_obj.update()
         self.bnf_pe_obj.update()
+        test_prints(f"{__class__.__name__}, update dataproc object")
+
 
     def set_trading_security(self):
         self.strategy_state_dict["status_beacon"] = "ON-WT"
@@ -122,6 +132,8 @@ class Strategy:
                 self.trading_security = None
         else:
             self.trading_security = None
+        test_prints(f"{__class__.__name__}, set trading security as per rank else none")
+
 
     def place_order_process(self):
         self.send_buy_order_ifvalid()
@@ -137,6 +149,8 @@ class Strategy:
                 self.buy_cancel_process()
             else:
                 self.buy_notyet_complete_process()
+        test_prints(f"{__class__.__name__}, buy order n process to trigger if order status")
+
 
     def get_order_status(self, oid):
         while True:
@@ -145,11 +159,14 @@ class Strategy:
             this_order = orders_df[orders_df["order_id"] == oid].to_dict("records")[0]
             if this_order["status"] == "COMPLETE":
                 printer_logger(f"order complete intime {oid}", self.logger, "info", True)
+                test_prints(f"{__class__.__name__}, get order status from oid")
                 return "complete"
             elif this_order["status"] == "CANCELLED":
                 printer_logger(f"order not complete intime {oid}", self.logger, "info", True)
+                test_prints(f"{__class__.__name__}, get order status from oid")
                 return "cancel"
             else:
+                test_prints(f"{__class__.__name__}, get order status from oid")
                 return this_order["status"]
 
 
@@ -232,20 +249,24 @@ class Strategy:
                                                        "entry")
             self.order_dict["entryorder"]["oid"] = buy_resp["data"]["order_id"]
 
+        test_prints(f"{__class__.__name__}, send buy order as per security selected")
 
     def buy_notyet_complete_process(self):
         pass
         printer_logger("buy not complete process initiated", self.logger, "info", True)
+        test_prints(f"{__class__.__name__}, process not ye complete")
 
     def buy_cancel_process(self):
         self.trading_security = None
         printer_logger("buy order cancelled process initiated", self.logger, "info", True)
+        test_prints(f"{__class__.__name__}, process buy cancel")
 
     def buy_complete_process(self):
         self.strategy_state_dict["status_beacon"] = "IN-POS"
         self.send_stoploss_orders()
         self.send_global_sl_order()
         printer_logger("buy complete process initiated", self.logger, "info", True)
+        test_prints(f"{__class__.__name__}, process buy complete")
 
 
 
@@ -259,6 +280,7 @@ class Strategy:
                                                        self.order_dict["slorderglobal"]["limit_price"],
                                                        "globalsl")
         self.order_dict["slorderglobal"]["oid"] = sl_resp["data"]["order_id"]
+        test_prints(f"{__class__.__name__}, send gloabl sl order")
 
     def send_stoploss_orders(self):
         if self.trading_security is None:
@@ -330,6 +352,7 @@ class Strategy:
                 self.order_dict["slorder3"]["quantity"],
                 self.order_dict["slorder3"]["limit_price"],
                 "sl3rdlot")
+        test_prints(f"{__class__.__name__}, send 3 sl order")
 
     def initialise(self):
         self.initialise_logs_n_files()
@@ -340,7 +363,9 @@ class Strategy:
         self._update_dataprocessor()
         self.set_trading_security()
         self.place_order_process()
+        test_prints(f"{__class__.__name__}, initialise")
 
     def update(self):
         self._update_dataprocessor()
         self.place_order_process()
+        test_prints(f"{__class__.__name__}, update")

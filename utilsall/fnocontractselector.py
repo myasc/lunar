@@ -3,6 +3,8 @@ import time
 import pandas as pd
 from utilsall.kite_make_connection import Kite
 from pprint import pprint
+from utilsall.testprint import test_prints
+
 
 class FNOContractSelector:
     def __init__(self, kite_connection_obj, underlying, expiry, instrument, strike=None):
@@ -13,6 +15,7 @@ class FNOContractSelector:
         self.instrument = instrument
         self.all_instruments_df = None
         self.instruments_fetched = False
+        test_prints(f"{__class__.__name__}, underlying: {self.underlying}, expiry: {self.expiry}, instrument: {self.instrument}, strike: {self.strike}, object created")
 
     def _get_instruments(self, exchange="NFO"):
         if self.instruments_fetched:
@@ -22,6 +25,7 @@ class FNOContractSelector:
             self.all_instruments_df = pd.DataFrame(instruments)
             self.all_instruments_df.to_csv(f"{exchange}_instruments.csv")
             self.instruments_fetched = True
+        test_prints(f"{__class__.__name__}, underlying: {self.underlying}, expiry: {self.expiry}, instrument: {self.instrument}, strike: {self.strike}, fetch NFO instruments available")
         return
 
     def get_instrument_symbol(self):
@@ -33,9 +37,11 @@ class FNOContractSelector:
             filter_4 = (self.all_instruments_df.instrument_type == self.instrument)
             if self.instrument in ["CE", "PE"]:
                 filtered_df = self.all_instruments_df[filter_1 & filter_2 & filter_3 & filter_4]
+                test_prints(f"{__class__.__name__}, underlying: {self.underlying}, expiry: {self.expiry}, instrument: {self.instrument}, strike: {self.strike}, filetered instruments tradingSymbol")
                 return filtered_df.tradingsymbol.values[0]
             elif self.instrument == "FUT":
                 filterd_df = self.all_instruments_df[filter_1 & filter_2 & filter_4]
+                test_prints(f"{__class__.__name__}, underlying: {self.underlying}, expiry: {self.expiry}, instrument: {self.instrument}, strike: {self.strike}, filetered instruments tradingSymbol")
                 return filterd_df.tradingsymbol.values[0]
         except Exception as e:
             print(e)
@@ -69,6 +75,7 @@ class FNOContractSelector:
                                 f"'expiry': {self.expiry},'strike': {self.strike}, 'instrument': {self.instrument}}}"
                 raise Exception(exception_str)
             else:
+                test_prints(f"{__class__.__name__}, underlying: {self.underlying}, expiry: {self.expiry}, instrument: {self.instrument}, strike: {self.strike}, filetered instrument id")
                 return filterd_dict[0]["instrument_token"]
         except Exception as e:
             raise e

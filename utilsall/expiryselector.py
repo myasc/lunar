@@ -2,6 +2,7 @@ import datetime as dt
 from utilsall.marketholidays import MarketHolidays
 import os
 from utilsall.misc import reach_project_dir
+from utilsall.testprint import test_prints
 
 
 class ExpirySelector:
@@ -10,6 +11,8 @@ class ExpirySelector:
         self.holidays = None
         self.expiry_date = None
         self.get_holidays()
+        test_prints(f"{__class__.__name__}, expiryDate: {self.expiry_date}, object created")
+
 
     def get_holidays(self):
         pwd = os.getcwd()
@@ -18,6 +21,8 @@ class ExpirySelector:
         market_holidays_obj = MarketHolidays(file)
         os.chdir(pwd)
         self.holidays = market_holidays_obj.holiday_dates_dt
+        test_prints(f"{__class__.__name__}, expiryDate: {self.expiry_date}, holiday fetched from csv")
+
 
     def get_nearest_weekly(self, expiry_weekday=3):
         if self.dt_now.weekday() == expiry_weekday:
@@ -29,6 +34,8 @@ class ExpirySelector:
             while finding_date in self.holidays:
                 finding_date = finding_date - dt.timedelta(days=1)
             self.expiry_date = finding_date
+        test_prints(f"{__class__.__name__}, expiryDate: {self.expiry_date}, expiryweekday: {expiry_weekday}, weekly expiry date set")
+
 
     def get_nearest_monthly(self):
         last_date_of_month = self.dt_now.replace(month=(self.dt_now.month + 1), day=1) - dt.timedelta(days=1)
@@ -41,6 +48,7 @@ class ExpirySelector:
             while finding_date in self.holidays:
                 finding_date = finding_date - dt.timedelta(days=1)
             self.expiry_date = finding_date
+        test_prints(f"{__class__.__name__}, expiryDate: {self.expiry_date}, monthly expiry date set")
 
 
 if __name__ == "__main__":

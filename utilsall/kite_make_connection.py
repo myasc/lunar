@@ -4,7 +4,7 @@ from utilsall.misc import reach_project_dir
 from kiteconnect import KiteConnect
 import datetime as dt
 import json
-
+from utilsall.testprint import test_prints
 
 class Kite:
 
@@ -15,6 +15,7 @@ class Kite:
         self.object = None
         self.cred_filepath = cred_filepath
         self.token_filepath = token_filepath
+        test_prints(f"{__class__.__name__}, api_key: {self.api_key}, api_secret: {self.api_secret}, req_token: {self.request_token}, object created")
 
     def _create_kite_lib_obj(self):
         if self.cred_filepath is None:
@@ -25,6 +26,7 @@ class Kite:
         else:
             self._read_api_credentials(filepath=self.cred_filepath)
         self.object = KiteConnect(api_key=self.api_key)
+        test_prints(f"{__class__.__name__}, api_key: {self.api_key}, api_secret: {self.api_secret}, req_token: {self.request_token}, kite library object created")
         return
 
     def _read_api_credentials(self, filepath):
@@ -32,16 +34,19 @@ class Kite:
             credentials_dict = json.load(f)
         self.api_key = credentials_dict["api_key"]
         self.api_secret = credentials_dict["api_secret"]
+        test_prints(f"{__class__.__name__}, api_key: {self.api_key}, api_secret: {self.api_secret}, req_token: {self.request_token}, credentials read")
         return
 
     def _get_login_url(self):
         login_url = self.object.login_url()
+        test_prints(f"{__class__.__name__}, api_key: {self.api_key}, api_secret: {self.api_secret}, req_token: {self.request_token}, get login url")
         return login_url
 
     def _get_request_token(self):
         url = self._get_login_url()
         print("URL: ", url)
         token = input('Provide Request token from above url: ')
+        test_prints(f"{__class__.__name__}, api_key: {self.api_key}, api_secret: {self.api_secret}, req_token: {self.request_token}, get request token")
         return token
 
     def _save_access_token(self, token):
@@ -60,6 +65,7 @@ class Kite:
             time = dt.datetime.now()
             token_dict = {"access_token": token, "recorded_at": time.strftime("%Y-%m-%d_%H:%M")}
             json.dump(token_dict, f)
+        test_prints(f"{__class__.__name__}, api_key: {self.api_key}, api_secret: {self.api_secret}, req_token: {self.request_token}, save access token")
 
     def _read_access_token(self):
 
@@ -82,6 +88,7 @@ class Kite:
             token = None
         else:
             token = token_dict["access_token"]
+        test_prints(f"{__class__.__name__}, api_key: {self.api_key}, api_secret: {self.api_secret}, req_token: {self.request_token}, access token read")
         return token
 
     def establish_connection(self):
@@ -101,6 +108,8 @@ class Kite:
             self._save_access_token(auth_data['access_token'])
 
         print("Kite Connection Successful!!")
+        test_prints(f"{__class__.__name__}, api_key: {self.api_key}, api_secret: {self.api_secret}, req_token: {self.request_token}, session generated")
+
 
 if __name__ == "__main__":
     kt = Kite()

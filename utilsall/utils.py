@@ -7,7 +7,7 @@ from utilsall.fnocontractselector import FNOContractSelector
 import json
 
 from utilsall.misc import reach_project_dir
-
+from utilsall.testprint import test_prints
 
 def fetch_instru_token(kite_obj, underlying, strike, instrument):
     """
@@ -32,6 +32,7 @@ def fetch_instru_token(kite_obj, underlying, strike, instrument):
 
     cs = FNOContractSelector(kite_obj, underlying, expiry_date, instrument, strike)
     id_ = cs.get_instrument_id()
+    test_prints(f"NoClassDefined, utils.py fetch_instru_token, fetch instument token")
     return id_
 
 
@@ -48,6 +49,7 @@ def logger_intialise(logfile_suffix):
     os.chdir(pwd)
     file_handler.setFormatter(formatter)
     logger_obj.addHandler(file_handler)
+    test_prints(f"NoClassDefined, utils.py logger_intialise, define logger file handler")
     return logger_obj
 
 
@@ -65,6 +67,8 @@ def printer_logger(mssg, logger, loglevel="info", print_=False):
         logger.critical(mssg)
     elif loglevel == "exception":
         logger.exception(mssg)
+    test_prints(f"NoClassDefined, utils.py printer_logger,")
+
 
 
 def add_row_to_csv(row, file_path, print_=False):
@@ -81,6 +85,8 @@ def add_row_to_csv(row, file_path, print_=False):
             pass
     if print_:
         print("added to csv: " + str(row))
+    test_prints(f"NoClassDefined, utils.py add_row_to_csv,")
+
 
 
 def init_csv_logger(filename):
@@ -89,6 +95,8 @@ def init_csv_logger(filename):
     csvlog_filepath = f"csv_files/{filename}.csv"
     first_row = ['datetime', 'price', 'qty']
     add_row_to_csv(first_row, csvlog_filepath)
+    test_prints(f"NoClassDefined, utils.py init_csv_logger,")
+
 
 
 def save_dict_to_json_file(dictionary, json_file_path):
@@ -103,10 +111,13 @@ def save_dict_to_json_file(dictionary, json_file_path):
         data.append(dictionary)
         json_file.seek(0)
         json.dump(data, json_file)
+    test_prints(f"NoClassDefined, utils.py save_dict_to_json_file")
+
 
 
 def get_latest_json_dict(json_file_path):
     if not os.path.exists(json_file_path):
+        test_prints(f"NoClassDefined, utils.py get_latest_json_dict")
         return {}
     else:
         with open(json_file_path, "r") as json_file:
@@ -119,6 +130,6 @@ def get_latest_json_dict(json_file_path):
                 if timestamp > latest_timestamp:
                     latest_timestamp = timestamp
                     latest_dict = dict_
-
+        test_prints(f"NoClassDefined, utils.py get_latest_json_dict")
         return latest_dict
 
