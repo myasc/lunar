@@ -22,7 +22,10 @@ def fetch_instru_token(kite_obj, underlying, strike, instrument):
         es.get_nearest_monthly()
         expiry_date = es.expiry_date
     elif (instrument == "CE") or (instrument == "PE"):
-        es.get_nearest_weekly()
+        if underlying == "BANKNIFTY":
+            es.get_nearest_weekly(expiry_weekday=2)
+        else:
+            es.get_nearest_weekly(expiry_weekday=3)
         expiry_date = es.expiry_date
     else:
         raise Exception(f"Invalid instrument {instrument}")

@@ -19,12 +19,12 @@ class ExpirySelector:
         os.chdir(pwd)
         self.holidays = market_holidays_obj.holiday_dates_dt
 
-    def get_nearest_weekly(self):
-        if self.dt_now.weekday() == 3:
+    def get_nearest_weekly(self, expiry_weekday=3):
+        if self.dt_now.weekday() == expiry_weekday:
             self.expiry_date = self.dt_now
         else:
             finding_date = self.dt_now
-            while finding_date.weekday() != 3:
+            while finding_date.weekday() != expiry_weekday:
                 finding_date = finding_date + dt.timedelta(days=1)
             while finding_date in self.holidays:
                 finding_date = finding_date - dt.timedelta(days=1)
