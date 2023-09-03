@@ -4,6 +4,7 @@ import logging
 import datetime as dt
 from utilsall.expiryselector import ExpirySelector
 from utilsall.fnocontractselector import FNOContractSelector
+from utilsall.marketholidays import MarketHolidays
 import json
 
 from utilsall.misc import reach_project_dir
@@ -122,3 +123,21 @@ def get_latest_json_dict(json_file_path):
 
         return latest_dict
 
+def get_holidays():
+    pwd = os.getcwd()
+    reach_project_dir()
+    file = "utilsall/market_holidays_2005_to_2023.csv"
+    market_holidays_obj = MarketHolidays(file)
+    os.chdir(pwd)
+    return market_holidays_obj.holiday_dates_dt
+
+def is_market_open():
+    now = dt.datetime.now()
+    market_opentime = dt.datetime(year=now.year, month=now.month,day=now.day, hour=9, minute=15)
+    market_closetime = dt.datetime(year=now.year, month=now.month,day=now.day, hour=15, minute=30)
+    if now.date() in get_holidays():
+        return False
+    elif (now >= market_opentime) and (now < market_closetime):
+        return True
+    else:
+        return False
