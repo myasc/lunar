@@ -151,39 +151,15 @@ class FnoDataProcessor:
 
     def set_level_signal(self):
         if self.instru_name == "NIFTY":
-            if config["nifty_level_up"] is not None:
-                if self.last_fut_close_price > config["nifty_level_up"]:
-                    self.level_signal = 1
-                    self.level_value = config["nifty_level_up"]
-                else:
-                    self.level_signal = 0
-            else:
-                self.level_signal = 0
-
-            if config["nifty_level_down"] is not None:
-                if self.last_fut_close_price < config["nifty_level_down"]:
-                    self.level_signal = 1
-                    self.level_value = config["nifty_level_down"]
-                else:
-                    self.level_signal = 0
+            if (self.last_fut_close_price > config["nifty_level_up"]) or (self.last_fut_close_price < config["nifty_level_down"]):
+                self.level_signal = 1
+                self.level_value = f"{config['nifty_level_up'], config['nifty_level_down'],}"
             else:
                 self.level_signal = 0
         elif self.instru_name == "BANKNIFTY":
-            if config["banknifty_level_up"] is not None:
-                if self.last_fut_close_price > config["banknifty_level_up"]:
-                    self.level_signal = 1
-                    self.level_value = config["banknifty_level_up"]
-                else:
-                    self.level_signal = 0
-            else:
-                self.level_signal = 0
-
-            if config["banknifty_level_down"] is not None:
-                if self.last_fut_close_price < config["banknifty_level_down"]:
-                    self.level_signal = 1
-                    self.level_value = config["banknifty_level_down"]
-                else:
-                    self.level_signal = 0
+            if (self.last_fut_close_price > config["banknifty_level_up"]) or (self.last_fut_close_price < config["banknifty_level_down"]):
+                self.level_signal = 1
+                self.level_value = f"{config['banknifty_level_up'], config['banknifty_level_down'],}"
             else:
                 self.level_signal = 0
         else:
