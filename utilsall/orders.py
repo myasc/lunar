@@ -16,10 +16,10 @@ class Orders:
         reach_project_dir()
         file = f"csv_files/orders_{date_str}.csv"
         self.csv_filepath = file
-        os.chdir(pwd)
         add_row_to_csv(row=["type", "side", "qty", "symbol", "price", "remark"],
                        file_path=self.csv_filepath,
                        print_=True)
+        os.chdir(pwd)
 
     def calculate_transaction_charges(self, buy_price, sell_price, quantity, asset_type):
         """return transaction charges after trade exit for zerodha"""

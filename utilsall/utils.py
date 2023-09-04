@@ -71,7 +71,8 @@ def printer_logger(mssg, logger, loglevel="info", print_=False):
 def add_row_to_csv(row, file_path, print_=False):
     timestamp = str(dt.datetime.now().isoformat())
     row.append(timestamp)
-    # todo this throws error sometimes filenotfoounderror, create emtpy file not working
+    pwd = os.getcwd()
+    reach_project_dir()
     mode = 'a' if os.path.exists(file_path) else 'w'
     if mode == 'a':
         with open(file_path, mode, newline='') as csvfile:
@@ -82,14 +83,18 @@ def add_row_to_csv(row, file_path, print_=False):
             pass
     if print_:
         print("added to csv: " + str(row))
+    os.chdir(pwd)
 
 
 def init_csv_logger(filename):
     dt_str = str(dt.datetime.now().date()).replace("-", "")[4:]
     # filename = str(self.event_id) + str(self.strategy_no) + dt_str
+    pwd = os.getcwd()
+    reach_project_dir()
     csvlog_filepath = f"csv_files/{filename}.csv"
     first_row = ['datetime', 'price', 'qty']
     add_row_to_csv(first_row, csvlog_filepath)
+    os.chdir(pwd)
 
 
 def save_dict_to_json_file(dictionary, json_file_path):

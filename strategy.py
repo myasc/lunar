@@ -341,8 +341,11 @@ class Strategy:
             self._update_dataprocessor()
             self.set_trading_security()
             self.place_order_process()
+            self.print_to_console()
 
     def update(self):
         if is_market_open():
             self._update_dataprocessor()
             self.place_order_process()
+            self.print_to_console()
+
