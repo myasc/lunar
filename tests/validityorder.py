@@ -11,5 +11,5 @@ trading_symbol = "NIFTY2390719400CE"
 quantity = 50
 limit_price = 151
 valid_mins =  1
-remark = "test validity order"
-ord.place_validity_limit1_buy_nfo(trading_symbol, quantity, limit_price, valid_mins, remark)
+remark = "test_validity_order"
+ord.place_validity_limit_buy_nfo(trading_symbol, quantity, limit_price, valid_mins, remark)

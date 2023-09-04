@@ -5,7 +5,7 @@ from time import sleep
 from pprint import pprint
 import os
 from fnodataprocessor import FnoDataProcessor
-from utilsall.utils import fetch_instru_token
+from utilsall.utils import fetch_instru_token, save_dict_to_json_file
 from utilsall.orders import Orders
 from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv, get_latest_json_dict, is_market_open
 from utilsall.misc import create_print_dict, creat_empty_order_dict, reach_project_dir
@@ -26,10 +26,14 @@ class Strategy:
         self.orders = Orders(self.kite_obj, self.testing)
 
         self.logger = None
+        self.csv_strategy_log_file_path = None
+        self.strat_json_file_path = None
         self.trading_security = None
 
         self.strategy_state_dict = dict()
         self.strategy_state_dict["loggedat"] = str(dt.datetime.now())
+        self.strategy_state_dict["trading_symbol"] = None  # -1
+        self.strategy_state_dict["trading_instu_token"] = 0  # -1
         self.strategy_state_dict["signals"] = 0  # -1
         self.strategy_state_dict["trades"] = 0  # -1
         self.strategy_state_dict["slhit"] = 0  # -1
@@ -44,27 +48,28 @@ class Strategy:
         self.order_dict["slorderglobal"] = creat_empty_order_dict()
 
     def initialise_logs_n_files(self):
-        # todo order csv&logger logs for all orders place, cancel, sl, exits
         self.logger = logger_intialise("strategy")
-        pwd = os.getcwd()
-        reach_project_dir()
-        file = "csv_files/startegy.csv"
-        add_row_to_csv(row=["timestamp", "process", "pnl"],
-                       file_path=file,
-                       print_=True)
-        os.chdir(pwd)
+        self.init_strategy_csv_log()
+        self.init_strategy_json()
         printer_logger("logs and json initialised", self.logger, print_=True)
 
-    def prepare_strategy_dict_n_json(self):
-        pass
-
-    def read_latest_strategy_dict(self):
+    def init_strategy_json(self):
+        date_str = str(dt.datetime.now().date()).replace("-", "")
+        self.strat_json_file_path = f"json_files/strategy_{date_str}.json"
         pwd = os.getcwd()
         reach_project_dir()
-        file = "/json_files/startegy.json"
-        strategy_json_filepath = file
+        if not os.path.exists(self.strat_json_file_path):
+            save_dict_to_json_file(self.strategy_state_dict, self.strat_json_file_path)
+        else:
+            self.strategy_state_dict = get_latest_json_dict(self.strat_json_file_path)
         os.chdir(pwd)
-        self.strategy_state_dict = get_latest_json_dict(strategy_json_filepath)
+
+    def init_strategy_csv_log(self):
+        date_str = str(dt.datetime.now().date()).replace("-", "")
+        self.csv_strategy_log_file_path = f"csv_files/strategy_{date_str}.csv"
+        add_row_to_csv(row=["process", "pnl"],
+                       file_path=self.csv_strategy_log_file_path,
+                       print_=True)
 
     def _set_dataprocessor_obj(self):
         nf_fut_token = fetch_instru_token(self.kite_obj, "NIFTY", None, "FUT")
@@ -332,10 +337,10 @@ class Strategy:
                 "sl3rdlot")
 
     def initialise(self):
-        if is_market_open():
+        # if is_market_open():
             self.initialise_logs_n_files()
-            self.prepare_strategy_dict_n_json()
-            self.read_latest_strategy_dict()
+            # self.prepare_strategy_dict_n_json()
+            # self.read_latest_strategy_dict()
             self._set_dataprocessor_obj()
             self._init_dataprocessor()
             self._update_dataprocessor()
@@ -344,7 +349,7 @@ class Strategy:
             self.print_to_console()
 
     def update(self):
-        if is_market_open():
+        # if is_market_open():
             self._update_dataprocessor()
             self.place_order_process()
             self.print_to_console()

@@ -52,14 +52,17 @@ class Kite:
             pwd = os.getcwd()
             reach_project_dir()
             file = "../access_token.json"
+            with open(file, "w") as f:
+                time = dt.datetime.now()
+                token_dict = {"access_token": token, "recorded_at": time.strftime("%Y-%m-%d_%H:%M")}
+                json.dump(token_dict, f)
             os.chdir(pwd)
         else:
             file = self.token_filepath
-
-        with open(file, "w") as f:
-            time = dt.datetime.now()
-            token_dict = {"access_token": token, "recorded_at": time.strftime("%Y-%m-%d_%H:%M")}
-            json.dump(token_dict, f)
+            with open(file, "w") as f:
+                time = dt.datetime.now()
+                token_dict = {"access_token": token, "recorded_at": time.strftime("%Y-%m-%d_%H:%M")}
+                json.dump(token_dict, f)
 
     def _read_access_token(self):
 
@@ -67,12 +70,14 @@ class Kite:
             pwd = os.getcwd()
             reach_project_dir()
             file = "../access_token.json"
+            with open(file, "r") as f:
+                token_dict = json.load(f)
             os.chdir(pwd)
         else:
             file = self.token_filepath
+            with open(file, "r") as f:
+                token_dict = json.load(f)
 
-        with open(file, "r") as f:
-            token_dict = json.load(f)
 
 
         recorded_at = dt.datetime.strptime(token_dict["recorded_at"], "%Y-%m-%d_%H:%M")

@@ -82,7 +82,7 @@ def add_row_to_csv(row, file_path, print_=False):
         with open(file_path, mode) as csvfile:
             pass
     if print_:
-        print("added to csv: " + str(row))
+        print(f"added to csv: {file_path}: " + str(row))
     os.chdir(pwd)
 
 
@@ -100,6 +100,8 @@ def init_csv_logger(filename):
 def save_dict_to_json_file(dictionary, json_file_path):
     # todo this function sometime doesn't add '}]' at end of jsonfile if error raised
     dictionary["loggedat"] = str(dt.datetime.now().isoformat())
+    pwd = os.getcwd()
+    reach_project_dir()
     if not os.path.exists(json_file_path):
         with open(json_file_path, "w") as json_file:
             json_file.write("[]")
@@ -109,10 +111,17 @@ def save_dict_to_json_file(dictionary, json_file_path):
         data.append(dictionary)
         json_file.seek(0)
         json.dump(data, json_file)
+    print(f"added to json: {json_file_path}: " + str(dictionary))
+    os.chdir(pwd)
+
 
 
 def get_latest_json_dict(json_file_path):
+    pwd = os.getcwd()
+    reach_project_dir()
     if not os.path.exists(json_file_path):
+        os.chdir(pwd)
+        print(f"read from json: {json_file_path}: " + "{}")
         return {}
     else:
         with open(json_file_path, "r") as json_file:
@@ -125,7 +134,8 @@ def get_latest_json_dict(json_file_path):
                 if timestamp > latest_timestamp:
                     latest_timestamp = timestamp
                     latest_dict = dict_
-
+        os.chdir(pwd)
+        print(f"read from json: {json_file_path}: {latest_dict}")
         return latest_dict
 
 def get_holidays():

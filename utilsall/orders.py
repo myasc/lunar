@@ -111,7 +111,6 @@ class Orders:
                            print_=True)
 
     def place_validity_limit_buy_nfo(self, trading_symbol, quantity, limit_price, valid_mins, remark="None"):
-        # todo test inbuilt validity order instead of your validity checking and cancelling
         if not self.testing:
             self.kite_obj.place_order(price=limit_price,
                                       trigger_price=limit_price,
@@ -144,6 +143,9 @@ class Orders:
                                   order_type=order_type,
                                   product=product,
                                   variety=variety)
+        add_row_to_csv(row=[order_type, transaction_type, quantity, trading_symbol, trigger_price, "raw_order"],
+                       file_path=self.csv_filepath,
+                       print_=True)
 
 
 if __name__ == "__main__":
