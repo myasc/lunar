@@ -7,7 +7,7 @@ import os
 from fnodataprocessor import FnoDataProcessor
 from utilsall.utils import fetch_instru_token
 from utilsall.orders import Orders
-from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv, get_latest_json_dict
+from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv, get_latest_json_dict, is_market_open
 from utilsall.misc import create_print_dict, creat_empty_order_dict, reach_project_dir
 
 
@@ -332,15 +332,17 @@ class Strategy:
                 "sl3rdlot")
 
     def initialise(self):
-        self.initialise_logs_n_files()
-        self.prepare_strategy_dict_n_json()
-        self.read_latest_strategy_dict()
-        self._set_dataprocessor_obj()
-        self._init_dataprocessor()
-        self._update_dataprocessor()
-        self.set_trading_security()
-        self.place_order_process()
+        if is_market_open():
+            self.initialise_logs_n_files()
+            self.prepare_strategy_dict_n_json()
+            self.read_latest_strategy_dict()
+            self._set_dataprocessor_obj()
+            self._init_dataprocessor()
+            self._update_dataprocessor()
+            self.set_trading_security()
+            self.place_order_process()
 
     def update(self):
-        self._update_dataprocessor()
-        self.place_order_process()
+        if is_market_open():
+            self._update_dataprocessor()
+            self.place_order_process()
