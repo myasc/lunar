@@ -5,7 +5,7 @@ import pandas as pd
 pd.set_option("display.max_columns", 50)
 from utilsall.historicaldata import HistoricalData
 from utilsall import indicators
-from config import config
+from config1 import config
 from utilsall.misc import test_prints
 
 class FnoDataProcessor:

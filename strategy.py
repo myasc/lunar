@@ -29,7 +29,18 @@ class Strategy:
         self.csv_strategy_log_file_path = None
         self.strat_json_file_path = None
         self.trading_security = None
-
+        self.trading_instru_obj_ref_dict = {"niftyce": self.nf_ce_obj,
+                                             "bankniftyce": self.bnf_ce_obj,
+                                             "niftype": self.nf_pe_obj,
+                                             "bankniftype": self.bnf_pe_obj,
+                                             }
+        self.all_instru_obj_ref_dict = {"niftyfut": self.nf_fut_obj,
+                                        "niftyce": self.nf_ce_obj,
+                                        "niftype": self.nf_pe_obj,
+                                        "bankniftyfut": self.bnf_fut_obj,
+                                        "bankniftyce": self.bnf_ce_obj,
+                                        "bankniftype": self.bnf_pe_obj,
+                                        }
         self.strategy_state_dict = dict()
         self.strategy_state_dict["loggedat"] = str(dt.datetime.now())
         self.strategy_state_dict["trading_symbol"] = None  # -1
@@ -39,6 +50,7 @@ class Strategy:
         self.strategy_state_dict["slhit"] = 0  # -1
         self.strategy_state_dict["exits"] = 0  # -1
         self.strategy_state_dict["status_beacon"] = None  # -1
+        self.strategy_state_dict["last_processed_timestamp"] = None  # -1
 
         self.order_dict = dict()
         self.order_dict["entryorder"] = creat_empty_order_dict()
@@ -86,21 +98,12 @@ class Strategy:
         self.bnf_pe_obj = FnoDataProcessor(self.kite_obj, bnf_pe_token, self.candle_interval, self.bnf_fut_obj.last_close_price)
 
     def _init_dataprocessor(self):
-        self.nf_fut_obj.initialise()
-        self.nf_ce_obj.initialise()
-        self.nf_pe_obj.initialise()
-        self.bnf_fut_obj.initialise()
-        self.bnf_ce_obj.initialise()
-        self.bnf_pe_obj.initialise()
+        for objname in self.all_instru_obj_ref_dict.keys():
+            self.all_instru_obj_ref_dict[objname].initialise()
 
     def _update_dataprocessor(self):
-        self.nf_fut_obj.update()
-        self.nf_ce_obj.update()
-        self.nf_pe_obj.update()
-        self.bnf_fut_obj.update()
-        self.bnf_ce_obj.update()
-        self.bnf_pe_obj.update()
-
+        for objname in self.all_instru_obj_ref_dict.keys():
+            self.all_instru_obj_ref_dict[objname].update()
     def set_trading_security(self):
         self.strategy_state_dict["status_beacon"] = "ON-WT"
         if (self.nf_fut_obj.rank >= 30) \
@@ -129,34 +132,27 @@ class Strategy:
             self.trading_security = None
 
     def place_order_process(self):
-        self.send_buy_order_ifvalid()
+        self.send_buy_order_iftradingsecurity()
         if self.order_dict["entryorder"]["oid"] == "":
             printer_logger("buy not triggered", self.logger, "info", True)
         else:
             printer_logger("buy triggered", self.logger, "info", True)
             self.strategy_state_dict["signals"] += 1
-            if self.get_order_status(self.order_dict["entryorder"]["oid"]) == "complete":
+            if self.get_order_status(self.order_dict["entryorder"]["oid"]) == "COMPLETE":
                 self.buy_complete_process()
                 self.strategy_state_dict["trades"] += 1
-            elif self.get_order_status(self.order_dict["entryorder"]["oid"]) == "cancel":
+            elif self.get_order_status(self.order_dict["entryorder"]["oid"]) == "CANCELLED":
                 self.buy_cancel_process()
+            elif self.get_order_status(self.order_dict["entryorder"]["oid"]) == "OPEN":
+                self.buy_open_process()
             else:
-                self.buy_notyet_complete_process()
+                raise Exception("order status other than complete,cancel, open")
 
     def get_order_status(self, oid):
-        while True:
-            orders_df = self.kite_obj.orders()
-            # todo this might need to be converted to dataframe, above
-            this_order = orders_df[orders_df["order_id"] == oid].to_dict("records")[0]
-            if this_order["status"] == "COMPLETE":
-                printer_logger(f"order complete intime {oid}", self.logger, "info", True)
-                return "complete"
-            elif this_order["status"] == "CANCELLED":
-                printer_logger(f"order not complete intime {oid}", self.logger, "info", True)
-                return "cancel"
-            else:
-                return this_order["status"]
-
+        orders_df = self.kite_obj.orders()
+        # todo this might need to be converted to dataframe, above
+        this_order = orders_df[orders_df["order_id"] == oid].to_dict("records")[0]
+        return this_order["status"]
 
     def print_to_console(self):
         # status beacon
@@ -206,48 +202,36 @@ class Strategy:
         print()
         print()
 
-    def send_buy_order_ifvalid(self):
-        if self.trading_security is None:
-            print(f"buy order security set as {self.trading_security}, passing")
-        else:
+    def send_buy_order_iftradingsecurity(self):
+        if self.trading_security in self.trading_instru_obj_ref_dict.keys():
             printer_logger(f"entry order waiting after valid signal", self.logger, "info", True)
-            sleep(self.config["entry_order_wait_min"] * 55)  # little less than 60 seconds
-            if self.trading_security == "niftyce":
-                self.order_dict["entryorder"]["symbol"] = self.nf_ce_obj.trading_symbol
-                self.order_dict["entryorder"]["quantity"] = self.config["lots_per_set"] * self.nf_ce_obj.lot_size
-                self.order_dict["entryorder"]["limit_price"] = self.nf_ce_obj.last_close_price
-            elif self.trading_security == "bankniftyce":
-                self.order_dict["entryorder"]["symbol"] = self.bnf_ce_obj.trading_symbol
-                self.order_dict["entryorder"]["quantity"] = self.config["lots_per_set"] * self.bnf_ce_obj.lot_size
-                self.order_dict["entryorder"]["limit_price"] = self.bnf_ce_obj.last_close_price
-            elif self.trading_security == "niftype":
-                self.order_dict["entryorder"]["symbol"] = self.nf_pe_obj.trading_symbol
-                self.order_dict["entryorder"]["quantity"] = self.config["lots_per_set"] * self.nf_pe_obj.lot_size
-                self.order_dict["entryorder"]["limit_price"] = self.nf_pe_obj.last_close_price
-            elif self.trading_security == "bankniftype":
-                self.order_dict["entryorder"]["symbol"] = self.bnf_pe_obj.trading_symbol
-                self.order_dict["entryorder"]["quantity"] = self.config["lots_per_set"] * self.bnf_pe_obj.lot_size
-                self.order_dict["entryorder"]["limit_price"] = self.bnf_pe_obj.last_close_price
-            else:
-                print(f"buy order security set as {self.trading_security}, passing")
+            # sleep(self.config["entry_order_wait_min"] * 55)  # little less than 60 seconds
+            self.order_dict["entryorder"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
+            self.order_dict["entryorder"]["quantity"] = self.config["lots_per_set"] * self.trading_instru_obj_ref_dict[self.trading_security].lot_size
+            self.order_dict["entryorder"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].last_close_price
 
-            buy_resp = self.orders.place_limit_buy_nfo(self.order_dict["entryorder"]["symbol"],
-                                                       self.order_dict["entryorder"]["quantity"],
-                                                       self.order_dict["entryorder"]["limit_price"],
-                                                       "entry")
+            buy_resp = self.orders.place_validity_limit_buy_nfo(self.order_dict["entryorder"]["symbol"],
+                                                                self.order_dict["entryorder"]["quantity"],
+                                                                self.order_dict["entryorder"]["limit_price"],
+                                                                self.config["entry_order_valid_min"],
+                                                                "entry")
             self.order_dict["entryorder"]["oid"] = buy_resp["data"]["order_id"]
+        else:
+            print(f"buy order security set as {self.trading_security}, passing")
 
 
-    def buy_notyet_complete_process(self):
-        pass
+    def buy_open_process(self):
+        self.strategy_state_dict["signals"] = self.strategy_state_dict["signals"] + 1
         printer_logger("buy not complete process initiated", self.logger, "info", True)
 
     def buy_cancel_process(self):
+        self.strategy_state_dict["trades"] = self.strategy_state_dict["trades"] + 1
         self.trading_security = None
         printer_logger("buy order cancelled process initiated", self.logger, "info", True)
 
     def buy_complete_process(self):
         self.strategy_state_dict["status_beacon"] = "IN-POS"
+        self.strategy_state_dict["signals"] = self.strategy_state_dict["signals"] + 1
         self.send_stoploss_orders()
         self.send_global_sl_order()
         printer_logger("buy complete process initiated", self.logger, "info", True)
@@ -266,75 +250,26 @@ class Strategy:
         self.order_dict["slorderglobal"]["oid"] = sl_resp["data"]["order_id"]
 
     def send_stoploss_orders(self):
-        if self.trading_security is None:
-            print(f"none stoploss orders, security set as {self.trading_security}, passing")
+        if self.trading_security in self.trading_instru_obj_ref_dict.keys():
+            self.order_dict["slorder1"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
+            self.order_dict["slorder1"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size
+            self.order_dict["slorder1"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_1_sl_value
+
+            self.order_dict["slorder2"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
+            self.order_dict["slorder2"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size
+            self.order_dict["slorder2"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_2_sl_value
+
+            self.order_dict["slorder3"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
+            self.order_dict["slorder3"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size
+            self.order_dict["slorder3"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_3_sl_value
+
+            for sl_od in [self.order_dict["slorder1"], self.order_dict["slorder2"], self.order_dict["slorder3"]]:
+                order_response = self.orders.place_sl_market_sell_nfo(sl_od["symbol"], sl_od["quantity"], sl_od["limit_price"],
+                                                           "sl")
+                sl_od["oid"] = order_response["data"]["order_id"]
         else:
-            if self.trading_security == "niftyce":
-                self.order_dict["slorder1"]["symbol"] = self.nf_ce_obj.trading_symbol
-                self.order_dict["slorder1"]["quantity"] = self.nf_ce_obj.lot_size
-                self.order_dict["slorder1"]["limit_price"] = self.nf_ce_obj.ti_1_sl_value
+            print(f"none stoploss orders, security set as {self.trading_security}, passing")
 
-                self.order_dict["slorder2"]["symbol"] = self.nf_ce_obj.trading_symbol
-                self.order_dict["slorder2"]["quantity"] = self.nf_ce_obj.lot_size
-                self.order_dict["slorder2"]["limit_price"] = self.nf_ce_obj.ti_2_sl_value
-
-                self.order_dict["slorder3"]["symbol"] = self.nf_ce_obj.trading_symbol
-                self.order_dict["slorder3"]["quantity"] = self.nf_ce_obj.lot_size
-                self.order_dict["slorder3"]["limit_price"] = self.nf_ce_obj.ti_3_sl_value
-            elif self.trading_security == "bankniftyce":
-                self.order_dict["slorder1"]["symbol"] = self.bnf_ce_obj.trading_symbol
-                self.order_dict["slorder1"]["quantity"] = self.bnf_ce_obj.lot_size
-                self.order_dict["slorder1"]["limit_price"] = self.bnf_ce_obj.ti_1_sl_value
-
-                self.order_dict["slorder2"]["symbol"] = self.bnf_ce_obj.trading_symbol
-                self.order_dict["slorder2"]["quantity"] = self.bnf_ce_obj.lot_size
-                self.order_dict["slorder2"]["limit_price"] = self.bnf_ce_obj.ti_2_sl_value
-
-                self.order_dict["slorder3"]["symbol"] = self.bnf_ce_obj.trading_symbol
-                self.order_dict["slorder3"]["quantity"] = self.bnf_ce_obj.lot_size
-                self.order_dict["slorder3"]["limit_price"] = self.bnf_ce_obj.ti_3_sl_value
-            elif self.trading_security == "niftype":
-                self.order_dict["slorder1"]["symbol"] = self.nf_pe_obj.trading_symbol
-                self.order_dict["slorder1"]["quantity"] = self.nf_pe_obj.lot_size
-                self.order_dict["slorder1"]["limit_price"] = self.nf_pe_obj.ti_1_sl_value
-
-                self.order_dict["slorder2"]["symbol"] = self.nf_pe_obj.trading_symbol
-                self.order_dict["slorder2"]["quantity"] = self.nf_pe_obj.lot_size
-                self.order_dict["slorder2"]["limit_price"] = self.nf_pe_obj.ti_2_sl_value
-
-                self.order_dict["slorder3"]["symbol"] = self.nf_pe_obj.trading_symbol
-                self.order_dict["slorder3"]["quantity"] = self.nf_pe_obj.lot_size
-                self.order_dict["slorder3"]["limit_price"] = self.nf_pe_obj.ti_3_sl_value
-            elif self.trading_security == "bankniftype":
-                self.order_dict["slorder1"]["symbol"] = self.bnf_pe_obj.trading_symbol
-                self.order_dict["slorder1"]["quantity"] = self.bnf_pe_obj.lot_size
-                self.order_dict["slorder1"]["limit_price"] = self.bnf_pe_obj.ti_1_sl_value
-
-                self.order_dict["slorder2"]["symbol"] = self.bnf_pe_obj.trading_symbol
-                self.order_dict["slorder2"]["quantity"] = self.bnf_pe_obj.lot_size
-                self.order_dict["slorder2"]["limit_price"] = self.bnf_pe_obj.ti_2_sl_value
-
-                self.order_dict["slorder3"]["symbol"] = self.bnf_pe_obj.trading_symbol
-                self.order_dict["slorder3"]["quantity"] = self.bnf_pe_obj.lot_size
-                self.order_dict["slorder3"]["limit_price"] = self.bnf_pe_obj.ti_3_sl_value
-            else:
-                print(f"none stoploss orders, security set as {self.trading_security}, passing")
-
-            self.order_dict["slorder1"]["oid"] = self.orders.place_sl_market_sell_nfo(
-                self.order_dict["slorder1"]["symbol"],
-                self.order_dict["slorder1"]["quantity"],
-                self.order_dict["slorder1"]["limit_price"],
-                "sl1stlot")
-            self.order_dict["slorder2"]["oid"] = self.orders.place_sl_market_sell_nfo(
-                self.order_dict["slorder2"]["symbol"],
-                self.order_dict["slorder2"]["quantity"],
-                self.order_dict["slorder2"]["limit_price"],
-                "sl2ndlot")
-            self.order_dict["slorder3"]["oid"] = self.orders.place_sl_market_sell_nfo(
-                self.order_dict["slorder3"]["symbol"],
-                self.order_dict["slorder3"]["quantity"],
-                self.order_dict["slorder3"]["limit_price"],
-                "sl3rdlot")
 
     def initialise(self):
         # if is_market_open():

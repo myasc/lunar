@@ -1,6 +1,6 @@
 from utilsall.kite_make_connection import Kite
 from strategy import Strategy
-import config
+import config1
 from time import sleep
 from pprint import pprint
 import warnings

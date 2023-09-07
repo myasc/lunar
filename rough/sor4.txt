@@ -330,9 +330,4 @@ Kite Connection Successful!!
   'validity': 'DAY',
   'validity_ttl': 0,
   'variety': 'regular'}]
-Traceback (most recent call last):
-  File "/Users/anirudh/Documents/lunar/tests/listorders.py", line 16, in <module>
-    time.sleep(30)
-KeyboardInterrupt
 
-Process finished with exit code 130 (interrupted by signal 2: SIGINT)
