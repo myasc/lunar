@@ -62,6 +62,9 @@ class FnoDataProcessor:
         self.level_value = None
 
         self.instruments_fetched = False
+        # self.last_timestamp_processed = None
+        self.latest_timestamp = None
+
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object created")
 
     def read_instruments_df(self):
@@ -100,8 +103,17 @@ class FnoDataProcessor:
         self.data_start_datetime = self.data_end_datetime - dt.timedelta(days=90)
         data_w_lastcandle_changing = self.hist_data_obj.fetch(self.data_start_datetime, self.data_end_datetime)
         self.historical_data_df = data_w_lastcandle_changing.iloc[:-1].copy()
-        # print(data_w_lastcandle_changing.tail(5))
-        # print(self.historical_data_df.tail(5))
+        print(data_w_lastcandle_changing.tail(5))
+        print(self.historical_data_df.tail(5))
+        self.latest_timestamp = self.historical_data_df.index[-1]
+        # print(last_ts)
+        # print(type(last_ts))
+        # last_ts_str = str(last_ts)
+        # print(last_ts_str)
+        # print(type(last_ts_str))
+        # last_ts_dt = pd.to_datetime(last_ts_str)
+        # print(last_ts_dt)
+        # print(type(last_ts_dt))
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, fetched historical data ")
 
 

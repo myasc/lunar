@@ -254,7 +254,7 @@ def creat_empty_order_dict():
             "quantity": 0,
             "limit_price": 0,
             "oid": "",
-            "state": ""}
+            "status": ""}
 
 
 def reach_project_dir():

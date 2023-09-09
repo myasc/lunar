@@ -1,3 +1,5 @@
+import pandas as pd
+
 from utilsall.utils import add_row_to_csv
 from utilsall.misc import reach_project_dir
 import datetime as dt
@@ -9,6 +11,7 @@ class Orders:
         self.csv_filepath = None
         self.testing = testing
         self.initialise_csv_logs()
+        self.tag_name = "lunar"
 
     def initialise_csv_logs(self):
         date_str = str(dt.datetime.now().date()).replace("-", "")
@@ -54,7 +57,8 @@ class Orders:
                                       quantity=quantity,
                                       order_type=self.kite_obj.ORDER_TYPE_MARKET,
                                       product=self.kite_obj.PRODUCT_NRML,
-                                      variety=self.kite_obj.VARIETY_REGULAR)
+                                      variety=self.kite_obj.VARIETY_REGULAR,
+                                             tag=self.tag_name)
             add_row_to_csv(row=["market", "buy", quantity, trading_symbol, " ",response["data"]["order_id"], remark],
                            file_path=self.csv_filepath,
                            print_=True)
@@ -83,7 +87,8 @@ class Orders:
                                       transaction_type=self.kite_obj.TRANSACTION_TYPE_SELL,
                                       order_type=self.kite_obj.ORDER_TYPE_SL,
                                       product=self.kite_obj.PRODUCT_NRML,
-                                      variety=self.kite_obj.VARIETY_REGULAR)
+                                      variety=self.kite_obj.VARIETY_REGULAR,
+                                             tag=self.tag_name)
             add_row_to_csv(row=["market", "sell", quantity, trading_symbol, limit_price,response["data"]["order_id"], remark],
                            file_path=self.csv_filepath,
                            print_=True)
@@ -106,7 +111,8 @@ class Orders:
                                       transaction_type=self.kite_obj.TRANSACTION_TYPE_BUY,
                                       order_type=self.kite_obj.ORDER_TYPE_LIMIT,
                                       product=self.kite_obj.PRODUCT_NRML,
-                                      variety=self.kite_obj.VARIETY_REGULAR)
+                                      variety=self.kite_obj.VARIETY_REGULAR,
+                                             tag=self.tag_name)
             add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response["data"]["order_id"], remark],
                            file_path=self.csv_filepath,
                            print_=True)
@@ -131,7 +137,8 @@ class Orders:
                                       product=self.kite_obj.PRODUCT_NRML,
                                       variety=self.kite_obj.VARIETY_REGULAR,
                                       validity=self.kite_obj.VALIDITY_TTL,
-                                      validity_ttl=valid_mins)
+                                      validity_ttl=valid_mins,
+                                             tag=self.tag_name)
             add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response["data"]["order_id"], remark],
                            file_path=self.csv_filepath,
                            print_=True)
@@ -147,18 +154,24 @@ class Orders:
     def place_raw(self, price, trigger_price, quantity, trading_symbol, exchange, transaction_type, order_type, product,
                   variety):
         response = self.kite_obj.place_order(price=price,
-                                  trigger_price=trigger_price,
-                                  quantity=quantity,
-                                  tradingsymbol=trading_symbol,
-                                  exchange=exchange,
-                                  transaction_type=transaction_type,
-                                  order_type=order_type,
-                                  product=product,
-                                  variety=variety)
+                                              trigger_price=trigger_price,
+                                              quantity=quantity,
+                                              tradingsymbol=trading_symbol,
+                                              exchange=exchange,
+                                              transaction_type=transaction_type,
+                                              order_type=order_type,
+                                              product=product,
+                                              variety=variety,
+                                             tag=self.tag_name)
         add_row_to_csv(row=[order_type, transaction_type, quantity, trading_symbol, trigger_price,response["data"]["order_id"], "raw_order"],
                        file_path=self.csv_filepath,
                        print_=True)
         return response
+
+    def get_orders(self):
+        orders_df = pd.DataFrame(self.kite_obj.orders())
+        this_tag_orders = orders_df[orders_df["tag"] == self.tag_name].copy()
+        return this_tag_orders
 
 if __name__ == "__main__":
     orders_obj = Orders("dummy")

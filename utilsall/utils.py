@@ -1,7 +1,10 @@
 import csv
+import math
 import os
 import logging
 import datetime as dt
+import time
+
 from utilsall.expiryselector import ExpirySelector
 from utilsall.fnocontractselector import FNOContractSelector
 from utilsall.marketholidays import MarketHolidays
@@ -33,6 +36,7 @@ def fetch_instru_token(kite_obj, underlying, strike, instrument):
 
     cs = FNOContractSelector(kite_obj, underlying, expiry_date, instrument, strike)
     id_ = cs.get_instrument_id()
+    print(id_)
     return id_
 
 
@@ -156,3 +160,16 @@ def is_market_open():
         return True
     else:
         return False
+
+def sleep_till_market_open():
+    now = dt.datetime.now()
+    open = now.replace(hour=9, minute=15, second=0, microsecond=0)
+    if open >= now:
+        remain = (open - now).seconds
+        if remain >= 60:
+            sleep_sec = math.floor(remain/2)
+        else:
+            sleep_sec = 10
+        time.sleep(sleep_sec)
+    else:
+        pass

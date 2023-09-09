@@ -29,18 +29,9 @@ class Strategy:
         self.csv_strategy_log_file_path = None
         self.strat_json_file_path = None
         self.trading_security = None
-        self.trading_instru_obj_ref_dict = {"niftyce": self.nf_ce_obj,
-                                             "bankniftyce": self.bnf_ce_obj,
-                                             "niftype": self.nf_pe_obj,
-                                             "bankniftype": self.bnf_pe_obj,
-                                             }
-        self.all_instru_obj_ref_dict = {"niftyfut": self.nf_fut_obj,
-                                        "niftyce": self.nf_ce_obj,
-                                        "niftype": self.nf_pe_obj,
-                                        "bankniftyfut": self.bnf_fut_obj,
-                                        "bankniftyce": self.bnf_ce_obj,
-                                        "bankniftype": self.bnf_pe_obj,
-                                        }
+        self.trading_instru_obj_ref_dict = None
+        self.all_instru_obj_ref_dict = None
+
         self.strategy_state_dict = dict()
         self.strategy_state_dict["loggedat"] = str(dt.datetime.now())
         self.strategy_state_dict["trading_symbol"] = None  # -1
@@ -48,7 +39,6 @@ class Strategy:
         self.strategy_state_dict["signals"] = 0  # -1
         self.strategy_state_dict["trades"] = 0  # -1
         self.strategy_state_dict["slhit"] = 0  # -1
-        self.strategy_state_dict["exits"] = 0  # -1
         self.strategy_state_dict["status_beacon"] = None  # -1
         self.strategy_state_dict["last_processed_timestamp"] = None  # -1
 
@@ -74,6 +64,7 @@ class Strategy:
             save_dict_to_json_file(self.strategy_state_dict, self.strat_json_file_path)
         else:
             self.strategy_state_dict = get_latest_json_dict(self.strat_json_file_path)
+            self.strategy_state_dict["last_processed_timestamp"] = pd.to_datetime(self.strategy_state_dict["last_processed_timestamp"])
         os.chdir(pwd)
 
     def init_strategy_csv_log(self):
@@ -96,6 +87,19 @@ class Strategy:
         self.bnf_ce_obj = FnoDataProcessor(self.kite_obj, bnf_ce_token, self.candle_interval, self.bnf_fut_obj.last_close_price)
         bnf_pe_token = fetch_instru_token(self.kite_obj, "BANKNIFTY", self.config["banknifty_strike_pe"], "PE")
         self.bnf_pe_obj = FnoDataProcessor(self.kite_obj, bnf_pe_token, self.candle_interval, self.bnf_fut_obj.last_close_price)
+
+        self.trading_instru_obj_ref_dict = {"niftyce": self.nf_ce_obj,
+                                            "bankniftyce": self.bnf_ce_obj,
+                                            "niftype": self.nf_pe_obj,
+                                            "bankniftype": self.bnf_pe_obj,
+                                            }
+        self.all_instru_obj_ref_dict = {"niftyfut": self.nf_fut_obj,
+                                        "niftyce": self.nf_ce_obj,
+                                        "niftype": self.nf_pe_obj,
+                                        "bankniftyfut": self.bnf_fut_obj,
+                                        "bankniftyce": self.bnf_ce_obj,
+                                        "bankniftype": self.bnf_pe_obj,
+                                        }
 
     def _init_dataprocessor(self):
         for objname in self.all_instru_obj_ref_dict.keys():
@@ -148,11 +152,20 @@ class Strategy:
             else:
                 raise Exception("order status other than complete,cancel, open")
 
+    def signal_execution_fail_process(self):
+        oid_ = self.order_dict["entryorder"]["oid"]
+        if oid_ != "" and self.get_order_status(oid_) == "CANCELLED":
+            self.order_dict["entryorder"]["oid"] = ""
+        else:
+            pass
+
     def get_order_status(self, oid):
-        orders_df = self.kite_obj.orders()
-        # todo this might need to be converted to dataframe, above
-        this_order = orders_df[orders_df["order_id"] == oid].to_dict("records")[0]
-        return this_order["status"]
+        if oid == "":
+            return ""
+        else:
+            orders_df = self.orders.get_orders()
+            this_order = orders_df[orders_df["order_id"] == oid].to_dict("records")[0]
+            return this_order["status"]
 
     def print_to_console(self):
         # status beacon
@@ -172,28 +185,28 @@ class Strategy:
                                "day pnl": "",
                                }
         print("current time: ", dt.datetime.now())
-        print("Indicator signal/value/rank")
-        print("Trading signal for: ",self.trading_security)
-        # pprint(print_data_indicator)
-        print("-"*30)
-        print(self.nf_fut_obj.trading_symbol, "rank: ", self.nf_fut_obj.rank)
-        print(pd.DataFrame(print_data_indicator["nf_fu"]))
-        print("-"*30)
-        print(self.nf_ce_obj.trading_symbol, "rank: ", self.nf_ce_obj.rank)
-        print(pd.DataFrame(print_data_indicator["nf_ce"]))
-        print("-"*30)
-        print(self.nf_pe_obj.trading_symbol, "rank: ", self.nf_pe_obj.rank)
-        print(pd.DataFrame(print_data_indicator["nf_pe"]))
-        print("-"*30)
-        print(self.bnf_fut_obj.trading_symbol, "rank: ", self.bnf_fut_obj.rank)
-        print(pd.DataFrame(print_data_indicator["bnf_fu"]))
-        print("-"*30)
-        print(self.bnf_ce_obj.trading_symbol, "rank: ", self.bnf_ce_obj.rank)
-        print(pd.DataFrame(print_data_indicator["bnf_ce"]))
-        print("-"*30)
-        print(self.bnf_pe_obj.trading_symbol, "rank: ", self.bnf_pe_obj.rank)
-        print(pd.DataFrame(print_data_indicator["bnf_pe"]))
-        print("-" * 30)
+        # print("Indicator signal/value/rank")
+        # print("Trading signal for: ",self.trading_security)
+        # # pprint(print_data_indicator)
+        # print("-"*30)
+        # print(self.nf_fut_obj.trading_symbol, "rank: ", self.nf_fut_obj.rank)
+        # print(pd.DataFrame(print_data_indicator["nf_fu"]))
+        # print("-"*30)
+        # print(self.nf_ce_obj.trading_symbol, "rank: ", self.nf_ce_obj.rank)
+        # print(pd.DataFrame(print_data_indicator["nf_ce"]))
+        # print("-"*30)
+        # print(self.nf_pe_obj.trading_symbol, "rank: ", self.nf_pe_obj.rank)
+        # print(pd.DataFrame(print_data_indicator["nf_pe"]))
+        # print("-"*30)
+        # print(self.bnf_fut_obj.trading_symbol, "rank: ", self.bnf_fut_obj.rank)
+        # print(pd.DataFrame(print_data_indicator["bnf_fu"]))
+        # print("-"*30)
+        # print(self.bnf_ce_obj.trading_symbol, "rank: ", self.bnf_ce_obj.rank)
+        # print(pd.DataFrame(print_data_indicator["bnf_ce"]))
+        # print("-"*30)
+        # print(self.bnf_pe_obj.trading_symbol, "rank: ", self.bnf_pe_obj.rank)
+        # print(pd.DataFrame(print_data_indicator["bnf_pe"]))
+        # print("-" * 30)
         # print(print_data_strategy)
         # print("current open positions:", 0)
         # print("day pnl:", 0)
@@ -207,7 +220,7 @@ class Strategy:
             printer_logger(f"entry order waiting after valid signal", self.logger, "info", True)
             # sleep(self.config["entry_order_wait_min"] * 55)  # little less than 60 seconds
             self.order_dict["entryorder"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
-            self.order_dict["entryorder"]["quantity"] = self.config["lots_per_set"] * self.trading_instru_obj_ref_dict[self.trading_security].lot_size
+            self.order_dict["entryorder"]["quantity"] = self.config["num_of_sets"] * self.config["lots_per_set"] * self.trading_instru_obj_ref_dict[self.trading_security].lot_size
             self.order_dict["entryorder"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].last_close_price
 
             buy_resp = self.orders.place_validity_limit_buy_nfo(self.order_dict["entryorder"]["symbol"],
@@ -233,34 +246,27 @@ class Strategy:
         self.strategy_state_dict["status_beacon"] = "IN-POS"
         self.strategy_state_dict["signals"] = self.strategy_state_dict["signals"] + 1
         self.send_stoploss_orders()
-        self.send_global_sl_order()
+        # self.send_global_sl_order()
         printer_logger("buy complete process initiated", self.logger, "info", True)
 
-
-
-    def send_global_sl_order(self):
-        self.order_dict["slorderglobal"]["symbol"] = self.order_dict["entryorder"]["symbol"]
-        self.order_dict["slorderglobal"]["quantity"] = self.order_dict["entryorder"]["quantity"]
-        self.order_dict["slorderglobal"]["limit_price"] = self.order_dict["entryorder"]["limit_price"] - \
-                                                          self.config["global_sl"]
-        sl_resp = self.orders.place_sl_market_sell_nfo(self.order_dict["slorderglobal"]["symbol"],
-                                                       self.order_dict["slorderglobal"]["quantity"],
-                                                       self.order_dict["slorderglobal"]["limit_price"],
-                                                       "globalsl")
-        self.order_dict["slorderglobal"]["oid"] = sl_resp["data"]["order_id"]
+    def update_order_status(self):
+        self.order_dict["entryorder"]["status"] = self.get_order_status(self.order_dict["entryorder"]["oid"])
+        self.order_dict["slorder1"]["status"] = self.get_order_status(self.order_dict["slorder1"]["oid"])
+        self.order_dict["slorder2"]["status"] = self.get_order_status(self.order_dict["slorder2"]["oid"])
+        self.order_dict["slorder3"]["status"] = self.get_order_status(self.order_dict["slorder3"]["oid"])
 
     def send_stoploss_orders(self):
         if self.trading_security in self.trading_instru_obj_ref_dict.keys():
             self.order_dict["slorder1"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
-            self.order_dict["slorder1"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size
+            self.order_dict["slorder1"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
             self.order_dict["slorder1"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_1_sl_value
 
             self.order_dict["slorder2"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
-            self.order_dict["slorder2"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size
+            self.order_dict["slorder2"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
             self.order_dict["slorder2"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_2_sl_value
 
             self.order_dict["slorder3"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
-            self.order_dict["slorder3"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size
+            self.order_dict["slorder3"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
             self.order_dict["slorder3"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_3_sl_value
 
             for sl_od in [self.order_dict["slorder1"], self.order_dict["slorder2"], self.order_dict["slorder3"]]:
@@ -270,9 +276,33 @@ class Strategy:
         else:
             print(f"none stoploss orders, security set as {self.trading_security}, passing")
 
+    def update_last_processed_timestamp(self):
+        self.strategy_state_dict["last_processed_timestamp"] = max(self.nf_fut_obj.latest_timestamp,
+                                                                   self.nf_ce_obj.latest_timestamp,
+                                                                   self.nf_pe_obj.latest_timestamp,
+                                                                   self.bnf_fut_obj.latest_timestamp,
+                                                                   self.bnf_ce_obj.latest_timestamp,
+                                                                   self.bnf_pe_obj.latest_timestamp,
+                                                                   )
+
+    def ready_for_next_candle(self):
+        now = dt.datetime.now()
+        if self.config["candle_interval"] == "5minute":
+            minute_delta = 5
+        else:
+            minute_delta = 5
+        if self.strategy_state_dict["last_processed_timestamp"] is None:
+            next_candle_time = now.replace(hour=9, minute=15, second=0, microsecond=0) + dt.timedelta(minutes=minute_delta)
+        else:
+            next_candle_time = self.strategy_state_dict["last_processed_timestamp"] + dt.timedelta(minutes=minute_delta)
+
+        if dt.datetime.now() >= next_candle_time:
+            return True
+        else:
+            return False
 
     def initialise(self):
-        # if is_market_open():
+        # if is_market_open() and self.ready_for_next_candle():
             self.initialise_logs_n_files()
             # self.prepare_strategy_dict_n_json()
             # self.read_latest_strategy_dict()
@@ -282,10 +312,12 @@ class Strategy:
             self.set_trading_security()
             self.place_order_process()
             self.print_to_console()
+            self.update_last_processed_timestamp()
 
     def update(self):
-        # if is_market_open():
+        # if is_market_open() and self.ready_for_next_candle():
             self._update_dataprocessor()
             self.place_order_process()
             self.print_to_console()
+            self.update_last_processed_timestamp()
 
