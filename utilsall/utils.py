@@ -161,12 +161,12 @@ def is_market_open():
     else:
         return False
 
-def sleep_till_market_open():
+def sleep_till_time(hour, minute, quick_check_at_secs=60):
     now = dt.datetime.now()
-    open = now.replace(hour=9, minute=15, second=0, microsecond=0)
+    open = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
     if open >= now:
         remain = (open - now).seconds
-        if remain >= 60:
+        if remain >= quick_check_at_secs:
             sleep_sec = math.floor(remain/2)
         else:
             sleep_sec = 10

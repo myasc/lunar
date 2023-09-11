@@ -173,6 +173,14 @@ class Orders:
         this_tag_orders = orders_df[orders_df["tag"] == self.tag_name].copy()
         return this_tag_orders
 
+    def get_order_status(self, oid):
+        if oid == "":
+            return ""
+        else:
+            orders_df = self.get_orders()
+            this_order = orders_df[orders_df["order_id"] == oid].to_dict("records")[0]
+            return this_order["status"]
+
 if __name__ == "__main__":
     orders_obj = Orders("dummy")
     charges = orders_obj.calculate_transaction_charges(47, 72, 50, "OPT")
