@@ -1,0 +1,3 @@
+INFO:utilsall.utils:2023-09-13 13:09:57,285:logs and json initialised
+INFO:utilsall.utils:2023-09-13 13:10:23,267:entry order waiting after valid signal
+INFO:utilsall.utils:2023-09-13 13:10:23,268:buy triggered going for complete/cancel/open process

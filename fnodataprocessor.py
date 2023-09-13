@@ -103,8 +103,8 @@ class FnoDataProcessor:
         self.data_start_datetime = self.data_end_datetime - dt.timedelta(days=90)
         data_w_lastcandle_changing = self.hist_data_obj.fetch(self.data_start_datetime, self.data_end_datetime)
         self.historical_data_df = data_w_lastcandle_changing.iloc[:-1].copy()
-        print(data_w_lastcandle_changing.tail(5))
-        print(self.historical_data_df.tail(5))
+        # print(data_w_lastcandle_changing.tail(5))
+        # print(self.historical_data_df.tail(5))
         self.latest_timestamp = self.historical_data_df.index[-1]
         # print(last_ts)
         # print(type(last_ts))

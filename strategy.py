@@ -5,7 +5,7 @@ from time import sleep
 from pprint import pprint
 import os
 from fnodataprocessor import FnoDataProcessor
-from utilsall.utils import fetch_instru_token, save_dict_to_json_file
+from utilsall.utils import fetch_instru_token, save_dict_to_json_file, sleep_till_time
 from utilsall.orders import Orders
 from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv, get_latest_json_dict, is_market_open
 from utilsall.misc import create_print_dict, creat_empty_order_dict, reach_project_dir
@@ -32,6 +32,7 @@ class Strategy:
         self.trading_instru_obj_ref_dict = None
         self.all_instru_obj_ref_dict = None
 
+        self.csv_log_row_list = []
         self.strategy_state_dict = dict()
         self.strategy_state_dict["loggedat"] = str(dt.datetime.now())
         self.strategy_state_dict["trading_symbol"] = None  # -1
@@ -50,6 +51,8 @@ class Strategy:
         self.order_dict["slorder2"] = creat_empty_order_dict()
         self.order_dict["slorder3"] = creat_empty_order_dict()
         self.order_dict["slorderglobal"] = creat_empty_order_dict()
+
+        self.strategy_initialised = False
 
     def initialise_logs_n_files(self):
         self.logger = logger_intialise("strategy")
@@ -73,6 +76,17 @@ class Strategy:
         date_str = str(dt.datetime.now().date()).replace("-", "")
         self.csv_strategy_log_file_path = f"csv_files/strategy_{date_str}.csv"
         add_row_to_csv(row=["process", "pnl"],
+                       file_path=self.csv_strategy_log_file_path,
+                       print_=True)
+
+    def write_csv_n_json(self):
+        date_str = str(dt.datetime.now().date()).replace("-", "")
+        #write strategy state json
+        self.strat_json_file_path = f"json_files/strategy_{date_str}.json"
+        save_dict_to_json_file(self.strategy_state_dict, self.strat_json_file_path)
+        # write strategy csv logs
+        self.csv_strategy_log_file_path = f"csv_files/strategy_{date_str}.csv"
+        add_row_to_csv(row=self.csv_log_row_list,
                        file_path=self.csv_strategy_log_file_path,
                        print_=True)
 
@@ -136,6 +150,9 @@ class Strategy:
                 self.trading_security = None
         else:
             self.trading_security = None
+
+        # todo remove when not testing
+        self.trading_security = "niftyce"
 
     def orders_handler(self):
         self.send_buy_order_iftradingsecurity()
@@ -291,7 +308,7 @@ class Strategy:
                                                                    self.bnf_fut_obj.latest_timestamp,
                                                                    self.bnf_ce_obj.latest_timestamp,
                                                                    self.bnf_pe_obj.latest_timestamp,
-                                                                   )
+                                                                   ).replace(tzinfo=None)
 
     def update_pnl(self):
         if self.order_dict["entryorder"]["oid"] == "":
@@ -305,41 +322,52 @@ class Strategy:
 
     def ready_for_next_candle(self):
         now = dt.datetime.now()
+        # 2 multipled below because complete candle data is available after next candle time interval ends
         if self.config["candle_interval"] == "5minute":
-            minute_delta = 5
+            minute_delta = 2 * 5
+        elif self.config["candle_interval"] == "1minute":
+            minute_delta = 2 * 1
         else:
-            minute_delta = 5
-        if self.strategy_state_dict["last_processed_timestamp"] is None:
-            next_candle_time = now.replace(hour=9, minute=15, second=0, microsecond=0) + dt.timedelta(minutes=minute_delta)
+            minute_delta = 2 * 5
+        last_processed_timestamp = self.strategy_state_dict["last_processed_timestamp"]
+        if last_processed_timestamp is None:
+            next_candle_time = now.replace(hour=9, minute=15, second=0, microsecond=0) + dt.timedelta(minutes=minute_delta) + dt.timedelta(minutes=self.config["entry_order_wait_min"])
         else:
-            next_candle_time = self.strategy_state_dict["last_processed_timestamp"] + dt.timedelta(minutes=minute_delta)
+            next_candle_time = last_processed_timestamp + dt.timedelta(minutes=minute_delta) + dt.timedelta(minutes=self.config["entry_order_wait_min"])
 
         if dt.datetime.now() >= next_candle_time:
+            print(f"next candle available now:{now} candle:{next_candle_time} last:{last_processed_timestamp}")
             return True
         else:
+            print(f"wait for candle now:{now} candle:{next_candle_time} last:{last_processed_timestamp}")
             return False
 
     def initialise(self):
-        # if is_market_open() and self.ready_for_next_candle():
-            self.initialise_logs_n_files()
-            # self.prepare_strategy_dict_n_json()
-            # self.read_latest_strategy_dict()
-            self._set_dataprocessor_obj()
-            self._init_dataprocessor()
-            self._update_dataprocessor()
-            self.set_trading_security()
-            self.orders_handler()
-            self.update_last_processed_timestamp()
-            self.update_pnl()
-            self.print_to_console()
+        print("initialising strategy object")
+        self.initialise_logs_n_files()
+        # self.read_latest_strategy_dict()
+        self._set_dataprocessor_obj()
+        self._init_dataprocessor()
+        self.print_to_console()
+        self.strategy_initialised = True
 
 
     def update(self):
-        # if is_market_open() and self.ready_for_next_candle():
-            self._update_dataprocessor()
-            self.set_trading_security()
-            self.orders_handler()
-            self.update_last_processed_timestamp()
-            self.update_pnl()
-            self.print_to_console()
+        if not self.strategy_initialised:
+            self.initialise()
+        else:
+            if is_market_open():
+                if self.ready_for_next_candle():
+                    self._update_dataprocessor()
+                    self.set_trading_security()
+                    self.orders_handler()
+                    self.update_last_processed_timestamp()
+                    self.update_pnl()
+                    self.write_csv_n_json()
+                    self.print_to_console()
+                else:
+                    print("sleeping till next candle")
+                    sleep(20)
+            else:
+                sleep_till_time(9, 15, 30)
 

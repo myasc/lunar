@@ -142,6 +142,7 @@ class Orders:
             add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response["data"]["order_id"], remark],
                            file_path=self.csv_filepath,
                            print_=True)
+            print(response)
             return response
         else:
             response = {"data": {"order_id": "test_oid_123"}}
@@ -170,8 +171,11 @@ class Orders:
 
     def get_orders(self):
         orders_df = pd.DataFrame(self.kite_obj.orders())
-        this_tag_orders = orders_df[orders_df["tag"] == self.tag_name].copy()
-        return this_tag_orders
+        if not orders_df.empty:
+            this_tag_orders = orders_df[orders_df["tag"] == self.tag_name].copy()
+            return this_tag_orders
+        else:
+            return orders_df
 
     def get_order_status(self, oid):
         if oid == "":

@@ -155,13 +155,16 @@ def is_market_open():
     market_opentime = dt.datetime(year=now.year, month=now.month,day=now.day, hour=9, minute=15)
     market_closetime = dt.datetime(year=now.year, month=now.month,day=now.day, hour=15, minute=30)
     if now.date() in get_holidays():
+        print(f"market holiday {now}")
         return False
     elif (now >= market_opentime) and (now < market_closetime):
+        print(f"market now open {now}")
         return True
     else:
+        print(f"market now closed {now}")
         return False
 
-def sleep_till_time(hour, minute, quick_check_at_secs=60):
+def sleep_till_time(hour, minute, quick_check_at_secs=30):
     now = dt.datetime.now()
     open = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
     if open >= now:
@@ -169,7 +172,8 @@ def sleep_till_time(hour, minute, quick_check_at_secs=60):
         if remain >= quick_check_at_secs:
             sleep_sec = math.floor(remain/2)
         else:
-            sleep_sec = 10
+            sleep_sec = 5
+        print(f"sleeping secs:{sleep_sec} now:{now} till:{open}")
         time.sleep(sleep_sec)
     else:
         pass
