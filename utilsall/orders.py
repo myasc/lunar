@@ -59,7 +59,7 @@ class Orders:
                                       product=self.kite_obj.PRODUCT_NRML,
                                       variety=self.kite_obj.VARIETY_REGULAR,
                                              tag=self.tag_name)
-            add_row_to_csv(row=["market", "buy", quantity, trading_symbol, " ",response["data"]["order_id"], remark],
+            add_row_to_csv(row=["market", "buy", quantity, trading_symbol, " ",response, remark],
                            file_path=self.csv_filepath,
                            print_=True)
             return response
@@ -72,7 +72,7 @@ class Orders:
                   f"{self.kite_obj.ORDER_TYPE_MARKET}"
                   f"{self.kite_obj.PRODUCT_NRML}"
                   f"{self.kite_obj.VARIETY_REGULAR}")
-            add_row_to_csv(row=["market", "buy", quantity, trading_symbol, " ",response["data"]["order_id"], "testing"],
+            add_row_to_csv(row=["market", "buy", quantity, trading_symbol, " ",response, "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
             return response
@@ -89,14 +89,14 @@ class Orders:
                                       product=self.kite_obj.PRODUCT_NRML,
                                       variety=self.kite_obj.VARIETY_REGULAR,
                                              tag=self.tag_name)
-            add_row_to_csv(row=["market", "sell", quantity, trading_symbol, limit_price,response["data"]["order_id"], remark],
+            add_row_to_csv(row=["market", "sell", quantity, trading_symbol, limit_price,response, remark],
                            file_path=self.csv_filepath,
                            print_=True)
             return response
         else:
             response = {"data": {"order_id": "test_oid_123"}}
             print(f"test: {limit_price} {quantity} {trading_symbol}")
-            add_row_to_csv(row=["market", "sell", quantity, trading_symbol, limit_price,response["data"]["order_id"], "testing"],
+            add_row_to_csv(row=["market", "sell", quantity, trading_symbol, limit_price,response, "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
             return response
@@ -113,14 +113,14 @@ class Orders:
                                       product=self.kite_obj.PRODUCT_NRML,
                                       variety=self.kite_obj.VARIETY_REGULAR,
                                              tag=self.tag_name)
-            add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response["data"]["order_id"], remark],
+            add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response, remark],
                            file_path=self.csv_filepath,
                            print_=True)
             return response
         else:
             response = {"data": {"order_id": "test_oid_123"}}
             print(f"test: {limit_price} {quantity} {trading_symbol}")
-            add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response["data"]["order_id"], "testing"],
+            add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response, "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
             return response
@@ -139,15 +139,14 @@ class Orders:
                                       validity=self.kite_obj.VALIDITY_TTL,
                                       validity_ttl=valid_mins,
                                              tag=self.tag_name)
-            add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response["data"]["order_id"], remark],
+            add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response, remark],
                            file_path=self.csv_filepath,
                            print_=True)
-            print(response)
             return response
         else:
             response = {"data": {"order_id": "test_oid_123"}}
             print(f"test: {limit_price} {quantity} {trading_symbol}")
-            add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response["data"]["order_id"], "testing"],
+            add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response, "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
             return response
@@ -164,7 +163,7 @@ class Orders:
                                               product=product,
                                               variety=variety,
                                              tag=self.tag_name)
-        add_row_to_csv(row=[order_type, transaction_type, quantity, trading_symbol, trigger_price,response["data"]["order_id"], "raw_order"],
+        add_row_to_csv(row=[order_type, transaction_type, quantity, trading_symbol, trigger_price,response, "raw_order"],
                        file_path=self.csv_filepath,
                        print_=True)
         return response

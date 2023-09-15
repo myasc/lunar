@@ -68,8 +68,10 @@ class Strategy:
         if not os.path.exists(self.strat_json_file_path):
             save_dict_to_json_file(self.strategy_state_dict, self.strat_json_file_path)
         else:
-            self.strategy_state_dict = get_latest_json_dict(self.strat_json_file_path)
-            self.strategy_state_dict["last_processed_timestamp"] = pd.to_datetime(self.strategy_state_dict["last_processed_timestamp"])
+            latest_dict = get_latest_json_dict(self.strat_json_file_path)
+            if latest_dict != {}:
+                self.strategy_state_dict = latest_dict
+                self.strategy_state_dict["last_processed_timestamp"] = pd.to_datetime(self.strategy_state_dict["last_processed_timestamp"])
         os.chdir(pwd)
 
     def init_strategy_csv_log(self):
@@ -83,7 +85,9 @@ class Strategy:
         date_str = str(dt.datetime.now().date()).replace("-", "")
         #write strategy state json
         self.strat_json_file_path = f"json_files/strategy_{date_str}.json"
-        save_dict_to_json_file(self.strategy_state_dict, self.strat_json_file_path)
+        strategy_state_dict_copy = self.strategy_state_dict
+        strategy_state_dict_copy["last_processed_timestamp"] = str(strategy_state_dict_copy["last_processed_timestamp"])
+        save_dict_to_json_file(strategy_state_dict_copy, self.strat_json_file_path)
         # write strategy csv logs
         self.csv_strategy_log_file_path = f"csv_files/strategy_{date_str}.csv"
         add_row_to_csv(row=self.csv_log_row_list,
@@ -152,10 +156,11 @@ class Strategy:
             self.trading_security = None
 
         # todo remove when not testing
-        self.trading_security = "niftyce"
+        self.trading_security = "niftype"
 
     def orders_handler(self):
         self.send_buy_order_iftradingsecurity()
+        #todo can below entryorderoid be repalced with tradingsecurity as none for consistancy
         if self.order_dict["entryorder"]["oid"] == "":
             printer_logger("buy not triggered", self.logger, "info", True)
         elif self.strategy_state_dict["status_beacon"] == "IN-POS":
@@ -163,14 +168,15 @@ class Strategy:
             self.trade_cycle_complete_process()
         else:
             printer_logger("buy triggered going for complete/cancel/open process", self.logger, "info", True)
-            if self.orders.get_order_status(self.order_dict["entryorder"]["oid"]) == "COMPLETE":
+            order_status = self.orders.get_order_status(self.order_dict["entryorder"]["oid"])
+            if order_status == "COMPLETE":
                 self.buy_complete_process()
-            elif self.orders.get_order_status(self.order_dict["entryorder"]["oid"]) == "CANCELLED":
+            elif order_status == "CANCELLED":
                 self.buy_cancel_process()
-            elif self.orders.get_order_status(self.order_dict["entryorder"]["oid"]) == "OPEN":
+            elif order_status == "OPEN":
                 self.buy_open_process()
             else:
-                raise Exception("order status other than complete,cancel, open")
+                raise Exception(f"order status other than complete,cancel, open: {order_status}")
 
     def send_buy_order_iftradingsecurity(self):
         if self.trading_security in self.trading_instru_obj_ref_dict.keys():
@@ -194,7 +200,7 @@ class Strategy:
                                                                     self.order_dict["entryorder"]["limit_price"],
                                                                     self.config["entry_order_valid_min"],
                                                                     "entry")
-                self.order_dict["entryorder"]["oid"] = buy_resp["data"]["order_id"]
+                self.order_dict["entryorder"]["oid"] = buy_resp
         else:
             print(f"buy order security set as {self.trading_security}, passing")
 
@@ -248,7 +254,7 @@ class Strategy:
             for sl_od in [self.order_dict["slorder1"], self.order_dict["slorder2"], self.order_dict["slorder3"]]:
                 order_response = self.orders.place_sl_market_sell_nfo(sl_od["symbol"], sl_od["quantity"], sl_od["limit_price"],
                                                            "sl")
-                sl_od["oid"] = order_response["data"]["order_id"]
+                sl_od["oid"] = order_response
         else:
             print(f"none stoploss orders, security set as {self.trading_security}, passing")
 

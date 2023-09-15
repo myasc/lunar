@@ -129,15 +129,17 @@ def get_latest_json_dict(json_file_path):
         return {}
     else:
         with open(json_file_path, "r") as json_file:
-            data = json.load(json_file)
-        latest_timestamp = dt.datetime.fromisoformat(data[0]["loggedat"])
-        latest_dict = data[0]
+            data = json.loads(json_file.read())
         if len(data) > 1:
+            latest_timestamp = dt.datetime.fromisoformat(data[0]["loggedat"])
+            latest_dict = data[0]
             for dict_ in data:
                 timestamp = dt.datetime.fromisoformat(dict_["loggedat"])
                 if timestamp > latest_timestamp:
                     latest_timestamp = timestamp
                     latest_dict = dict_
+        else:
+            latest_dict = {}
         os.chdir(pwd)
         print(f"read from json: {json_file_path}: {latest_dict}")
         return latest_dict
