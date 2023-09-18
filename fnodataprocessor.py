@@ -33,9 +33,9 @@ class FnoDataProcessor:
         self.ti_4_value = None
         self.ti_5_value = None
 
-        self.ti_1_sl_value = None
-        self.ti_2_sl_value = None
-        self.ti_3_sl_value = None
+        self.ti_1_tp_value = None
+        self.ti_2_tp_value = None
+        self.ti_3_tp_value = None
 
         self.ti_1_signal = None
         self.ti_2_signal = None
@@ -155,9 +155,9 @@ class FnoDataProcessor:
         else:
             pass
 
-        self.ti_1_sl_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_1_sl_config"])
-        self.ti_2_sl_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_2_sl_config"])
-        self.ti_3_sl_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_3_sl_config"])
+        self.ti_1_tp_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_1_tp_config"])
+        self.ti_2_tp_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_2_tp_config"])
+        self.ti_3_tp_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_3_tp_config"])
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, indicator value&signal set")
 
 

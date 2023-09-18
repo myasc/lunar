@@ -152,18 +152,33 @@ def get_holidays():
     os.chdir(pwd)
     return market_holidays_obj.holiday_dates_dt
 
+def is_market_holiday():
+    now = dt.datetime.now()
+    if now.date() in get_holidays():
+        print(f"market holiday {now}")
+        return True
+    elif now.weekday() in [5, 6]:
+        print(f"market weekend {now} weekday:{now.weekday()}")
+        return True
+    else:
+        return False
+
 def is_market_open():
     now = dt.datetime.now()
+    # now = dt.datetime(2023, 9, 17, 10, 0)
     market_opentime = dt.datetime(year=now.year, month=now.month,day=now.day, hour=9, minute=15)
     market_closetime = dt.datetime(year=now.year, month=now.month,day=now.day, hour=15, minute=30)
     if now.date() in get_holidays():
         print(f"market holiday {now}")
         return False
+    elif now.weekday() in [5, 6]:
+        print(f"market weekend {now} weekday:{now.weekday()}")
+        return False
     elif (now >= market_opentime) and (now < market_closetime):
-        print(f"market now open {now}")
+        print(f"market now open {now} weekday:{now.weekday()}")
         return True
     else:
-        print(f"market now closed {now}")
+        print(f"market now closed {now} weekday:{now.weekday()}")
         return False
 
 def sleep_till_time(hour, minute, quick_check_at_secs=30):

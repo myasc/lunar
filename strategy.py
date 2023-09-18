@@ -7,7 +7,7 @@ import os
 from fnodataprocessor import FnoDataProcessor
 from utilsall.utils import fetch_instru_token, save_dict_to_json_file, sleep_till_time
 from utilsall.orders import Orders
-from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv, get_latest_json_dict, is_market_open
+from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv, get_latest_json_dict, is_market_open, is_market_holiday
 from utilsall.misc import create_print_dict, creat_empty_order_dict, reach_project_dir
 
 
@@ -29,6 +29,7 @@ class Strategy:
         self.csv_strategy_log_file_path = None
         self.strat_json_file_path = None
         self.trading_security = None
+        self.signal_security = None
         self.trading_instru_obj_ref_dict = None
         self.all_instru_obj_ref_dict = None
 
@@ -40,17 +41,20 @@ class Strategy:
         self.strategy_state_dict["signals"] = 0  # -1
         self.strategy_state_dict["trades"] = 0  # -1
         self.strategy_state_dict["slhit"] = 0  # -1
+        self.strategy_state_dict["tphit"] = 0  # -1
         self.strategy_state_dict["daypnl"] = 0  # -1
         self.strategy_state_dict["tradepnl"] = 0  # -1
         self.strategy_state_dict["status_beacon"] = None  # -1
+        self.strategy_state_dict["status_code"] = 0  # -1
         self.strategy_state_dict["last_processed_timestamp"] = None  # -1
 
         self.order_dict = dict()
         self.order_dict["entryorder"] = creat_empty_order_dict()
-        self.order_dict["slorder1"] = creat_empty_order_dict()
-        self.order_dict["slorder2"] = creat_empty_order_dict()
-        self.order_dict["slorder3"] = creat_empty_order_dict()
-        self.order_dict["slorderglobal"] = creat_empty_order_dict()
+        self.order_dict["tporder1"] = creat_empty_order_dict()
+        self.order_dict["tporder2"] = creat_empty_order_dict()
+        self.order_dict["tporder3"] = creat_empty_order_dict()
+        self.order_dict["slglobal"] = creat_empty_order_dict()
+        self.order_dict["slindicator"] = creat_empty_order_dict()
 
         self.strategy_initialised = False
 
@@ -128,69 +132,63 @@ class Strategy:
     def _update_dataprocessor(self):
         for objname in self.all_instru_obj_ref_dict.keys():
             self.all_instru_obj_ref_dict[objname].update()
-    def set_trading_security(self):
-        self.strategy_state_dict["status_beacon"] = "ON-WT"
+    def check_for_signal(self):
         if (self.nf_fut_obj.rank >= 30) \
                 and (self.bnf_fut_obj.rank >= 30) \
                 and (self.nf_ce_obj.rank >= 70) \
                 and (self.nf_pe_obj.rank <= 30):
             if self.config["option_buy_underlying"] == "NIFTY":
-                self.trading_security = "niftyce"
+                self.signal_security = "niftyce"
+                self.strategy_state_dict["signals"] += 1
             elif self.config["option_buy_underlying"] == "BANKNIFTY":
-                self.trading_security = "bankniftyce"
+                self.signal_security = "bankniftyce"
+                self.strategy_state_dict["signals"] += 1
             else:
                 print(f"Invalid config['option_buy_underlying']: {self.config['option_buy_underlying']}")
-                self.trading_security = None
+                self.signal_security = None
         elif (self.nf_fut_obj.rank <= 30) \
                 and (self.bnf_fut_obj.rank <= 30) \
                 and (self.nf_pe_obj.rank >= 70) \
                 and (self.nf_ce_obj.rank <= 30):
             if self.config["option_buy_underlying"] == "NIFTY":
-                self.trading_security = "niftype"
+                self.signal_security = "niftype"
+                self.strategy_state_dict["signals"] += 1
             elif self.config["option_buy_underlying"] == "BANKNIFTY":
-                self.trading_security = "bankniftype"
+                self.signal_security = "bankniftype"
+                self.strategy_state_dict["signals"] += 1
             else:
                 print(f"Invalid config['option_buy_underlying']: {self.config['option_buy_underlying']}")
-                self.trading_security = None
+                self.signal_security = None
         else:
-            self.trading_security = None
+            self.signal_security = None
 
         # todo remove when not testing
-        self.trading_security = "niftype"
+        self.signal_security = "niftype"
 
-    def orders_handler(self):
-        self.send_buy_order_iftradingsecurity()
-        #todo can below entryorderoid be repalced with tradingsecurity as none for consistancy
-        if self.order_dict["entryorder"]["oid"] == "":
-            printer_logger("buy not triggered", self.logger, "info", True)
-        elif self.strategy_state_dict["status_beacon"] == "IN-POS":
-            self.update_order_status()
-            self.trade_cycle_complete_process()
+    def set_strategy_killswitch_codes(self):
+        now = dt.datetime.now()
+        strategy_opentime = self.config["program_start_time"]
+        strategy_closetime = self.config["program_exit_time"]
+
+        if self.strategy_state_dict["slhit"] >= self.config["max_stoploss_per_day"]:
+            self.strategy_state_dict["status_code"] = 203
+            printer_logger("max sl hit per day", self.logger, "info", True)
+        elif self.strategy_state_dict["trades"] >= self.config["max_trades_per_day"]:
+            self.strategy_state_dict["status_code"] = 204
+            printer_logger("max trade per day", self.logger, "info", True)
+        elif (now >= strategy_opentime) and (now < strategy_closetime):
+            self.strategy_state_dict["status_code"] = 201
+            printer_logger("outside strategy time", self.logger, "info", True)
         else:
-            printer_logger("buy triggered going for complete/cancel/open process", self.logger, "info", True)
-            order_status = self.orders.get_order_status(self.order_dict["entryorder"]["oid"])
-            if order_status == "COMPLETE":
-                self.buy_complete_process()
-            elif order_status == "CANCELLED":
-                self.buy_cancel_process()
-            elif order_status == "OPEN":
-                self.buy_open_process()
-            else:
-                raise Exception(f"order status other than complete,cancel, open: {order_status}")
+            pass
 
-    def send_buy_order_iftradingsecurity(self):
-        if self.trading_security in self.trading_instru_obj_ref_dict.keys():
-            self.strategy_state_dict["signals"] += 1
-
-            if self.strategy_state_dict["status_beacon"] == "IN-POS":
-                printer_logger("already in position, skipping buy order function", self.logger, "info", True)
-            elif self.strategy_state_dict["trades"] >= self.config["max_trades_per_day"]:
-                printer_logger("buy triggered but max trade per day", self.logger, "info", True)
-            elif self.strategy_state_dict["slhit"] >= self.config["max_stoploss_per_day"]:
-                printer_logger("buy triggered but max sl hit per day", self.logger, "info", True)
-            else:
-                printer_logger(f"entry order waiting after valid signal", self.logger, "info", True)
-                # sleep(self.config["entry_order_wait_min"] * 55)  # little less than 60 seconds
+    def send_buy_order_ifsignal_n_validcode(self):
+        if self.signal_security in self.trading_instru_obj_ref_dict.keys():
+            # if self.strategy_state_dict["status_code"] in [303, 304, 203, 204, 201]:
+            #     printer_logger("skipping buy order function (in position/killswitch)", self.logger, "info", True)
+            # else:
+                self.trading_security = self.signal_security
+                printer_logger(f"placing entry order after valid signal", self.logger, "info", True)
                 self.order_dict["entryorder"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
                 self.order_dict["entryorder"]["quantity"] = self.config["num_of_sets"] * self.config["lots_per_set"] * self.trading_instru_obj_ref_dict[self.trading_security].lot_size
                 self.order_dict["entryorder"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].last_close_price
@@ -201,17 +199,48 @@ class Strategy:
                                                                     self.config["entry_order_valid_min"],
                                                                     "entry")
                 self.order_dict["entryorder"]["oid"] = buy_resp
-        else:
-            print(f"buy order security set as {self.trading_security}, passing")
+                self.strategy_state_dict["status_code"] = 301
 
-    def buy_complete_process(self):
-        self.strategy_state_dict["status_beacon"] = "IN-POS"
-        self.strategy_state_dict["trades"] += 1
-        self.send_stoploss_orders()
-        # self.send_global_sl_order()
-        printer_logger("buy complete process initiated", self.logger, "info", True)
+        else:
+            print(f"buy order security set as {self.signal_security}, passing")
+
+    def isif_buy_filled_or_cancelled(self):
+        if self.order_dict["entryorder"]["status"] == "COMPLETE":
+            self.strategy_state_dict["status_code"] = 303
+        elif self.order_dict["entryorder"]["status"] == "CANCELLED":
+            self.strategy_state_dict["status_code"] = 302
+        else:
+            pass
+
+
+    def orders_handler(self):
+        if self.strategy_state_dict["status_code"] in [500]:
+            self.send_buy_order_ifsignal_n_validcode()
+        elif self.strategy_state_dict["status_code"] in [301]:
+            self.isif_buy_filled_or_cancelled()
+        elif self.strategy_state_dict["status_code"] in [302]:
+            self.buy_cancel_process()
+        elif self.strategy_state_dict["status_code"] in [303]:
+            self.send_sltp_orders()
+            # self.send_global_sl_order()
+        elif self.strategy_state_dict["status_code"] in [304]:
+            print("awaiting exit for position")
+        elif True:
+            printer_logger("buy triggered going for complete/cancel/open process", self.logger, "info", True)
+            order_status = self.orders.get_order_status(self.order_dict["entryorder"]["oid"])
+            if order_status == "COMPLETE":
+                self.buy_complete_process()
+            elif order_status == "CANCELLED":
+                self.buy_cancel_process()
+            elif order_status == "OPEN":
+                self.buy_open_process()
+            else:
+                raise Exception(f"order status other than complete,cancel, open: {order_status}")
+        else:
+            printer_logger("no action from orders handler", self.logger, "info", True)
 
     def buy_cancel_process(self):
+        self.strategy_state_dict["status_code"] = 500
         self.trading_security = None
         self.order_dict["entryorder"] = creat_empty_order_dict()
         printer_logger("buy order cancelled process initiated", self.logger, "info", True)
@@ -220,52 +249,48 @@ class Strategy:
         printer_logger("buy open process initiated", self.logger, "info", True)
 
     def update_order_status(self):
-        self.order_dict["entryorder"]["status"] = self.orders.get_order_status(self.order_dict["entryorder"]["oid"])
-        self.order_dict["slorder1"]["status"] = self.orders.get_order_status(self.order_dict["slorder1"]["oid"])
-        self.order_dict["slorder2"]["status"] = self.orders.get_order_status(self.order_dict["slorder2"]["oid"])
-        self.order_dict["slorder3"]["status"] = self.orders.get_order_status(self.order_dict["slorder3"]["oid"])
+        if self.strategy_state_dict["status_code"] in [301, 303, 304, 401, 402]:
+            self.order_dict["entryorder"]["status"] = self.orders.get_order_status(self.order_dict["entryorder"]["oid"])
+            self.order_dict["tporder1"]["status"] = self.orders.get_order_status(self.order_dict["tporder1"]["oid"])
+            self.order_dict["tporder2"]["status"] = self.orders.get_order_status(self.order_dict["tporder2"]["oid"])
+            self.order_dict["tporder3"]["status"] = self.orders.get_order_status(self.order_dict["tporder3"]["oid"])
 
-    def trade_cycle_complete_process(self):
-        if self.order_dict["slorder3"]["status"] == "COMPLETE":
+    def trade_exit_process(self):
+        if self.order_dict["tporder3"]["status"] == "COMPLETE":
             self.trading_security = None
             self.order_dict["entryorder"] = creat_empty_order_dict()
-            self.order_dict["slorder1"] = creat_empty_order_dict()
-            self.order_dict["slorder2"] = creat_empty_order_dict()
-            self.order_dict["slorder3"] = creat_empty_order_dict()
-            self.strategy_state_dict["slhit"] += 1
+            self.order_dict["tporder1"] = creat_empty_order_dict()
+            self.order_dict["tporder2"] = creat_empty_order_dict()
+            self.order_dict["tporder3"] = creat_empty_order_dict()
+            # self.strategy_state_dict["slhit"] += 1
             self.strategy_state_dict["tradepnl"] = 0
         else:
             pass
 
-    def send_stoploss_orders(self):
+    def send_sltp_orders(self):
         if self.trading_security in self.trading_instru_obj_ref_dict.keys():
-            self.order_dict["slorder1"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
-            self.order_dict["slorder1"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
-            self.order_dict["slorder1"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_1_sl_value
+            self.order_dict["tporder1"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
+            self.order_dict["tporder1"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
+            self.order_dict["tporder1"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_1_tp_value
 
-            self.order_dict["slorder2"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
-            self.order_dict["slorder2"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
-            self.order_dict["slorder2"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_2_sl_value
+            self.order_dict["tporder2"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
+            self.order_dict["tporder2"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
+            self.order_dict["tporder2"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_2_tp_value
 
-            self.order_dict["slorder3"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
-            self.order_dict["slorder3"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
-            self.order_dict["slorder3"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_3_sl_value
+            self.order_dict["tporder3"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
+            self.order_dict["tporder3"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
+            self.order_dict["tporder3"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_3_tp_value
 
-            for sl_od in [self.order_dict["slorder1"], self.order_dict["slorder2"], self.order_dict["slorder3"]]:
-                order_response = self.orders.place_sl_market_sell_nfo(sl_od["symbol"], sl_od["quantity"], sl_od["limit_price"],
-                                                           "sl")
-                sl_od["oid"] = order_response
+            for tp_od in [self.order_dict["tporder1"], self.order_dict["tporder2"], self.order_dict["tporder3"]]:
+                order_response = self.orders.place_sl_market_sell_nfo(tp_od["symbol"], tp_od["quantity"], tp_od["limit_price"],
+                                                           "tp")
+                tp_od["oid"] = order_response
+
+            self.strategy_state_dict["status_code"] = 304
         else:
             print(f"none stoploss orders, security set as {self.trading_security}, passing")
 
     def print_to_console(self):
-        # status beacon
-        # a. ON-WT = program is running, condition not met, no live position
-        # b. IN-POS = program is running, condition is satisfied, live position
-        # c. CLOSE-WT = program is running, condition was satisfied and closed, no live position
-        # d. CLOSE-NWT = program is running, SL Limit Hit/Global SL, No further action for day
-        # e. #OFF= program is not running or in exception
-        # f. Update the changes to program log file
         print_data_indicator = create_print_dict(self.nf_fut_obj,
                                                  self.nf_ce_obj,
                                                  self.nf_pe_obj,
@@ -359,21 +384,30 @@ class Strategy:
 
 
     def update(self):
-        if not self.strategy_initialised:
-            self.initialise()
-        else:
-            if is_market_open():
-                if self.ready_for_next_candle():
-                    self._update_dataprocessor()
-                    self.set_trading_security()
-                    self.orders_handler()
-                    self.update_last_processed_timestamp()
-                    self.update_pnl()
-                    self.write_csv_n_json()
-                    self.print_to_console()
-                else:
-                    print("sleeping till next candle")
-                    sleep(20)
+        if not is_market_holiday():
+            if not self.strategy_initialised:
+                self.initialise()
+                self.strategy_state_dict["status_code"] = 101
             else:
-                sleep_till_time(9, 15, 30)
+                if is_market_open():
+                    if self.ready_for_next_candle():
+                        self._update_dataprocessor()
+                        self.check_for_signal()
+                        self.set_strategy_killswitch_codes()
+                        self.orders_handler()
+                        self.update_last_processed_timestamp()
+                        self.update_pnl()
+                        self.write_csv_n_json()
+                        self.print_to_console()
+                    else:
+                        print("sleeping till next candle")
+                        sleep(20)
+                else:
+                    self.strategy_state_dict["status_code"] = 102
+                    sleep_till_time(9, 15, 30)
+        else:
+            self.strategy_state_dict["status_code"] = 101
+            print("Market holdiay/weekend")
+            exit()
+
 
