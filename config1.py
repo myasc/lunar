@@ -39,7 +39,7 @@ config = {"program_trade_live": True,
           # "first_lot_exit": 15,  # if set is of 3 then exit 1 lot here
           # "second_lot_exit": 30,  # if set is of 3 then exit 1 lot here
           # "final_exit": "ind_sl",  # [based on technical indicator]
-          # "global_sl": 45,  # [odd events]
+          "global_sl": 45,  # [odd events]
           "entry_order_wait_min": 2,  # min (this is after valid signal)
           "entry_order_valid_min": 3  # wait time for order fill
           }

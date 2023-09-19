@@ -76,6 +76,33 @@ class Orders:
                            file_path=self.csv_filepath,
                            print_=True)
             return response
+    def place_market_sell_nfo(self, trading_symbol, quantity, remark="None"):
+        if not self.testing:
+            response = self.kite_obj.place_order(tradingsymbol=trading_symbol,
+                                      exchange=self.kite_obj.EXCHANGE_NFO,
+                                      transaction_type=self.kite_obj.TRANSACTION_TYPE_SELL,
+                                      quantity=quantity,
+                                      order_type=self.kite_obj.ORDER_TYPE_MARKET,
+                                      product=self.kite_obj.PRODUCT_NRML,
+                                      variety=self.kite_obj.VARIETY_REGULAR,
+                                             tag=self.tag_name)
+            add_row_to_csv(row=["market", "sell", quantity, trading_symbol, " ",response, remark],
+                           file_path=self.csv_filepath,
+                           print_=True)
+            return response
+        else:
+            response = {"data": {"order_id": "test_oid_123"}}
+            print(f"test: {trading_symbol} "
+                  f"{self.kite_obj.EXCHANGE_NFO} "
+                  f"{self.kite_obj.TRANSACTION_TYPE_SELL} "
+                  f"{quantity} "
+                  f"{self.kite_obj.ORDER_TYPE_MARKET}"
+                  f"{self.kite_obj.PRODUCT_NRML}"
+                  f"{self.kite_obj.VARIETY_REGULAR}")
+            add_row_to_csv(row=["market", "sell", quantity, trading_symbol, " ",response, "testing"],
+                           file_path=self.csv_filepath,
+                           print_=True)
+            return response
 
     def place_sl_market_sell_nfo(self, trading_symbol, quantity, limit_price, remark="None"):
         if not self.testing:
@@ -121,6 +148,29 @@ class Orders:
             response = {"data": {"order_id": "test_oid_123"}}
             print(f"test: {limit_price} {quantity} {trading_symbol}")
             add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response, "testing"],
+                           file_path=self.csv_filepath,
+                           print_=True)
+            return response
+    def place_limit_sell_nfo(self, trading_symbol, quantity, limit_price, remark="None"):
+        if not self.testing:
+            response = self.kite_obj.place_order(price=limit_price,
+                                      trigger_price=limit_price,
+                                      quantity=quantity,
+                                      tradingsymbol=trading_symbol,
+                                      exchange=self.kite_obj.EXCHANGE_NFO,
+                                      transaction_type=self.kite_obj.TRANSACTION_TYPE_SELL,
+                                      order_type=self.kite_obj.ORDER_TYPE_LIMIT,
+                                      product=self.kite_obj.PRODUCT_NRML,
+                                      variety=self.kite_obj.VARIETY_REGULAR,
+                                             tag=self.tag_name)
+            add_row_to_csv(row=["limit", "sell", quantity, trading_symbol, limit_price,response, remark],
+                           file_path=self.csv_filepath,
+                           print_=True)
+            return response
+        else:
+            response = {"data": {"order_id": "test_oid_123"}}
+            print(f"test: {limit_price} {quantity} {trading_symbol}")
+            add_row_to_csv(row=["limit", "sell", quantity, trading_symbol, limit_price,response, "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
             return response

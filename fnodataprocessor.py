@@ -60,10 +60,13 @@ class FnoDataProcessor:
 
         self.level_signal = None
         self.level_value = None
+        self.sl_indi_sell_signal = None
 
         self.instruments_fetched = False
         # self.last_timestamp_processed = None
         self.latest_timestamp = None
+
+        self.fno_dataproc_initialised = False
 
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object created")
 
@@ -179,6 +182,8 @@ class FnoDataProcessor:
 
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set levels signal")
 
+    def set_sl_indi_sell_signal(self):
+        self.sl_indi_sell_signal = True if self.ti_3_signal == -1 else False
 
     def set_rank(self):
         self.ti_1_weight = config["ti_1_rank"] if (self.ti_1_enabled and self.ti_1_signal == 1) else 0
@@ -200,6 +205,7 @@ class FnoDataProcessor:
         self.set_indicator_enable()
         self.set_indicator_value_signal()
         self.set_level_signal()
+        self.set_sl_indi_sell_signal()
         self.set_rank()
         print(self.trading_symbol)
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object initialised")
@@ -207,12 +213,16 @@ class FnoDataProcessor:
         # time.sleep(5)
 
     def update(self):
-        self.set_hist_data()
-        self.set_last_close_price()
-        self.set_indicator_value_signal()
-        self.set_level_signal()
-        self.set_rank()
-        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object updated")
+        if not self.fno_dataproc_initialised:
+            self.initialise()
+        else:
+            self.set_hist_data()
+            self.set_last_close_price()
+            self.set_indicator_value_signal()
+            self.set_level_signal()
+            self.set_sl_indi_sell_signal()
+            self.set_rank()
+            test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object updated")
 
 
 if __name__ == "__main__":
