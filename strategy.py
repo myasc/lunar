@@ -43,8 +43,9 @@ class Strategy:
         self.strategy_state_dict["trades"] = 0  # -1
         self.strategy_state_dict["slhit"] = 0  # -1
         self.strategy_state_dict["tphit"] = 0  # -1
-        self.strategy_state_dict["daypnl"] = 0  # -1
-        self.strategy_state_dict["tradepnl"] = 0  # -1
+        self.strategy_state_dict["totalpnl"] = 0  # -1
+        self.strategy_state_dict["realised_pnl"] = 0  # -1
+        self.strategy_state_dict["unrealised_pnl"] = 0  # -1
         self.strategy_state_dict["status_beacon"] = None  # -1
         self.strategy_state_dict["status_code"] = 500  # -1
         self.strategy_state_dict["last_processed_timestamp"] = None  # -1
@@ -66,6 +67,13 @@ class Strategy:
         printer_logger("logs and json initialised", self.logger, print_=True)
 
     def init_strategy_json(self):
+        """
+        creates filename with suffix strategy_ and todays date
+        goes to json files directory and checks
+        if todays file exist, read newest dictionary state and last processed timestamp
+        else write initial state dictionary to json file
+        :return:
+        """
         date_str = str(dt.datetime.now().date()).replace("-", "")
         self.strat_json_file_path = f"json_files/strategy_{date_str}.json"
         pwd = os.getcwd()
@@ -236,14 +244,19 @@ class Strategy:
 
     def send_global_sl(self):
         if self.trading_security in self.trading_instru_obj_ref_dict.keys():
-            self.order_dict["slglobal"]["symbol"] = self.order_dict["entryorder"]["symbol"]
-            self.order_dict["slglobal"]["quantity"] = self.order_dict["entryorder"]["quantity"]
-            self.order_dict["slglobal"]["limit_price"] = self.order_dict["entryorder"]["limit_price"] - \
-                                                              self.config["global_sl"]
-            self.order_dict["slglobal"]["oid"] = self.orders.place_sl_market_sell_nfo(self.order_dict["slglobal"]["symbol"],
-                                                           self.order_dict["slglobal"]["quantity"],
-                                                           self.order_dict["slglobal"]["limit_price"],
-                                                           "globalsl")
+            if (self.order_dict["slglobal"]["status"] == "OPEN") and (self.order_dict["slglobal"]["quantity"] != self.strategy_state_dict["holding_qty"]):
+                self.order_dict["slglobal"]["oid"] = self.orders.modify_qty_from_orderid(self.order_dict["slglobal"]["oid"],
+                                                                                         self.strategy_state_dict["holding_qty"])
+                self.order_dict["slglobal"]["quantity"] = self.strategy_state_dict["holding_qty"]
+            else:
+                self.order_dict["slglobal"]["symbol"] = self.order_dict["entryorder"]["symbol"]
+                self.order_dict["slglobal"]["quantity"] = self.order_dict["entryorder"]["quantity"]
+                self.order_dict["slglobal"]["limit_price"] = self.order_dict["entryorder"]["limit_price"] - \
+                                                                  self.config["global_sl"]
+                self.order_dict["slglobal"]["oid"] = self.orders.place_sl_market_sell_nfo(self.order_dict["slglobal"]["symbol"],
+                                                               self.order_dict["slglobal"]["quantity"],
+                                                               self.order_dict["slglobal"]["limit_price"],
+                                                               "globalsl")
         else:
             print(f"none global sl orders, security set as {self.trading_security}, passing")
 
@@ -251,9 +264,11 @@ class Strategy:
         if self.trading_instru_obj_ref_dict[self.trading_security].sl_indi_sell_signal:
             self.order_dict["slindicator"]["symbol"] = self.order_dict["entryorder"]["symbol"]
             self.order_dict["slindicator"]["quantity"] = self.strategy_state_dict["holding_qty"]
+            self.order_dict["slindicator"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].last_close_price
             self.order_dict["slindicator"]["oid"] = self.orders.place_market_sell_nfo(self.order_dict["slindicator"]["symbol"],
                                                                                       self.order_dict["slindicator"]["quantity"],
                                                                                       "indicatorsl")
+            self.strategy_state_dict["status_code"] = 405
         else:
             pass
 
@@ -268,19 +283,26 @@ class Strategy:
         else:
             pass
 
-    def handle_exits(self):
-        # todo update other things here like pending quantity
+    def if_tp_1_complete(self):
         if self.order_dict["tporder1"]["status"] == "COMPLETE":
             self.strategy_state_dict["status_code"] = 401
-        elif self.order_dict["tporder2"]["status"] == "COMPLETE":
+            self.strategy_state_dict["holding_qty"] = self.strategy_state_dict["holding_qty"] - self.order_dict["tporder1"]["quantity"]
+            self.update_realised_pnl(self.strategy_state_dict["status_code"])
+            self.send_global_sl()
+    def if_tp_2_complete(self):
+        if self.order_dict["tporder2"]["status"] == "COMPLETE":
             self.strategy_state_dict["status_code"] = 402
-        elif self.order_dict["tporder3"]["status"] == "COMPLETE":
+            self.strategy_state_dict["holding_qty"] = self.strategy_state_dict["holding_qty"] - self.order_dict["tporder2"]["quantity"]
+            self.update_realised_pnl(self.strategy_state_dict["status_code"])
+            self.send_global_sl()
+    def if_tp_3_complete(self):
+        if self.order_dict["tporder3"]["status"] == "COMPLETE":
             self.strategy_state_dict["status_code"] = 403
-        elif self.order_dict["slglobal"]["status"] == "COMPLETE":
+
+    def if_global_sl_complete(self):
+        if self.order_dict["slglobal"]["status"] == "COMPLETE":
             self.strategy_state_dict["status_code"] = 404
-        else:
-            self.strategy_state_dict["status_code"] = 405
-            self.send_indi_sl_iftrigger()
+
 
     def orders_handler(self):
         self.update_order_status()
@@ -293,23 +315,26 @@ class Strategy:
         elif self.strategy_state_dict["status_code"] in [303]:
             self.send_sltp_orders()
         elif self.strategy_state_dict["status_code"] in [304]:
-            print("awaiting exit for position")
-
-        elif True:
-            printer_logger("buy triggered going for complete/cancel/open process", self.logger, "info", True)
-            order_status = self.orders.get_order_status(self.order_dict["entryorder"]["oid"])
-            if order_status == "COMPLETE":
-                self.buy_complete_process()
-            elif order_status == "CANCELLED":
-                self.buy_cancel_process()
-            elif order_status == "OPEN":
-                self.buy_open_process()
-            else:
-                raise Exception(f"order status other than complete,cancel, open: {order_status}")
+            self.if_tp_1_complete()
+            self.if_global_sl_complete()
+            self.send_indi_sl_iftrigger()
+        elif self.strategy_state_dict["status_code"] in [401]:
+            self.if_tp_2_complete()
+            self.if_global_sl_complete()
+            self.send_indi_sl_iftrigger()
+        elif self.strategy_state_dict["status_code"] in [402]:
+            self.if_tp_3_complete()
+            self.if_global_sl_complete()
+            self.send_indi_sl_iftrigger()
+        elif self.strategy_state_dict["status_code"] in [403, 404, 405]:
+            self.trade_exit_process()
         else:
-            printer_logger("no action from orders handler", self.logger, "info", True)
+            printer_logger(f"no action from orders handler, status code :{self.strategy_state_dict['status_code']}", self.logger, "info", True)
 
     def trade_exit_process(self):
+        self.update_realised_pnl(self.strategy_state_dict["status_code"])
+        # cancel all remain orders
+        # rest things like holding qty, and state to 500
         if self.order_dict["tporder3"]["status"] == "COMPLETE":
             self.trading_security = None
             self.order_dict["entryorder"] = creat_empty_order_dict()
@@ -317,7 +342,7 @@ class Strategy:
             self.order_dict["tporder2"] = creat_empty_order_dict()
             self.order_dict["tporder3"] = creat_empty_order_dict()
             # self.strategy_state_dict["slhit"] += 1
-            self.strategy_state_dict["tradepnl"] = 0
+            self.strategy_state_dict["unrealised_pnl"] = 0
         else:
             pass
 
@@ -330,15 +355,36 @@ class Strategy:
                                                                    self.bnf_pe_obj.latest_timestamp,
                                                                    ).replace(tzinfo=None)
 
-    def update_pnl(self):
-        if self.order_dict["entryorder"]["oid"] == "":
-            self.strategy_state_dict["tradepnl"] = 0
-        else:
+    def update_unrealised_pnl(self, status_code):
+        if status_code in [304, 401, 402, 403, 404, 405]:
             buy_price = self.order_dict["entryorder"]["limit_price"]
-            quantity_ = self.order_dict["entryorder"]["quantity"]
-            self.strategy_state_dict["tradepnl"] = (self.trading_instru_obj_ref_dict[self.trading_security].last_close_price - buy_price) * quantity_
+            quantity_ = self.strategy_state_dict["holding_qty"]
+            ltp = self.trading_instru_obj_ref_dict[self.trading_security].last_close_price
+            self.strategy_state_dict["unrealised_pnl"] = (ltp - buy_price) * quantity_
 
-        self.strategy_state_dict["daypnl"] = self.strategy_state_dict["daypnl"] + self.strategy_state_dict["tradepnl"]
+    def update_realised_pnl(self, status_code):
+        if status_code in [401]:
+            realised_price_delta1 = self.order_dict["tporder1"]["limit_price"] - self.order_dict["entryorder"]["limit_price"]
+            realised_qty1 = self.order_dict["tporder1"]["quantity"]
+            self.strategy_state_dict["realised_pnl"] += realised_price_delta1 * realised_qty1
+        elif status_code in [402]:
+            realised_price_delta2 = self.order_dict["tporder2"]["limit_price"] - self.order_dict["entryorder"]["limit_price"]
+            realised_qty2 = self.order_dict["tporder2"]["quantity"]
+            self.strategy_state_dict["realised_pnl"] += realised_price_delta2 * realised_qty2
+        elif status_code in [403]:
+            realised_price_delta3 = self.order_dict["tporder3"]["limit_price"] - self.order_dict["entryorder"]["limit_price"]
+            realised_qty3 = self.order_dict["tporder3"]["quantity"]
+            self.strategy_state_dict["realised_pnl"] += realised_price_delta3 * realised_qty3
+        elif status_code in [404]:
+            realised_price_delta_slg = self.order_dict["slglobal"]["limit_price"] - self.order_dict["entryorder"]["limit_price"]
+            realised_qty_slg = self.order_dict["slglobal"]["quantity"]
+            self.strategy_state_dict["realised_pnl"] += realised_price_delta_slg * realised_qty_slg
+        elif status_code in [405]:
+            realised_price_delta_sli = self.order_dict["slindicator"]["limit_price"] - self.order_dict["entryorder"]["limit_price"]
+            realised_qty_sli = self.order_dict["slindicator"]["quantity"]
+            self.strategy_state_dict["realised_pnl"] += realised_price_delta_sli * realised_qty_sli
+        else:
+            pass
 
     def ready_for_next_candle(self):
         now = dt.datetime.now()

@@ -104,6 +104,17 @@ class Orders:
                            print_=True)
             return response
 
+    def modify_qty_from_orderid(self, orderid, quantity, remark="None"):
+        if not self.testing:
+            response = self.kite_obj.place_order(order_id = orderid,
+                                                 quantity=quantity,
+                                                 variety=self.kite_obj.VARIETY_REGULAR)
+            add_row_to_csv(row=["modify", "modify", quantity, " ", " ",response, remark],
+                           file_path=self.csv_filepath,
+                           print_=True)
+            return response
+
+
     def place_sl_market_sell_nfo(self, trading_symbol, quantity, limit_price, remark="None"):
         if not self.testing:
             response = self.kite_obj.place_order(price=limit_price,
@@ -233,6 +244,34 @@ class Orders:
             orders_df = self.get_orders()
             this_order = orders_df[orders_df["order_id"] == oid].to_dict("records")[0]
             return this_order["status"]
+
+    def cancel_all_tagged_open_orders(self):
+        orders_df = pd.DataFrame(self.kite_obj.orders())
+        if not orders_df.empty:
+            tag_mask = orders_df["tag"] == self.tag_name
+            open_mask = orders_df["status"] == "OPEN"
+            this_tag_open_orders = orders_df[tag_mask & open_mask].copy()
+            if not this_tag_open_orders.empty:
+                for oid in this_tag_open_orders["order_id"].tolist():
+                    self.kite_obj.cancel_order(variety=self.kite_obj.VARIETY_REGULAR, order_id=oid)
+            else:
+                pass
+        else:
+            pass
+
+    def marketsell_tagged_open_orders(self):
+        orders_df = pd.DataFrame(self.kite_obj.orders())
+        if not orders_df.empty:
+            tag_mask = orders_df["tag"] == self.tag_name
+            open_mask = orders_df["status"] == "OPEN"
+            this_tag_open_orders = orders_df[tag_mask & open_mask].copy()
+            if not this_tag_open_orders.empty:
+                for oid in this_tag_open_orders["order_id"].tolist():
+                    pass
+            else:
+                pass
+        else:
+            pass
 
 if __name__ == "__main__":
     orders_obj = Orders("dummy")
