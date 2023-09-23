@@ -1,5 +1,4 @@
 import datetime as dt
-import time
 
 import pandas as pd
 pd.set_option("display.max_columns", 50)
@@ -9,7 +8,6 @@ from config1 import config
 from utilsall.misc import test_prints
 
 class FnoDataProcessor:
-# todo avoid last row from historical data as it keeps getting updated in realtime
     def __init__(self, kite_obj, instru_token, candle_interval, last_fut_close_price=None):
         self.kite_obj = kite_obj
         self.instru_token = instru_token
@@ -71,6 +69,7 @@ class FnoDataProcessor:
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object created")
 
     def read_instruments_df(self):
+        """fetching instruments and info from api"""
         if self.instruments_fetched:
             instru_df = pd.read_csv("NFO_instruments.csv")
         else:
@@ -79,7 +78,7 @@ class FnoDataProcessor:
             instru_df.to_csv("NFO_instruments.csv")
             self.instruments_fetched = True
 
-        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, fetched instuments df from kite")
+        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, fetched instruments df from kite")
         return instru_df
 
     def get_instru_basic_data(self):
@@ -92,7 +91,7 @@ class FnoDataProcessor:
         self.lot_size = this_instru_data["lot_size"]
         self.instru_type = this_instru_data["instrument_type"]
 
-        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set instument meta data")
+        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set instrument meta data")
 
 
     def create_hist_data_obj(self):
@@ -101,12 +100,11 @@ class FnoDataProcessor:
 
 
     def set_hist_data(self):
-        self.hist_data_obj = HistoricalData(self.kite_obj, self.instru_token, self.candle_interval)
         self.data_end_datetime = dt.datetime.now().date()
         self.data_start_datetime = self.data_end_datetime - dt.timedelta(days=90)
-        data_w_lastcandle_changing = self.hist_data_obj.fetch(self.data_start_datetime, self.data_end_datetime)
-        self.historical_data_df = data_w_lastcandle_changing.iloc[:-1].copy()
-        # print(data_w_lastcandle_changing.tail(5))
+        data_w_last_candle_changing = self.hist_data_obj.fetch(self.data_start_datetime, self.data_end_datetime)
+        self.historical_data_df = data_w_last_candle_changing.iloc[:-1].copy()
+        # print(data_w_last_candle_changing.tail(5))
         # print(self.historical_data_df.tail(5))
         self.latest_timestamp = self.historical_data_df.index[-1]
         # print(last_ts)
@@ -136,7 +134,7 @@ class FnoDataProcessor:
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set which indicator enabled")
 
 
-    def set_indicator_value_signal(self):
+    def get_indicator_value_signal(self):
         if self.ti_1_enabled:
             self.ti_1_value, self.ti_1_signal = indicators.simple_moving_average(self.historical_data_df, config["ti_1_config"])
         else:
@@ -200,13 +198,7 @@ class FnoDataProcessor:
     def initialise(self):
         self.get_instru_basic_data()
         self.create_hist_data_obj()
-        self.set_hist_data()
-        self.set_last_close_price()
         self.set_indicator_enable()
-        self.set_indicator_value_signal()
-        self.set_level_signal()
-        self.set_sl_indi_sell_signal()
-        self.set_rank()
         print(self.trading_symbol)
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object initialised")
 
@@ -218,7 +210,7 @@ class FnoDataProcessor:
         else:
             self.set_hist_data()
             self.set_last_close_price()
-            self.set_indicator_value_signal()
+            self.get_indicator_value_signal()
             self.set_level_signal()
             self.set_sl_indi_sell_signal()
             self.set_rank()
@@ -243,13 +235,13 @@ if __name__ == "__main__":
     print(bfd.historical_data_df["close"].values)
     print(bfd.historical_data_df["close"].values[-1])
 
-    from utilsall.indicators import Indicator
-    indi = Indicator()
-    vwap = not_anchored_vwap(bfd.historical_data_df)
-    print(vwap)
-
-    supertrend = supertrend(bfd.historical_data_df, 14, 3)
-    print(supertrend)
+    # from utils all.indicators import Indicator
+    # indi = Indicator()
+    # vwap = not_anchored_vwap(bfd.historical_data_df)
+    # print(vwap)
+    #
+    # super trend = super trend(bfd.historical_data_df, 14, 3)
+    # print(super trend)
 
 
 

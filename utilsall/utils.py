@@ -103,7 +103,7 @@ def init_csv_logger(filename):
 
 def save_dict_to_json_file(dictionary, json_file_path):
     # todo this function sometime doesn't add '}]' at end of jsonfile if error raised
-    dictionary["loggedat"] = str(dt.datetime.now().isoformat())
+    dictionary["logged_at"] = str(dt.datetime.now().isoformat())
     pwd = os.getcwd()
     reach_project_dir()
     if not os.path.exists(json_file_path):
@@ -131,10 +131,10 @@ def get_latest_json_dict(json_file_path):
         with open(json_file_path, "r") as json_file:
             data = json.loads(json_file.read())
         if len(data) > 1:
-            latest_timestamp = dt.datetime.fromisoformat(data[0]["loggedat"])
+            latest_timestamp = dt.datetime.fromisoformat(data[0]["logged_at"])
             latest_dict = data[0]
             for dict_ in data:
-                timestamp = dt.datetime.fromisoformat(dict_["loggedat"])
+                timestamp = dt.datetime.fromisoformat(dict_["logged_at"])
                 if timestamp > latest_timestamp:
                     latest_timestamp = timestamp
                     latest_dict = dict_
