@@ -43,7 +43,6 @@ class Strategy:
         self.strategy_state_dict["trades"] = 0  # -1
         self.strategy_state_dict["sl_hit"] = 0  # -1
         self.strategy_state_dict["tp_hit"] = 0  # -1
-        self.strategy_state_dict["total_pnl"] = 0  # -1
         self.strategy_state_dict["realised_pnl"] = 0  # -1
         self.strategy_state_dict["unrealised_pnl"] = 0  # -1
         self.strategy_state_dict["status_beacon"] = None  # -1
@@ -61,12 +60,14 @@ class Strategy:
         self.strategy_initialised = False
 
     def initialise_logs_n_files(self):
+        # called in initialise
         self.logger = logger_intialise("strategy")
         self.init_strategy_csv_log()
         self.init_strategy_json()
         printer_logger("logs and json initialised", self.logger, print_=True)
 
     def init_strategy_json(self):
+        # called in initialise_logs_n_files
         """
         creates filename with suffix strategy_ and today's date
         goes to json files directory and checks
@@ -88,6 +89,7 @@ class Strategy:
         os.chdir(pwd)
 
     def init_strategy_csv_log(self):
+        # called in initialise_logs_n_files
         date_str = str(dt.datetime.now().date()).replace("-", "")
         self.csv_strategy_log_file_path = f"csv_files/strategy_{date_str}.csv"
         add_row_to_csv(row=["process", "pnl"],
@@ -95,6 +97,7 @@ class Strategy:
                        print_=True)
 
     def _set_dataprocessor_obj(self):
+        # called in initialise
         nf_fut_token = fetch_instru_token(self.kite_obj, "NIFTY", None, "FUT")
         self.nf_fut_obj = FnoDataProcessor(self.kite_obj, nf_fut_token, self.candle_interval, None)
         nf_ce_token = fetch_instru_token(self.kite_obj, "NIFTY", self.config["nifty_strike_ce"], "CE")
@@ -122,11 +125,12 @@ class Strategy:
                                         }
 
     def _update_dataprocessor(self):
+        # called in initialise and update
         for objname in self.all_instru_obj_ref_dict.keys():
             self.all_instru_obj_ref_dict[objname].update()
 
     def count_signal(self):
-        # called inside signal checking
+        # called inside check_for_signal
         # only counting signal when not in position
         if self.strategy_state_dict["status_code"] in [500, 201, 203, 204]:
             self.strategy_state_dict["signals"] += 1
@@ -134,6 +138,7 @@ class Strategy:
             pass
 
     def check_for_signal(self):
+        # called in update
         if (self.nf_fut_obj.rank >= 30) \
                 and (self.bnf_fut_obj.rank >= 30) \
                 and (self.nf_ce_obj.rank >= 70) \
@@ -167,6 +172,7 @@ class Strategy:
         self.signal_security = "niftype"
 
     def set_strategy_kill_switch_codes(self):
+        # called in update
         now = dt.datetime.now()
         strategy_open_time = self.config["program_start_time"]
         strategy_close_time = self.config["program_exit_time"]
@@ -184,6 +190,7 @@ class Strategy:
             pass
 
     def send_buy_order_if_signal_n_valid_code(self):
+        # called in orders handler if status code 500, waiting for signal
         if self.signal_security in self.trading_instru_obj_ref_dict.keys():
             self.trading_security = self.signal_security
             printer_logger(f"placing entry order after valid signal", self.logger, "info", True)
@@ -197,33 +204,36 @@ class Strategy:
                                                                 self.config["entry_order_valid_min"],
                                                                 "entry")
             self.order_dict["entry_order"]["oid"] = buy_resp
-            self.strategy_state_dict["holding_qty"] = self.order_dict["entry_order"]["quantity"]
             self.strategy_state_dict["status_code"] = 301
         else:
             print(f"buy order security set as {self.signal_security}, passing")
 
     def if_buy_filled_or_cancelled(self):
+        # called in orders handler if status code 301, buy order sent
         if self.order_dict["entry_order"]["status"] == "COMPLETE":
             self.strategy_state_dict["status_code"] = 303
+            self.strategy_state_dict["holding_qty"] = self.order_dict["entry_order"]["quantity"]
         elif self.order_dict["entry_order"]["status"] == "CANCELLED":
             self.strategy_state_dict["status_code"] = 302
         else:
-            pass
+            self.strategy_state_dict["status_code"] = 601
 
     def buy_cancel_process(self):
+        # called in orders handler if status code 302, buy order cancelled
         self.strategy_state_dict["status_code"] = 500
         self.trading_security = None
         self.signal_security = None
-        self.strategy_state_dict["holding_qty"] = 0
+        self.strategy_state_dict["holding_qty"] = 0 # will be already zero, because not updated until order complete
         self.order_dict["entry_order"] = creat_empty_order_dict()
         printer_logger("buy order cancelled process initiated", self.logger, "info", True)
 
     def send_sl_tp_orders(self):
+        # called in orders handler if status code 303, buy order complete
         self.send_tp_orders()
         self.send_global_sl()
         self.strategy_state_dict["status_code"] = 304
     def send_tp_orders(self):
-        # send tp orders
+        # called in send_sl_tp_orders
         if self.trading_security in self.trading_instru_obj_ref_dict.keys():
             self.order_dict["tp_order1"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
             self.order_dict["tp_order1"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
@@ -244,7 +254,9 @@ class Strategy:
             print(f"none takeprofit orders, security set as {self.trading_security}, passing")
 
     def send_global_sl(self):
+        # called in send_sl_tp_orders
         if self.trading_security in self.trading_instru_obj_ref_dict.keys():
+            # if existing global sl exist but holding qty change due to take profit order complete
             if (self.order_dict["sl_global"]["status"] == "OPEN") and (self.order_dict["sl_global"]["quantity"] != self.strategy_state_dict["holding_qty"]):
                 self.order_dict["sl_global"]["oid"] = self.orders.modify_qty_from_orderid(self.order_dict["sl_global"]["oid"],
                                                                                          self.strategy_state_dict["holding_qty"])
@@ -262,6 +274,7 @@ class Strategy:
             print(f"none global sl orders, security set as {self.trading_security}, passing")
 
     def send_indi_sl_if_trigger(self):
+        # called in orders handler if status code 304/401/402 i.e. in position with more than 0 holding qty
         if self.trading_instru_obj_ref_dict[self.trading_security].sl_indi_sell_signal:
             self.order_dict["sl_indicator"]["symbol"] = self.order_dict["entry_order"]["symbol"]
             self.order_dict["sl_indicator"]["quantity"] = self.strategy_state_dict["holding_qty"]
@@ -270,42 +283,80 @@ class Strategy:
                                                                                       self.order_dict["sl_indicator"]["quantity"],
                                                                                       "indicator_sl")
             self.strategy_state_dict["status_code"] = 405
+            self.strategy_state_dict["sl_hit"] += 1
         else:
             pass
 
-    def update_order_status(self):
-        if self.strategy_state_dict["status_code"] in [301]:
-            self.order_dict["entry_order"]["status"] = self.orders.get_order_status(self.order_dict["entry_order"]["oid"])
-        elif self.strategy_state_dict["status_code"] in [304, 401, 402]:
-            self.order_dict["tp_order1"]["status"] = self.orders.get_order_status(self.order_dict["tp_order1"]["oid"])
-            self.order_dict["tp_order2"]["status"] = self.orders.get_order_status(self.order_dict["tp_order2"]["oid"])
-            self.order_dict["tp_order3"]["status"] = self.orders.get_order_status(self.order_dict["tp_order3"]["oid"])
-            self.order_dict["sl_global"]["status"] = self.orders.get_order_status(self.order_dict["sl_global"]["oid"])
-        else:
-            pass
+    def if_global_sl_complete(self):
+        # called in orders handler if status code 304/401/402 i.e. in position with more than 0 holding qty
+        if self.order_dict["sl_global"]["status"] == "COMPLETE":
+            self.strategy_state_dict["status_code"] = 404
+            self.strategy_state_dict["sl_hit"] += 1
 
     def if_tp_1_complete(self):
+        # called in orders handler if status code 304 i.e. sl & tp orders sent
         if self.order_dict["tp_order1"]["status"] == "COMPLETE":
             self.strategy_state_dict["status_code"] = 401
             self.strategy_state_dict["holding_qty"] = self.strategy_state_dict["holding_qty"] - self.order_dict["tp_order1"]["quantity"]
-            self.update_realised_pnl(self.strategy_state_dict["status_code"])
+            self.update_realised_pnl()
             self.send_global_sl()
     def if_tp_2_complete(self):
         if self.order_dict["tp_order2"]["status"] == "COMPLETE":
+            # called in orders handler if status code 401 i.e. sl & tp1 complete
             self.strategy_state_dict["status_code"] = 402
             self.strategy_state_dict["holding_qty"] = self.strategy_state_dict["holding_qty"] - self.order_dict["tp_order2"]["quantity"]
-            self.update_realised_pnl(self.strategy_state_dict["status_code"])
+            self.update_realised_pnl()
             self.send_global_sl()
     def if_tp_3_complete(self):
+        # called in orders handler if status code 402 i.e. sl & tp2 complete
         if self.order_dict["tp_order3"]["status"] == "COMPLETE":
             self.strategy_state_dict["status_code"] = 403
+            self.strategy_state_dict["tp_hit"] += 1
 
-    def if_global_sl_complete(self):
-        if self.order_dict["sl_global"]["status"] == "COMPLETE":
-            self.strategy_state_dict["status_code"] = 404
+    def update_order_status(self):
+        # called in orders handler before everything
+        if self.strategy_state_dict["status_code"] in [301]:
+            self.order_dict["entry_order"]["status"] = self.orders.get_order_status(self.order_dict["entry_order"]["oid"])
+        elif self.strategy_state_dict["status_code"] in [304]:
+            self.order_dict["tp_order1"]["status"] = self.orders.get_order_status(self.order_dict["tp_order1"]["oid"])
+            self.order_dict["sl_global"]["status"] = self.orders.get_order_status(self.order_dict["sl_global"]["oid"])
+        elif self.strategy_state_dict["status_code"] in [401]:
+            self.order_dict["tp_order2"]["status"] = self.orders.get_order_status(self.order_dict["tp_order2"]["oid"])
+            self.order_dict["sl_global"]["status"] = self.orders.get_order_status(self.order_dict["sl_global"]["oid"])
+        elif self.strategy_state_dict["status_code"] in [402]:
+            self.order_dict["tp_order3"]["status"] = self.orders.get_order_status(self.order_dict["tp_order3"]["oid"])
+            self.order_dict["sl_global"]["status"] = self.orders.get_order_status(self.order_dict["sl_global"]["oid"])
+        elif self.strategy_state_dict["status_code"] in [403, 404, 405]:
+            # trade exited
+            pass
+        else:
+            pass
 
+    def trade_exit_process(self):
+        # called in orders handler if status code 403,404,405 trade exited by tp3,gsl,isl
+        self.update_realised_pnl()
+        self.orders.cancel_all_tagged_open_orders()
+        # self.orders.marketsell_tagged_open_orders()
+        # cancel all remain orders
+        self.trading_security = None
+        self.signal_security = None
+
+        self.order_dict["entry_order"] = creat_empty_order_dict()
+        self.order_dict["tp_order1"] = creat_empty_order_dict()
+        self.order_dict["tp_order2"] = creat_empty_order_dict()
+        self.order_dict["tp_order3"] = creat_empty_order_dict()
+        self.order_dict["sl_global"] = creat_empty_order_dict()
+        self.order_dict["sl_indicator"] = creat_empty_order_dict()
+
+        self.strategy_state_dict["trades"] += 1
+
+        self.strategy_state_dict["holding_qty"] = 0
+        self.strategy_state_dict["unrealised_pnl"] = 0
+        self.strategy_state_dict["status_code"] = 500
+        printer_logger("trade exited process", self.logger, "info", True)
 
     def orders_handler(self):
+        # called in update, triggers respective action as per state
         self.update_order_status()
         if self.strategy_state_dict["status_code"] in [500]:
             self.send_buy_order_if_signal_n_valid_code()
@@ -329,41 +380,14 @@ class Strategy:
             self.send_indi_sl_if_trigger()
         elif self.strategy_state_dict["status_code"] in [403, 404, 405]:
             self.trade_exit_process()
+        elif self.strategy_state_dict["status_code"] in [201, 203, 204]:
+            self.pull_the_plug()
         else:
             printer_logger(f"no action from orders handler, status code :{self.strategy_state_dict['status_code']}", self.logger, "info", True)
 
-    def trade_exit_process(self):
-        self.update_realised_pnl(self.strategy_state_dict["status_code"])
-        # cancel all remain orders
-        # rest things like holding qty, and state to 500
-        if self.order_dict["tp_order3"]["status"] == "COMPLETE":
-            self.trading_security = None
-            self.order_dict["entry_order"] = creat_empty_order_dict()
-            self.order_dict["tp_order1"] = creat_empty_order_dict()
-            self.order_dict["tp_order2"] = creat_empty_order_dict()
-            self.order_dict["tp_order3"] = creat_empty_order_dict()
-            # self.strategy_state_dict["sl_hit"] += 1
-            self.strategy_state_dict["unrealised_pnl"] = 0
-        else:
-            pass
-
-    def update_last_processed_timestamp(self):
-        self.strategy_state_dict["last_processed_timestamp"] = max(self.nf_fut_obj.latest_timestamp,
-                                                                   self.nf_ce_obj.latest_timestamp,
-                                                                   self.nf_pe_obj.latest_timestamp,
-                                                                   self.bnf_fut_obj.latest_timestamp,
-                                                                   self.bnf_ce_obj.latest_timestamp,
-                                                                   self.bnf_pe_obj.latest_timestamp,
-                                                                   ).replace(tzinfo=None)
-
-    def update_unrealised_pnl(self, status_code):
-        if status_code in [304, 401, 402, 403, 404, 405]:
-            buy_price = self.order_dict["entry_order"]["limit_price"]
-            quantity_ = self.strategy_state_dict["holding_qty"]
-            ltp = self.trading_instru_obj_ref_dict[self.trading_security].last_close_price
-            self.strategy_state_dict["unrealised_pnl"] = (ltp - buy_price) * quantity_
-
-    def update_realised_pnl(self, status_code):
+    def update_realised_pnl(self):
+        # called in if_tp_1_complete, if_tp_2_complete, trade_exit_process
+        status_code = self.strategy_state_dict["status_code"]
         if status_code in [401]:
             realised_price_delta1 = self.order_dict["tp_order1"]["limit_price"] - self.order_dict["entry_order"]["limit_price"]
             realised_qty1 = self.order_dict["tp_order1"]["quantity"]
@@ -387,7 +411,31 @@ class Strategy:
         else:
             pass
 
+    def pull_the_plug(self):
+        self.orders.cancel_all_tagged_open_orders()
+        self.orders.marketsell_tagged_open_orders()
+        exit()
+
+    def update_unrealised_pnl(self):
+        # called in update
+        if self.strategy_state_dict["status_code"] in [304, 401, 402, 403, 404, 405]:
+            buy_price = self.order_dict["entry_order"]["limit_price"]
+            quantity_ = self.strategy_state_dict["holding_qty"]
+            ltp = self.trading_instru_obj_ref_dict[self.trading_security].last_close_price
+            self.strategy_state_dict["unrealised_pnl"] = (ltp - buy_price) * quantity_
+
+    def update_last_processed_timestamp(self):
+        # called in update
+        self.strategy_state_dict["last_processed_timestamp"] = max(self.nf_fut_obj.latest_timestamp,
+                                                                   self.nf_ce_obj.latest_timestamp,
+                                                                   self.nf_pe_obj.latest_timestamp,
+                                                                   self.bnf_fut_obj.latest_timestamp,
+                                                                   self.bnf_ce_obj.latest_timestamp,
+                                                                   self.bnf_pe_obj.latest_timestamp,
+                                                                   ).replace(tzinfo=None)
+
     def ready_for_next_candle(self):
+        # called in update, to trigger next loop run
         now = dt.datetime.now()
         # 2 multiplied below because complete candle data is available after next candle time interval ends
         if self.config["candle_interval"] == "5minute":
@@ -400,7 +448,7 @@ class Strategy:
         if last_processed_timestamp is None:
             next_candle_time = now.replace(hour=9, minute=15, second=0, microsecond=0) + dt.timedelta(minutes=minute_delta) + dt.timedelta(minutes=self.config["entry_order_wait_min"])
         else:
-            next_candle_time = last_processed_timestamp + dt.timedelta(minutes=minute_delta) + dt.timedelta(minutes=self.config["entry_order_wait_min"])
+            next_candle_time = last_processed_timestamp + dt.timedelta(minutes=5) + dt.timedelta(minutes=self.config["entry_order_wait_min"])
 
         if dt.datetime.now() >= next_candle_time:
             print(f"next candle available now:{now} candle:{next_candle_time} last:{last_processed_timestamp}")
@@ -410,6 +458,7 @@ class Strategy:
             return False
 
     def write_csv_n_json(self):
+        # called in update
         #write strategy state json
         strategy_state_dict_copy = self.strategy_state_dict
         strategy_state_dict_copy["last_processed_timestamp"] = str(strategy_state_dict_copy["last_processed_timestamp"])
@@ -420,43 +469,44 @@ class Strategy:
                        print_=True)
 
     def print_to_console(self):
-        # print_data_indicator = create_print_dict(self.nf_fut_obj,
-        #                                          self.nf_ce_obj,
-        #                                          self.nf_pe_obj,
-        #                                          self.bnf_fut_obj,
-        #                                          self.bnf_ce_obj,
-        #                                          self.bnf_pe_obj)
-        # print_data_strategy = {"status_beacon": self.strategy_state_dict["status_beacon"],
-        #                        "day pnl": "",
-        #                        }
+        # called in update
+        print_data_indicator = create_print_dict(self.nf_fut_obj,
+                                                 self.nf_ce_obj,
+                                                 self.nf_pe_obj,
+                                                 self.bnf_fut_obj,
+                                                 self.bnf_ce_obj,
+                                                 self.bnf_pe_obj)
+        print_data_strategy = {"status_beacon": self.strategy_state_dict["status_beacon"],
+                               "day pnl": "",
+                               }
         print("current time: ", dt.datetime.now())
-        # print("Indicator signal/value/rank")
-        # print("Trading signal for: ",self.trading_security)
-        # pprint(print_data_indicator)
-        # print("-"*30)
-        # print(self.nf_fut_obj.trading_symbol, "rank: ", self.nf_fut_obj.rank)
-        # print(pd.DataFrame(print_data_indicator["nf_fu"]))
-        # print("-"*30)
-        # print(self.nf_ce_obj.trading_symbol, "rank: ", self.nf_ce_obj.rank)
-        # print(pd.DataFrame(print_data_indicator["nf_ce"]))
-        # print("-"*30)
-        # print(self.nf_pe_obj.trading_symbol, "rank: ", self.nf_pe_obj.rank)
-        # print(pd.DataFrame(print_data_indicator["nf_pe"]))
-        # print("-"*30)
-        # print(self.bnf_fut_obj.trading_symbol, "rank: ", self.bnf_fut_obj.rank)
-        # print(pd.DataFrame(print_data_indicator["bnf_fu"]))
-        # print("-"*30)
-        # print(self.bnf_ce_obj.trading_symbol, "rank: ", self.bnf_ce_obj.rank)
-        # print(pd.DataFrame(print_data_indicator["bnf_ce"]))
-        # print("-"*30)
-        # print(self.bnf_pe_obj.trading_symbol, "rank: ", self.bnf_pe_obj.rank)
-        # print(pd.DataFrame(print_data_indicator["bnf_pe"]))
-        # print("-" * 30)
-        # print(print_data_strategy)
-        # print("current open positions:", 0)
-        # print("day pnl:", 0)
-        # print("no of SL hit today:", 0)
-        # print("no of exit done today:", 0)
+        print("Indicator signal/value/rank")
+        print("Trading signal for: ",self.trading_security)
+        pprint(print_data_indicator)
+        print("-"*30)
+        print(self.nf_fut_obj.trading_symbol, "rank: ", self.nf_fut_obj.rank)
+        print(pd.DataFrame(print_data_indicator["nf_fu"]))
+        print("-"*30)
+        print(self.nf_ce_obj.trading_symbol, "rank: ", self.nf_ce_obj.rank)
+        print(pd.DataFrame(print_data_indicator["nf_ce"]))
+        print("-"*30)
+        print(self.nf_pe_obj.trading_symbol, "rank: ", self.nf_pe_obj.rank)
+        print(pd.DataFrame(print_data_indicator["nf_pe"]))
+        print("-"*30)
+        print(self.bnf_fut_obj.trading_symbol, "rank: ", self.bnf_fut_obj.rank)
+        print(pd.DataFrame(print_data_indicator["bnf_fu"]))
+        print("-"*30)
+        print(self.bnf_ce_obj.trading_symbol, "rank: ", self.bnf_ce_obj.rank)
+        print(pd.DataFrame(print_data_indicator["bnf_ce"]))
+        print("-"*30)
+        print(self.bnf_pe_obj.trading_symbol, "rank: ", self.bnf_pe_obj.rank)
+        print(pd.DataFrame(print_data_indicator["bnf_pe"]))
+        print("-" * 30)
+        print(print_data_strategy)
+        print("current open positions:", 0)
+        print("day pnl:", 0)
+        print("no of SL hit today:", 0)
+        print("no of exit done today:", 0)
         pprint(self.strategy_state_dict)
         print()
         print()
@@ -483,7 +533,7 @@ class Strategy:
                         self.set_strategy_kill_switch_codes()
                         self.orders_handler()
                         self.update_last_processed_timestamp()
-                        self.update_pnl()
+                        self.update_unrealised_pnl()
                         self.write_csv_n_json()
                         self.print_to_console()
                     else:

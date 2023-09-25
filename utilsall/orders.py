@@ -260,14 +260,19 @@ class Orders:
             pass
 
     def marketsell_tagged_open_orders(self):
-        orders_df = pd.DataFrame(self.kite_obj.orders())
-        if not orders_df.empty:
-            tag_mask = orders_df["tag"] == self.tag_name
-            open_mask = orders_df["status"] == "OPEN"
-            this_tag_open_orders = orders_df[tag_mask & open_mask].copy()
-            if not this_tag_open_orders.empty:
-                for oid in this_tag_open_orders["order_id"].tolist():
-                    pass
+        """
+        this fucntion will square off positions irrespective of tag
+        :return:
+        """
+        positions_df = pd.DataFrame(self.kite_obj.positions()["day"])
+        if not positions_df.empty:
+            # tag_mask = positions_df["tag"] == self.tag_name # tag doesn't work here
+            open_mask = positions_df["quantity"] > 0
+            open_positions = positions_df[open_mask].copy()
+            if not open_positions.empty:
+                for position in open_positions.to_dict("records"):
+                    resp = self.place_market_sell_nfo(position["tradingsymbol"], position["quantity"], "squareoffopen")
+                    print(resp)
             else:
                 pass
         else:
