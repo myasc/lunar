@@ -83,13 +83,15 @@ class FnoDataProcessor:
 
     def get_instru_basic_data(self):
         nfo_instruments_df = self.read_instruments_df()
-        this_instru_data = nfo_instruments_df[nfo_instruments_df["instrument_token"] == self.instru_token].to_dict("records")[0]
-        self.instru_name = this_instru_data["name"]
-        self.trading_symbol = this_instru_data["tradingsymbol"]
-        self.expiry_date = this_instru_data["expiry"]
-        self.strike = this_instru_data["strike"]
-        self.lot_size = this_instru_data["lot_size"]
-        self.instru_type = this_instru_data["instrument_type"]
+        if not nfo_instruments_df.empty:
+            this_instru_data = nfo_instruments_df[nfo_instruments_df["instrument_token"] == self.instru_token].to_dict("records")[0]
+            if not this_instru_data.empty:
+                self.instru_name = this_instru_data["name"]
+                self.trading_symbol = this_instru_data["tradingsymbol"]
+                self.expiry_date = this_instru_data["expiry"]
+                self.strike = this_instru_data["strike"]
+                self.lot_size = this_instru_data["lot_size"]
+                self.instru_type = this_instru_data["instrument_type"]
 
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set instrument meta data")
 
@@ -103,23 +105,28 @@ class FnoDataProcessor:
         self.data_end_datetime = dt.datetime.now().date()
         self.data_start_datetime = self.data_end_datetime - dt.timedelta(days=90)
         data_w_last_candle_changing = self.hist_data_obj.fetch(self.data_start_datetime, self.data_end_datetime)
-        self.historical_data_df = data_w_last_candle_changing.iloc[:-1].copy()
-        # print(data_w_last_candle_changing.tail(5))
-        # print(self.historical_data_df.tail(5))
-        self.latest_timestamp = self.historical_data_df.index[-1]
-        # print(last_ts)
-        # print(type(last_ts))
-        # last_ts_str = str(last_ts)
-        # print(last_ts_str)
-        # print(type(last_ts_str))
-        # last_ts_dt = pd.to_datetime(last_ts_str)
-        # print(last_ts_dt)
-        # print(type(last_ts_dt))
+        if not data_w_last_candle_changing.emtpy:
+            self.historical_data_df = data_w_last_candle_changing.iloc[:-1].copy()
+            # print(data_w_last_candle_changing.tail(5))
+            # print(self.historical_data_df.tail(5))
+            if not self.historical_data_df.empty:
+                self.latest_timestamp = self.historical_data_df.index[-1]
+                # print(last_ts)
+                # print(type(last_ts))
+                # last_ts_str = str(last_ts)
+                # print(last_ts_str)
+                # print(type(last_ts_str))
+                # last_ts_dt = pd.to_datetime(last_ts_str)
+                # print(last_ts_dt)
+                # print(type(last_ts_dt))
+        else:
+            self.historical_data_df = pd.DataFrame()
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, fetched historical data ")
 
 
     def set_last_close_price(self):
-        self.last_close_price = self.historical_data_df.iloc[-1]["close"]
+        if not self.historical_data_df.empty:
+            self.last_close_price = self.historical_data_df.iloc[-1]["close"]
         self.last_fut_close_price = self.last_fut_close_price if self.last_fut_close_price is not None else self.last_close_price
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set last close price")
 

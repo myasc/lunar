@@ -242,8 +242,11 @@ class Orders:
             return ""
         else:
             orders_df = self.get_orders()
-            this_order = orders_df[orders_df["order_id"] == oid].to_dict("records")[0]
-            return this_order["status"]
+            if not orders_df.empty:
+                this_order = orders_df[orders_df["order_id"] == oid].to_dict("records")[0]
+                return this_order["status"]
+            else:
+                return None
 
     def cancel_all_tagged_open_orders(self):
         orders_df = pd.DataFrame(self.kite_obj.orders())

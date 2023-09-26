@@ -9,7 +9,7 @@ from utilsall.utils import fetch_instru_token, save_dict_to_json_file, sleep_til
 from utilsall.orders import Orders
 from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv, get_latest_json_dict, is_market_open, is_market_holiday
 from utilsall.misc import creat_empty_order_dict, reach_project_dir
-# from utilsall.misc import create_print_dict
+from utilsall.misc import create_print_dict
 
 class Strategy:
     def __init__(self, kite_obj, config, testing=False):
@@ -434,6 +434,18 @@ class Strategy:
                                                                    self.bnf_pe_obj.latest_timestamp,
                                                                    ).replace(tzinfo=None)
 
+    def set_status_beacon(self):
+        if self.strategy_state_dict["status_code"] in [500, 301]:
+            self.strategy_state_dict["status_beacon"] = "ON-WT"
+        elif self.strategy_state_dict["status_code"] in [101, 102, 201, 203, 204, 601]:
+            self.strategy_state_dict["status_beacon"] = "#OFF"
+        elif self.strategy_state_dict["status_code"] in [303, 304, 401, 402]:
+            self.strategy_state_dict["status_beacon"] = "IN-POS"
+        elif self.strategy_state_dict["status_code"] in [403, 404, 405, 406]:
+            self.strategy_state_dict["status_beacon"] = "CLOSE-WT"
+
+
+
     def ready_for_next_candle(self):
         # called in update, to trigger next loop run
         now = dt.datetime.now()
@@ -476,40 +488,32 @@ class Strategy:
                                                  self.bnf_fut_obj,
                                                  self.bnf_ce_obj,
                                                  self.bnf_pe_obj)
-        print_data_strategy = {"status_beacon": self.strategy_state_dict["status_beacon"],
-                               "day pnl": "",
-                               }
         print("current time: ", dt.datetime.now())
         print("Indicator signal/value/rank")
         print("Trading signal for: ",self.trading_security)
         pprint(print_data_indicator)
-        print("-"*30)
+        print("-"*30, dt.datetime.now())
         print(self.nf_fut_obj.trading_symbol, "rank: ", self.nf_fut_obj.rank)
         print(pd.DataFrame(print_data_indicator["nf_fu"]))
-        print("-"*30)
+        print("-"*30, dt.datetime.now())
         print(self.nf_ce_obj.trading_symbol, "rank: ", self.nf_ce_obj.rank)
         print(pd.DataFrame(print_data_indicator["nf_ce"]))
-        print("-"*30)
+        print("-"*30, dt.datetime.now())
         print(self.nf_pe_obj.trading_symbol, "rank: ", self.nf_pe_obj.rank)
         print(pd.DataFrame(print_data_indicator["nf_pe"]))
-        print("-"*30)
+        print("-"*30, dt.datetime.now())
         print(self.bnf_fut_obj.trading_symbol, "rank: ", self.bnf_fut_obj.rank)
         print(pd.DataFrame(print_data_indicator["bnf_fu"]))
-        print("-"*30)
+        print("-"*30, dt.datetime.now())
         print(self.bnf_ce_obj.trading_symbol, "rank: ", self.bnf_ce_obj.rank)
         print(pd.DataFrame(print_data_indicator["bnf_ce"]))
-        print("-"*30)
+        print("-"*30, dt.datetime.now())
         print(self.bnf_pe_obj.trading_symbol, "rank: ", self.bnf_pe_obj.rank)
         print(pd.DataFrame(print_data_indicator["bnf_pe"]))
-        print("-" * 30)
-        print(print_data_strategy)
-        print("current open positions:", 0)
-        print("day pnl:", 0)
-        print("no of SL hit today:", 0)
-        print("no of exit done today:", 0)
+        print("-" * 30, dt.datetime.now())
         pprint(self.strategy_state_dict)
-        print()
-        print()
+        print(dt.datetime.now())
+        print(dt.datetime.now())
 
     def initialise(self):
         print("initialising strategy object")
@@ -520,35 +524,40 @@ class Strategy:
 
 
     def update(self):
-        if not is_market_holiday():
-            if not self.strategy_initialised:
-                self.initialise()
-                self.strategy_state_dict["status_code"] = 500
-                self.print_to_console()
-            else:
-                if is_market_open():
-                    if self.ready_for_next_candle():
-                        self._update_dataprocessor()
-                        self.check_for_signal()
-                        self.set_strategy_kill_switch_codes()
-                        self.orders_handler()
-                        self.update_last_processed_timestamp()
-                        self.update_unrealised_pnl()
+        try:
+            if not is_market_holiday():
+                if not self.strategy_initialised:
+                    self.initialise()
+                    self.strategy_state_dict["status_code"] = 500
+                    self.print_to_console()
+                else:
+                    if is_market_open():
+                        if self.ready_for_next_candle():
+                            self._update_dataprocessor()
+                            self.check_for_signal()
+                            self.set_strategy_kill_switch_codes()
+                            self.orders_handler()
+                            self.update_last_processed_timestamp()
+                            self.update_unrealised_pnl()
+                            self.set_status_beacon()
+                            self.write_csv_n_json()
+                            self.print_to_console()
+                        else:
+                            print("sleeping till next candle")
+                            sleep(20)
+                    else:
+                        self.strategy_state_dict["status_code"] = 102
                         self.write_csv_n_json()
                         self.print_to_console()
-                    else:
-                        print("sleeping till next candle")
-                        sleep(20)
-                else:
-                    self.strategy_state_dict["status_code"] = 102
-                    self.write_csv_n_json()
-                    self.print_to_console()
-                    sleep_till_time(9, 15, 30)
-        else:
-            self.strategy_state_dict["status_code"] = 101
-            self.write_csv_n_json()
-            self.print_to_console()
-            print("Market holiday/weekend")
+                        sleep_till_time(9, 15, 30)
+            else:
+                self.strategy_state_dict["status_code"] = 101
+                self.write_csv_n_json()
+                self.print_to_console()
+                print("Market holiday/weekend")
+                exit()
+        except Exception as e:
+            print(e)
             exit()
 
 

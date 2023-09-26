@@ -20,6 +20,8 @@ class ExpirySelector:
         self.holidays = market_holidays_obj.holiday_dates_dt
 
     def get_nearest_weekly(self, expiry_weekday=3):
+        self.get_nearest_monthly()
+        monthly_expiry = self.expiry_date
         if self.dt_now.weekday() == expiry_weekday:
             self.expiry_date = self.dt_now
         else:
@@ -29,6 +31,10 @@ class ExpirySelector:
             while finding_date in self.holidays:
                 finding_date = finding_date - dt.timedelta(days=1)
             self.expiry_date = finding_date
+
+        # done to handle banknifty weekly on wed and monthly on thurs
+        if monthly_expiry - dt.timedelta(days=1) == self.expiry_date:
+            self.expiry_date = monthly_expiry
 
     def get_nearest_monthly(self):
         last_date_of_month = self.dt_now.replace(month=(self.dt_now.month + 1), day=1) - dt.timedelta(days=1)
