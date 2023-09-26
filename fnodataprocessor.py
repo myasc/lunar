@@ -84,8 +84,9 @@ class FnoDataProcessor:
     def get_instru_basic_data(self):
         nfo_instruments_df = self.read_instruments_df()
         if not nfo_instruments_df.empty:
-            this_instru_data = nfo_instruments_df[nfo_instruments_df["instrument_token"] == self.instru_token].to_dict("records")[0]
-            if not this_instru_data.empty:
+            this_instru_df = nfo_instruments_df[nfo_instruments_df["instrument_token"] == self.instru_token]
+            if not this_instru_df.empty:
+                this_instru_data = this_instru_df.to_dict("records")[0]
                 self.instru_name = this_instru_data["name"]
                 self.trading_symbol = this_instru_data["tradingsymbol"]
                 self.expiry_date = this_instru_data["expiry"]
@@ -105,12 +106,12 @@ class FnoDataProcessor:
         self.data_end_datetime = dt.datetime.now().date()
         self.data_start_datetime = self.data_end_datetime - dt.timedelta(days=90)
         data_w_last_candle_changing = self.hist_data_obj.fetch(self.data_start_datetime, self.data_end_datetime)
-        if not data_w_last_candle_changing.emtpy:
+        if not data_w_last_candle_changing.empty:
             self.historical_data_df = data_w_last_candle_changing.iloc[:-1].copy()
             # print(data_w_last_candle_changing.tail(5))
             # print(self.historical_data_df.tail(5))
             if not self.historical_data_df.empty:
-                self.latest_timestamp = self.historical_data_df.index[-1]
+                self.latest_timestamp = pd.to_datetime(self.historical_data_df.index[-1])
                 # print(last_ts)
                 # print(type(last_ts))
                 # last_ts_str = str(last_ts)
@@ -206,6 +207,7 @@ class FnoDataProcessor:
         self.get_instru_basic_data()
         self.create_hist_data_obj()
         self.set_indicator_enable()
+        self.fno_dataproc_initialised = True
         print(self.trading_symbol)
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object initialised")
 

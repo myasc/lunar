@@ -132,7 +132,7 @@ class Strategy:
     def count_signal(self):
         # called inside check_for_signal
         # only counting signal when not in position
-        if self.strategy_state_dict["status_code"] in [500, 201, 203, 204]:
+        if self.strategy_state_dict["status_code"] in [500, 201, 202, 203, 204]:
             self.strategy_state_dict["signals"] += 1
         else:
             pass
@@ -173,7 +173,7 @@ class Strategy:
 
     def set_strategy_kill_switch_codes(self):
         # called in update
-        now = dt.datetime.now()
+        now = dt.datetime.now().time()
         strategy_open_time = self.config["program_start_time"]
         strategy_close_time = self.config["program_exit_time"]
 
@@ -183,9 +183,12 @@ class Strategy:
         elif self.strategy_state_dict["trades"] >= self.config["max_trades_per_day"]:
             self.strategy_state_dict["status_code"] = 204
             printer_logger("max trade per day", self.logger, "info", True)
-        elif (now >= strategy_open_time) and (now < strategy_close_time):
+        elif now <= strategy_open_time:
             self.strategy_state_dict["status_code"] = 201
-            printer_logger("outside strategy time", self.logger, "info", True)
+            printer_logger("outside strategy start time", self.logger, "info", True)
+        elif now > strategy_close_time:
+            self.strategy_state_dict["status_code"] = 202
+            printer_logger("outside strategy end time", self.logger, "info", True)
         else:
             pass
 
@@ -380,7 +383,7 @@ class Strategy:
             self.send_indi_sl_if_trigger()
         elif self.strategy_state_dict["status_code"] in [403, 404, 405]:
             self.trade_exit_process()
-        elif self.strategy_state_dict["status_code"] in [201, 203, 204]:
+        elif self.strategy_state_dict["status_code"] in [202, 203, 204]:
             self.pull_the_plug()
         else:
             printer_logger(f"no action from orders handler, status code :{self.strategy_state_dict['status_code']}", self.logger, "info", True)
@@ -414,7 +417,7 @@ class Strategy:
     def pull_the_plug(self):
         self.orders.cancel_all_tagged_open_orders()
         self.orders.marketsell_tagged_open_orders()
-        exit()
+        # exit()
 
     def update_unrealised_pnl(self):
         # called in update
@@ -437,7 +440,7 @@ class Strategy:
     def set_status_beacon(self):
         if self.strategy_state_dict["status_code"] in [500, 301]:
             self.strategy_state_dict["status_beacon"] = "ON-WT"
-        elif self.strategy_state_dict["status_code"] in [101, 102, 201, 203, 204, 601]:
+        elif self.strategy_state_dict["status_code"] in [101, 102, 201, 202, 203, 204, 601]:
             self.strategy_state_dict["status_beacon"] = "#OFF"
         elif self.strategy_state_dict["status_code"] in [303, 304, 401, 402]:
             self.strategy_state_dict["status_beacon"] = "IN-POS"
@@ -456,11 +459,11 @@ class Strategy:
             minute_delta = 2 * 1
         else:
             minute_delta = 2 * 5
-        last_processed_timestamp = self.strategy_state_dict["last_processed_timestamp"]
+        last_processed_timestamp = pd.to_datetime(self.strategy_state_dict["last_processed_timestamp"])
         if last_processed_timestamp is None:
             next_candle_time = now.replace(hour=9, minute=15, second=0, microsecond=0) + dt.timedelta(minutes=minute_delta) + dt.timedelta(minutes=self.config["entry_order_wait_min"])
         else:
-            next_candle_time = last_processed_timestamp + dt.timedelta(minutes=5) + dt.timedelta(minutes=self.config["entry_order_wait_min"])
+            next_candle_time = last_processed_timestamp + + dt.timedelta(minutes=minute_delta) + dt.timedelta(minutes=self.config["entry_order_wait_min"])
 
         if dt.datetime.now() >= next_candle_time:
             print(f"next candle available now:{now} candle:{next_candle_time} last:{last_processed_timestamp}")
@@ -512,6 +515,8 @@ class Strategy:
         print(pd.DataFrame(print_data_indicator["bnf_pe"]))
         print("-" * 30, dt.datetime.now())
         pprint(self.strategy_state_dict)
+        last_processed_timestamp = self.strategy_state_dict["last_processed_timestamp"]
+        print(last_processed_timestamp, type(last_processed_timestamp))
         print(dt.datetime.now())
         print(dt.datetime.now())
 
@@ -543,7 +548,8 @@ class Strategy:
                             self.write_csv_n_json()
                             self.print_to_console()
                         else:
-                            print("sleeping till next candle")
+                            print("waiting for next candle")
+                            self.orders_handler()
                             sleep(20)
                     else:
                         self.strategy_state_dict["status_code"] = 102
@@ -558,6 +564,8 @@ class Strategy:
                 exit()
         except Exception as e:
             print(e)
+            self.pull_the_plug()
+            raise e
             exit()
 
 

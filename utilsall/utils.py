@@ -184,13 +184,15 @@ def is_market_open():
 def sleep_till_time(hour, minute, quick_check_at_secs=30):
     now = dt.datetime.now()
     open = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    if open < now:
+        open = open + dt.timedelta(days=1)
     if open >= now:
         remain = (open - now).seconds
         if remain >= quick_check_at_secs:
             sleep_sec = math.floor(remain/2)
         else:
             sleep_sec = 5
-        print(f"sleeping secs:{sleep_sec} now:{now} till:{open}")
+        print(f"sleeping secs:{sleep_sec} now:{now} till:{open} nextcheck: {now + dt.timedelta(seconds=sleep_sec)}")
         time.sleep(sleep_sec)
     else:
         pass

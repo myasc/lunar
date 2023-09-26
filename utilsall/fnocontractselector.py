@@ -27,7 +27,7 @@ class FNOContractSelector:
     def get_instrument_symbol(self):
         self._get_instruments("NFO")
         try:
-            if not self.all_instruments_df.emtpy:
+            if not self.all_instruments_df.empty:
                 filter_1 = (self.all_instruments_df.name == self.underlying)
                 filter_2 = (self.all_instruments_df.expiry == self.expiry)
                 filter_3 = (self.all_instruments_df.strike == self.strike)
@@ -48,7 +48,7 @@ class FNOContractSelector:
         filterd_dict = []
         self._get_instruments("NFO")
         try:
-            if not self.all_instruments_df.emtpy:
+            if not self.all_instruments_df.empty:
                 filter_1 = (self.all_instruments_df.name == self.underlying)
                 filter_2 = (self.all_instruments_df.expiry == self.expiry)
                 filter_3 = (self.all_instruments_df.strike == self.strike)
