@@ -1,0 +1,6 @@
+INFO:utilsall.utils:2023-09-27 12:24:46,908:logs and json initialised
+INFO:utilsall.utils:2023-09-27 12:25:09,707:placing entry order after valid signal
+INFO:utilsall.utils:2023-09-27 12:25:29,847:no action from orders handler, status code :601
+INFO:utilsall.utils:2023-09-27 12:25:49,875:no action from orders handler, status code :601
+INFO:utilsall.utils:2023-09-27 12:26:09,946:no action from orders handler, status code :601
+INFO:utilsall.utils:2023-09-27 12:26:29,972:no action from orders handler, status code :601

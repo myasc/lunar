@@ -207,7 +207,6 @@ class Strategy:
                                                                 self.config["entry_order_valid_min"],
                                                                 "entry")
             self.order_dict["entry_order"]["oid"] = buy_resp
-            self.strategy_state_dict["status_code"] = 301
         else:
             print(f"buy order security set as {self.signal_security}, passing")
 
@@ -218,6 +217,8 @@ class Strategy:
             self.strategy_state_dict["holding_qty"] = self.order_dict["entry_order"]["quantity"]
         elif self.order_dict["entry_order"]["status"] == "CANCELLED":
             self.strategy_state_dict["status_code"] = 302
+        elif self.order_dict["entry_order"]["status"] == "OPEN":
+            self.strategy_state_dict["status_code"] = 301
         else:
             self.strategy_state_dict["status_code"] = 601
 

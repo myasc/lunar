@@ -12,8 +12,8 @@ kite_obj = Kite(cred_filepath=master_filepath+"api_credentials.json", token_file
 kite_obj.establish_connection()
 while True:
     orders_df = kite_obj.object.orders()
-    # pprint(orders_df)
+    pprint(orders_df)
 
     positions_df = kite_obj.object.positions()
-    pprint(positions_df)
+    # pprint(positions_df)
     time.sleep(10)
