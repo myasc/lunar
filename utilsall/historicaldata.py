@@ -6,9 +6,11 @@ class HistoricalData:
     def __init__(self, kite_obj, instrument_id, timeframe):
         self.kite_obj = kite_obj
         self.instrument_id = instrument_id
-        self.timeframe = timeframe
+        self.timeframe = "minute" if timeframe=="1minute" else timeframe
 
     def fetch(self, start_datetime, end_datetime):
+        if self.timeframe == "minute":
+            start_datetime = end_datetime - dt.timedelta(days=30)
         data = pd.DataFrame(self.kite_obj.historical_data(self.instrument_id,
                                                           start_datetime,
                                                           end_datetime,

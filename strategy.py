@@ -64,7 +64,7 @@ class Strategy:
         self.logger = logger_intialise("strategy")
         self.init_strategy_csv_log()
         self.init_strategy_json()
-        printer_logger("logs and json initialised", self.logger, print_=True)
+        printer_logger(f"{__class__.__name__}:logs and json initialised", self.logger, print_=True)
 
     def init_strategy_json(self):
         # called in initialise_logs_n_files
@@ -170,6 +170,7 @@ class Strategy:
 
         # todo remove when not testing
         self.signal_security = "niftype"
+        print("for testing signal security set as: ", self.signal_security)
 
     def set_strategy_kill_switch_codes(self):
         # called in update
@@ -194,6 +195,7 @@ class Strategy:
 
     def send_buy_order_if_signal_n_valid_code(self):
         # called in orders handler if status code 500, waiting for signal
+        print("signal security: ", self.signal_security, "trading security: ", self.trading_security)
         if self.signal_security in self.trading_instru_obj_ref_dict.keys():
             self.trading_security = self.signal_security
             printer_logger(f"placing entry order after valid signal", self.logger, "info", True)
@@ -207,6 +209,7 @@ class Strategy:
                                                                 self.config["entry_order_valid_min"],
                                                                 "entry")
             self.order_dict["entry_order"]["oid"] = buy_resp
+            self.strategy_state_dict["status_code"] = 301
         else:
             print(f"buy order security set as {self.signal_security}, passing")
 
@@ -251,9 +254,20 @@ class Strategy:
             self.order_dict["tp_order3"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
             self.order_dict["tp_order3"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_3_tp_value
 
-            for tp_od in [self.order_dict["tp_order1"], self.order_dict["tp_order2"], self.order_dict["tp_order3"]]:
-                tp_od["oid"] = self.orders.place_limit_sell_nfo(tp_od["symbol"], tp_od["quantity"], tp_od["limit_price"],
-                                                           "tp")
+            if self.config["num_of_sets"] * self.config["lots_per_set"] <= 0:
+                pass
+            elif self.config["num_of_sets"] * self.config["lots_per_set"] == 1:
+                for tp_od in [self.order_dict["tp_order1"]]:
+                    tp_od["oid"] = self.orders.place_limit_sell_nfo(tp_od["symbol"], tp_od["quantity"], tp_od["limit_price"],
+                                                               "tp")
+            elif self.config["num_of_sets"] * self.config["lots_per_set"] == 2:
+                for tp_od in [self.order_dict["tp_order1"], self.order_dict["tp_order2"]]:
+                    tp_od["oid"] = self.orders.place_limit_sell_nfo(tp_od["symbol"], tp_od["quantity"], tp_od["limit_price"],
+                                                               "tp")
+            elif self.config["num_of_sets"] * self.config["lots_per_set"] >= 3:
+                for tp_od in [self.order_dict["tp_order1"], self.order_dict["tp_order2"], self.order_dict["tp_order3"]]:
+                    tp_od["oid"] = self.orders.place_limit_sell_nfo(tp_od["symbol"], tp_od["quantity"], tp_od["limit_price"],
+                                                               "tp")
         else:
             print(f"none takeprofit orders, security set as {self.trading_security}, passing")
 
@@ -300,14 +314,20 @@ class Strategy:
     def if_tp_1_complete(self):
         # called in orders handler if status code 304 i.e. sl & tp orders sent
         if self.order_dict["tp_order1"]["status"] == "COMPLETE":
-            self.strategy_state_dict["status_code"] = 401
+            if self.config["num_of_sets"] * self.config["lots_per_set"] == 1:
+                self.strategy_state_dict["status_code"] = 403
+            else:
+                self.strategy_state_dict["status_code"] = 401
             self.strategy_state_dict["holding_qty"] = self.strategy_state_dict["holding_qty"] - self.order_dict["tp_order1"]["quantity"]
             self.update_realised_pnl()
             self.send_global_sl()
     def if_tp_2_complete(self):
         if self.order_dict["tp_order2"]["status"] == "COMPLETE":
             # called in orders handler if status code 401 i.e. sl & tp1 complete
-            self.strategy_state_dict["status_code"] = 402
+            if self.config["num_of_sets"] * self.config["lots_per_set"] == 2:
+                self.strategy_state_dict["status_code"] = 403
+            else:
+                self.strategy_state_dict["status_code"] = 402
             self.strategy_state_dict["holding_qty"] = self.strategy_state_dict["holding_qty"] - self.order_dict["tp_order2"]["quantity"]
             self.update_realised_pnl()
             self.send_global_sl()
