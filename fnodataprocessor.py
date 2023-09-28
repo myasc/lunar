@@ -17,6 +17,7 @@ class FnoDataProcessor:
         self.expiry_date = None
         self.strike = None
         self.lot_size = None
+        self.tick_size = None
         self.instru_type = None
 
         self.hist_data_obj = None
@@ -92,6 +93,7 @@ class FnoDataProcessor:
                 self.expiry_date = this_instru_data["expiry"]
                 self.strike = this_instru_data["strike"]
                 self.lot_size = this_instru_data["lot_size"]
+                self.tick_size = this_instru_data["tick_size"]
                 self.instru_type = this_instru_data["instrument_type"]
 
         test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set instrument meta data")

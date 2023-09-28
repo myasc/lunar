@@ -41,5 +41,5 @@ config = {"program_trade_live": True,
           # "final_exit": "ind_sl",  # [based on technical indicator]
           "global_sl": 45,  # [odd events]
           "entry_order_wait_min": 2,  # min (this is after valid signal)
-          "entry_order_valid_min": 3  # wait time for order fill
+          "entry_order_valid_min": 1  # wait time for order fill
           }

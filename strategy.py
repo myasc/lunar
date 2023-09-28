@@ -9,7 +9,7 @@ from utilsall.utils import fetch_instru_token, save_dict_to_json_file, sleep_til
 from utilsall.orders import Orders
 from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv, get_latest_json_dict, is_market_open, is_market_holiday
 from utilsall.misc import creat_empty_order_dict, reach_project_dir
-from utilsall.misc import create_print_dict
+from utilsall.misc import create_print_dict, round_to_nearest_005
 
 class Strategy:
     def __init__(self, kite_obj, config, testing=False):
@@ -201,7 +201,7 @@ class Strategy:
             printer_logger(f"placing entry order after valid signal", self.logger, "info", True)
             self.order_dict["entry_order"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
             self.order_dict["entry_order"]["quantity"] = self.config["num_of_sets"] * self.config["lots_per_set"] * self.trading_instru_obj_ref_dict[self.trading_security].lot_size
-            self.order_dict["entry_order"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].last_close_price
+            self.order_dict["entry_order"]["limit_price"] = round_to_nearest_005(self.trading_instru_obj_ref_dict[self.trading_security].last_close_price)
 
             buy_resp = self.orders.place_validity_limit_buy_nfo(self.order_dict["entry_order"]["symbol"],
                                                                 self.order_dict["entry_order"]["quantity"],
@@ -244,15 +244,15 @@ class Strategy:
         if self.trading_security in self.trading_instru_obj_ref_dict.keys():
             self.order_dict["tp_order1"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
             self.order_dict["tp_order1"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
-            self.order_dict["tp_order1"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_1_tp_value
+            self.order_dict["tp_order1"]["limit_price"] = round_to_nearest_005(self.trading_instru_obj_ref_dict[self.trading_security].ti_1_tp_value)
 
             self.order_dict["tp_order2"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
             self.order_dict["tp_order2"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
-            self.order_dict["tp_order2"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_2_tp_value
+            self.order_dict["tp_order2"]["limit_price"] = round_to_nearest_005(self.trading_instru_obj_ref_dict[self.trading_security].ti_2_tp_value)
 
             self.order_dict["tp_order3"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
             self.order_dict["tp_order3"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
-            self.order_dict["tp_order3"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].ti_3_tp_value
+            self.order_dict["tp_order3"]["limit_price"] = round_to_nearest_005(self.trading_instru_obj_ref_dict[self.trading_security].ti_3_tp_value)
 
             if self.config["num_of_sets"] * self.config["lots_per_set"] <= 0:
                 pass
@@ -278,12 +278,14 @@ class Strategy:
             if (self.order_dict["sl_global"]["status"] == "OPEN") and (self.order_dict["sl_global"]["quantity"] != self.strategy_state_dict["holding_qty"]):
                 self.order_dict["sl_global"]["oid"] = self.orders.modify_qty_from_orderid(self.order_dict["sl_global"]["oid"],
                                                                                          self.strategy_state_dict["holding_qty"])
+                pprint(self.order_dict["sl_global"])
                 self.order_dict["sl_global"]["quantity"] = self.strategy_state_dict["holding_qty"]
             else:
                 self.order_dict["sl_global"]["symbol"] = self.order_dict["entry_order"]["symbol"]
                 self.order_dict["sl_global"]["quantity"] = self.order_dict["entry_order"]["quantity"]
-                self.order_dict["sl_global"]["limit_price"] = self.order_dict["entry_order"]["limit_price"] - \
-                                                                  self.config["global_sl"]
+                self.order_dict["sl_global"]["limit_price"] = round_to_nearest_005(self.order_dict["entry_order"]["limit_price"] - \
+                                                                  self.config["global_sl"])
+                pprint(self.order_dict["sl_global"])
                 self.order_dict["sl_global"]["oid"] = self.orders.place_sl_market_sell_nfo(self.order_dict["sl_global"]["symbol"],
                                                                self.order_dict["sl_global"]["quantity"],
                                                                self.order_dict["sl_global"]["limit_price"],
@@ -296,7 +298,7 @@ class Strategy:
         if self.trading_instru_obj_ref_dict[self.trading_security].sl_indi_sell_signal:
             self.order_dict["sl_indicator"]["symbol"] = self.order_dict["entry_order"]["symbol"]
             self.order_dict["sl_indicator"]["quantity"] = self.strategy_state_dict["holding_qty"]
-            self.order_dict["sl_indicator"]["limit_price"] = self.trading_instru_obj_ref_dict[self.trading_security].last_close_price
+            self.order_dict["sl_indicator"]["limit_price"] = round_to_nearest_005(self.trading_instru_obj_ref_dict[self.trading_security].last_close_price)
             self.order_dict["sl_indicator"]["oid"] = self.orders.place_market_sell_nfo(self.order_dict["sl_indicator"]["symbol"],
                                                                                       self.order_dict["sl_indicator"]["quantity"],
                                                                                       "indicator_sl")
@@ -483,8 +485,10 @@ class Strategy:
         last_processed_timestamp = pd.to_datetime(self.strategy_state_dict["last_processed_timestamp"])
         if last_processed_timestamp is None:
             next_candle_time = now.replace(hour=9, minute=15, second=0, microsecond=0) + dt.timedelta(minutes=minute_delta) + dt.timedelta(minutes=self.config["entry_order_wait_min"])
+        elif self.config["candle_interval"] == "1minute":
+            next_candle_time = last_processed_timestamp + dt.timedelta(minutes=minute_delta)
         else:
-            next_candle_time = last_processed_timestamp + + dt.timedelta(minutes=minute_delta) + dt.timedelta(minutes=self.config["entry_order_wait_min"])
+            next_candle_time = last_processed_timestamp + dt.timedelta(minutes=minute_delta) + dt.timedelta(minutes=self.config["entry_order_wait_min"])
 
         if dt.datetime.now() >= next_candle_time:
             print(f"next candle available now:{now} candle:{next_candle_time} last:{last_processed_timestamp}")

@@ -265,3 +265,8 @@ def reach_project_dir():
 def test_prints(mssg, toprint=False):
     if toprint:
         print("testprints: " + mssg)
+
+def round_to_nearest_005(number):
+    # Multiply the number by 20 to round to the nearest 0.05
+    rounded_number = round(number * 20) / 20
+    return rounded_number
