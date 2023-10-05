@@ -1,0 +1,18 @@
+INFO:strategy:init_strategy_csv_log:2023-09-29 15:13:18,037:Strategy:500:added csv row to csv_files/strategy_20230929.csv
+INFO:strategy:init_strategy_json:2023-09-29 15:13:18,038:Strategy:500:read previous not empty strategy state from json_files/strategy_20230929.json
+INFO:strategy:initialise_logs_n_files:2023-09-29 15:13:18,038:Strategy:500:logs and json initialised
+INFO:strategy:_set_dataprocessor_obj:2023-09-29 15:13:27,564:Strategy:500:instrument objects created
+INFO:strategy:_update_dataprocessor:2023-09-29 15:13:34,952:Strategy:500:added csv row to csv_files/strategy_20230929.csv
+INFO:strategy:_update_dataprocessor:2023-09-29 15:13:45,103:Strategy:500:added csv row to csv_files/strategy_20230929.csv
+INFO:strategy:check_for_signal:2023-09-29 15:13:45,104:Strategy:500:signal for None no rank conditions matched
+INFO:strategy:set_strategy_kill_switch_codes:2023-09-29 15:13:45,104:Strategy:500:none kill switch condition triggered
+INFO:utils:printer_logger:2023-09-29 15:13:45,104:placing entry order after valid signal
+INFO:strategy:send_buy_order_if_signal_n_valid_code:2023-09-29 15:13:45,148:Strategy:301:entry buy order sent for {'symbol': 'NIFTY23O0519600PE', 'quantity': 50, 'limit_price': 64.9, 'oid': '230929602295995', 'status': ''}
+INFO:strategy:if_buy_filled_or_cancelled:2023-09-29 15:13:45,217:Strategy:303:entry buy order complete
+INFO:strategy:_update_dataprocessor:2023-09-29 15:14:15,435:Strategy:303:added csv row to csv_files/strategy_20230929.csv
+INFO:strategy:check_for_signal:2023-09-29 15:14:15,437:Strategy:303:signal for None no rank conditions matched
+INFO:strategy:set_strategy_kill_switch_codes:2023-09-29 15:14:15,437:Strategy:303:none kill switch condition triggered
+INFO:strategy:send_tp_orders:2023-09-29 15:14:15,480:Strategy:303:tp order sent {'symbol': 'NIFTY23O0519600PE', 'quantity': 50, 'limit_price': 63.3, 'oid': '230929602299218', 'status': ''}
+INFO:strategy:send_global_sl:2023-09-29 15:14:15,532:Strategy:303:global sl sent {'symbol': 'NIFTY23O0519600PE', 'quantity': 50, 'limit_price': 19.9, 'oid': '230929602299224', 'status': ''}
+INFO:strategy:send_sl_tp_orders:2023-09-29 15:14:15,532:Strategy:304:takeprofit and global sl orders sent
+CRITICAL:strategy:send_global_sl:2023-09-29 15:14:15,700:Strategy:403:global sl sent {'symbol': 'NIFTY23O0519600PE', 'quantity': 50, 'limit_price': 19.9, 'oid': '230929602299242', 'status': 'REJECTED'}

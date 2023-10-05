@@ -6,10 +6,11 @@ import datetime as dt
 import os
 
 class Orders:
-    def __init__(self, kite_connection_obj, testing):
+    def __init__(self, kite_connection_obj, testing, logger):
         self.kite_obj = kite_connection_obj
         self.csv_filepath = None
         self.testing = testing
+        self.logger = logger
         self.initialise_csv_logs()
         self.tag_name = "lunar"
 
@@ -22,6 +23,7 @@ class Orders:
         add_row_to_csv(row=["type", "side", "qty", "symbol", "price", "oid","remark"],
                        file_path=self.csv_filepath,
                        print_=True)
+        self.logger.info(f"{__class__.__name__}: csv log initialised")
         os.chdir(pwd)
 
     def calculate_transaction_charges(self, buy_price, sell_price, quantity, asset_type):
@@ -59,6 +61,7 @@ class Orders:
                                       product=self.kite_obj.PRODUCT_NRML,
                                       variety=self.kite_obj.VARIETY_REGULAR,
                                              tag=self.tag_name)
+            self.logger.info(f"{__class__.__name__}: market buy order sent {trading_symbol} {quantity} {remark} {response}")
             add_row_to_csv(row=["market", "buy", quantity, trading_symbol, " ",response, remark],
                            file_path=self.csv_filepath,
                            print_=True)
@@ -72,6 +75,7 @@ class Orders:
                   f"{self.kite_obj.ORDER_TYPE_MARKET}"
                   f"{self.kite_obj.PRODUCT_NRML}"
                   f"{self.kite_obj.VARIETY_REGULAR}")
+            self.logger.info(f"{__class__.__name__}: test market buy order sent {trading_symbol} {quantity} {remark} {response}")
             add_row_to_csv(row=["market", "buy", quantity, trading_symbol, " ",response, "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
@@ -86,6 +90,7 @@ class Orders:
                                       product=self.kite_obj.PRODUCT_NRML,
                                       variety=self.kite_obj.VARIETY_REGULAR,
                                              tag=self.tag_name)
+            self.logger.info(f"{__class__.__name__}: market sell order sent {trading_symbol} {quantity} {remark} {response}")
             add_row_to_csv(row=["market", "sell", quantity, trading_symbol, " ",response, remark],
                            file_path=self.csv_filepath,
                            print_=True)
@@ -99,6 +104,7 @@ class Orders:
                   f"{self.kite_obj.ORDER_TYPE_MARKET}"
                   f"{self.kite_obj.PRODUCT_NRML}"
                   f"{self.kite_obj.VARIETY_REGULAR}")
+            self.logger.info(f"{__class__.__name__}: test market sell order sent {trading_symbol} {quantity} {remark} {response}")
             add_row_to_csv(row=["market", "sell", quantity, trading_symbol, " ",response, "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
@@ -109,6 +115,7 @@ class Orders:
             response = self.kite_obj.place_order(order_id = orderid,
                                                  quantity=quantity,
                                                  variety=self.kite_obj.VARIETY_REGULAR)
+            self.logger.info(f"{__class__.__name__}: modify order qty sent {orderid} {quantity} {remark} {response}")
             add_row_to_csv(row=["modify", "modify", quantity, " ", " ",response, remark],
                            file_path=self.csv_filepath,
                            print_=True)
@@ -117,24 +124,28 @@ class Orders:
 
     def place_sl_market_sell_nfo(self, trading_symbol, quantity, limit_price, remark="None"):
         if not self.testing:
-            response = self.kite_obj.place_order(price=limit_price,
-                                      trigger_price=limit_price,
-                                      quantity=quantity,
-                                      tradingsymbol=trading_symbol,
-                                      exchange=self.kite_obj.EXCHANGE_NFO,
-                                      transaction_type=self.kite_obj.TRANSACTION_TYPE_SELL,
-                                      order_type=self.kite_obj.ORDER_TYPE_SL,
-                                      product=self.kite_obj.PRODUCT_NRML,
-                                      variety=self.kite_obj.VARIETY_REGULAR,
-                                             tag=self.tag_name)
-            add_row_to_csv(row=["market", "sell", quantity, trading_symbol, limit_price,response, remark],
+            try:
+                response = self.kite_obj.place_order(price=limit_price,
+                                          trigger_price=limit_price,
+                                          quantity=quantity,
+                                          tradingsymbol=trading_symbol,
+                                          exchange=self.kite_obj.EXCHANGE_NFO,
+                                          transaction_type=self.kite_obj.TRANSACTION_TYPE_SELL,
+                                          order_type=self.kite_obj.ORDER_TYPE_SL,
+                                          product=self.kite_obj.PRODUCT_NRML,
+                                          variety=self.kite_obj.VARIETY_REGULAR,
+                                                 tag=self.tag_name)
+            except:
+                raise Exception
+            self.logger.info(f"{__class__.__name__}: sl order sent {trading_symbol} {quantity} {limit_price} {remark} {response}")
+            add_row_to_csv(row=["limit", "sell", quantity, trading_symbol, limit_price,response, remark],
                            file_path=self.csv_filepath,
                            print_=True)
             return response
         else:
             response = {"data": {"order_id": "test_oid_123"}}
-            print(f"test: {limit_price} {quantity} {trading_symbol}")
-            add_row_to_csv(row=["market", "sell", quantity, trading_symbol, limit_price,response, "testing"],
+            self.logger.info(f"{__class__.__name__}: test sl order sent {trading_symbol} {quantity} {limit_price} {remark} {response}")
+            add_row_to_csv(row=["limit", "sell", quantity, trading_symbol, limit_price,response, "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
             return response
@@ -151,13 +162,14 @@ class Orders:
                                       product=self.kite_obj.PRODUCT_NRML,
                                       variety=self.kite_obj.VARIETY_REGULAR,
                                              tag=self.tag_name)
+            self.logger.info(f"{__class__.__name__}: limit buy order sent {trading_symbol} {quantity} {limit_price} {remark} {response}")
             add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response, remark],
                            file_path=self.csv_filepath,
                            print_=True)
             return response
         else:
             response = {"data": {"order_id": "test_oid_123"}}
-            print(f"test: {limit_price} {quantity} {trading_symbol}")
+            self.logger.info(f"{__class__.__name__}: test limit buy order sent {trading_symbol} {quantity} {limit_price} {remark} {response}")
             add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response, "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
@@ -174,13 +186,14 @@ class Orders:
                                       product=self.kite_obj.PRODUCT_NRML,
                                       variety=self.kite_obj.VARIETY_REGULAR,
                                              tag=self.tag_name)
+            self.logger.info(f"{__class__.__name__}: limit sell order sent {trading_symbol} {quantity} {limit_price} {remark} {response}")
             add_row_to_csv(row=["limit", "sell", quantity, trading_symbol, limit_price,response, remark],
                            file_path=self.csv_filepath,
                            print_=True)
             return response
         else:
             response = {"data": {"order_id": "test_oid_123"}}
-            print(f"test: {limit_price} {quantity} {trading_symbol}")
+            self.logger.info(f"{__class__.__name__}: test limit sell order sent {trading_symbol} {quantity} {limit_price} {remark} {response}")
             add_row_to_csv(row=["limit", "sell", quantity, trading_symbol, limit_price,response, "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
@@ -200,13 +213,14 @@ class Orders:
                                       validity=self.kite_obj.VALIDITY_TTL,
                                       validity_ttl=valid_mins,
                                              tag=self.tag_name)
+            self.logger.info(f"{__class__.__name__}: limit validity buy order sent {trading_symbol} {quantity} {limit_price} {valid_mins} {remark} {response}")
             add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response, remark],
                            file_path=self.csv_filepath,
                            print_=True)
             return response
         else:
             response = {"data": {"order_id": "test_oid_123"}}
-            print(f"test: {limit_price} {quantity} {trading_symbol}")
+            self.logger.info(f"{__class__.__name__}: test limit validity buy order sent {trading_symbol} {quantity} {limit_price} {valid_mins} {remark} {response}")
             add_row_to_csv(row=["limit", "buy", quantity, trading_symbol, limit_price,response, "testing"],
                            file_path=self.csv_filepath,
                            print_=True)
@@ -224,6 +238,7 @@ class Orders:
                                               product=product,
                                               variety=variety,
                                              tag=self.tag_name)
+        self.logger.info(f"{__class__.__name__}: raw order sent {price} {trigger_price} {quantity} {trading_symbol} {exchange} {transaction_type} {order_type} {product} {variety}")
         add_row_to_csv(row=[order_type, transaction_type, quantity, trading_symbol, trigger_price,response, "raw_order"],
                        file_path=self.csv_filepath,
                        print_=True)
@@ -233,19 +248,24 @@ class Orders:
         orders_df = pd.DataFrame(self.kite_obj.orders())
         if not orders_df.empty:
             this_tag_orders = orders_df[orders_df["tag"] == self.tag_name].copy()
+            self.logger.info(f"{__class__.__name__}: fetched existing orders for tag {self.tag_name}")
             return this_tag_orders
         else:
+            self.logger.info(f"{__class__.__name__}: none fetched existing orders for tag {self.tag_name}")
             return orders_df
 
     def get_order_status(self, oid):
         if oid == "":
+            self.logger.info(f"{__class__.__name__}: none order status fetched oid:{oid}")
             return ""
         else:
             orders_df = self.get_orders()
             if not orders_df.empty:
                 this_order = orders_df[orders_df["order_id"] == oid].to_dict("records")[0]
+                self.logger.info(f"{__class__.__name__}: order status fetched oid:{oid} {this_order['status']}")
                 return this_order["status"]
             else:
+                self.logger.info(f"{__class__.__name__}: none order status fetched oid:{oid}, dataframe emtpy")
                 return None
 
     def cancel_all_tagged_open_orders(self):
@@ -257,9 +277,13 @@ class Orders:
             if not this_tag_open_orders.empty:
                 for oid in this_tag_open_orders["order_id"].tolist():
                     self.kite_obj.cancel_order(variety=self.kite_obj.VARIETY_REGULAR, order_id=oid)
+                    self.logger.info(f"{__class__.__name__}: cancelled order oid{oid}")
+                self.logger.info(f"{__class__.__name__}: cancelled all tagged open orders")
             else:
+                self.logger.info(f"{__class__.__name__}: none tagged open orders for cancel")
                 pass
         else:
+            self.logger.info(f"{__class__.__name__}: none orders available for cancel")
             pass
 
     def marketsell_tagged_open_orders(self):
@@ -275,10 +299,11 @@ class Orders:
             if not open_positions.empty:
                 for position in open_positions.to_dict("records"):
                     resp = self.place_market_sell_nfo(position["tradingsymbol"], position["quantity"], "squareoffopen")
-                    print(resp)
+                self.logger.info(f"{__class__.__name__}: marketsell tagged open orders complete")
             else:
-                pass
+                self.logger.info(f"{__class__.__name__}: none tagged open orders for marketsell")
         else:
+            self.logger.info(f"{__class__.__name__}: none orders available for marketsell")
             pass
 
 if __name__ == "__main__":

@@ -1,0 +1,44 @@
+2023-10-04 13:06:04,288:INFO:strategy:init_strategy_csv_log:Strategy:500:added csv row to csv_files/strategy_20231004.csv
+2023-10-04 13:06:04,289:INFO:strategy:init_strategy_json:Strategy:304:read previous not empty strategy state from json_files/strategy_20231004.json
+2023-10-04 13:06:04,289:INFO:strategy:initialise_logs_n_files:Strategy:304:logs and json initialised
+2023-10-04 13:06:12,775:INFO:strategy:_set_dataprocessor_obj:Strategy:304:instrument objects created
+2023-10-04 13:06:20,434:INFO:strategy:_update_dataprocessor:Strategy:304:added csv row to csv_files/strategy_20231004.csv
+2023-10-04 13:06:20,435:INFO:orders:initialise_csv_logs:Orders: csv log initialised
+2023-10-04 13:06:20,435:INFO:strategy:set_order_object:Strategy:304:order class object created
+2023-10-04 13:06:20,435:INFO:strategy:initialise:Strategy:304: initialised strategy object
+2023-10-04 13:06:20,437:INFO:strategy:update:Strategy:500: not a market holiday
+2023-10-04 13:06:20,438:INFO:strategy:update:Strategy:500: market is open
+2023-10-04 13:06:20,439:INFO:strategy:ready_for_next_candle:Strategy:500: candle interval 1min last timestamp processed 2023-10-04 10:40:00, next candle time 2023-10-04 10:42:00
+2023-10-04 13:06:20,440:INFO:strategy:ready_for_next_candle:Strategy:500: now>nextcandletime last timestamp processed 2023-10-04 10:40:00, next candle time 2023-10-04 10:42:00
+2023-10-04 13:06:20,440:INFO:strategy:update:Strategy:500: ready for next candle
+2023-10-04 13:06:30,365:INFO:strategy:_update_dataprocessor:Strategy:500:added csv row to csv_files/strategy_20231004.csv
+2023-10-04 13:06:30,365:INFO:strategy:check_for_signal:Strategy:500:signal for None no rank conditions matched
+2023-10-04 13:06:30,365:INFO:strategy:set_strategy_kill_switch_codes:Strategy:500:none kill switch condition triggered
+2023-10-04 13:06:30,365:INFO:strategy:update_order_status:Strategy:500:none updated order status
+2023-10-04 13:06:30,365:INFO:utils:printer_logger:placing entry order after valid signal
+2023-10-04 13:06:30,413:INFO:orders:place_validity_limit_buy_nfo:Orders: limit validity buy order sent NIFTY23O0519600PE 50 256.9 1 entry 231004601964491
+2023-10-04 13:06:30,413:INFO:strategy:send_buy_order_if_signal_n_valid_code:Strategy:301:entry buy order sent for {'symbol': 'NIFTY23O0519600PE', 'quantity': 50, 'limit_price': 256.9, 'oid': '231004601964491', 'status': ''}
+2023-10-04 13:06:30,414:INFO:strategy:update_last_processed_timestamp:Strategy:301: updated last processes timestamp 2023-10-04 13:05:00
+2023-10-04 13:06:30,414:INFO:strategy:update_unrealised_pnl:Strategy:301: none updated unrealised pnl -290.00000000000057
+2023-10-04 13:06:30,414:INFO:strategy:set_status_beacon:Strategy:301: status beacon updated ON-WT
+2023-10-04 13:06:30,415:INFO:strategy:write_csv_n_json:Strategy:301: saving json to json_files/strategy_20231004.json and csv to csv_files/strategy_20231004.csv
+2023-10-04 13:06:30,417:INFO:strategy:update:Strategy:301: not a market holiday
+2023-10-04 13:06:30,419:INFO:strategy:update:Strategy:301: market is open
+2023-10-04 13:06:30,419:INFO:strategy:ready_for_next_candle:Strategy:301: candle interval 1min last timestamp processed 2023-10-04 13:05:00, next candle time 2023-10-04 13:07:00
+2023-10-04 13:06:30,419:INFO:strategy:ready_for_next_candle:Strategy:301: now not> nextcandletime last timestamp processed 2023-10-04 13:05:00, next candle time 2023-10-04 13:07:00
+2023-10-04 13:06:30,419:INFO:strategy:update:Strategy:301: not ready for next candle
+2023-10-04 13:06:30,462:INFO:orders:get_orders:Orders: fetched existing orders for tag lunar
+2023-10-04 13:06:30,463:INFO:orders:get_order_status:Orders: order status fetched oid:231004601964491 COMPLETE
+2023-10-04 13:06:30,463:INFO:strategy:update_order_status:Strategy:301:updated order status for entry COMPLETE
+2023-10-04 13:06:30,463:INFO:strategy:if_buy_filled_or_cancelled:Strategy:303:entry buy order complete
+2023-10-04 13:06:50,475:INFO:strategy:update:Strategy:303: not a market holiday
+2023-10-04 13:06:50,477:INFO:strategy:update:Strategy:303: market is open
+2023-10-04 13:06:50,477:INFO:strategy:ready_for_next_candle:Strategy:303: candle interval 1min last timestamp processed 2023-10-04 13:05:00, next candle time 2023-10-04 13:07:00
+2023-10-04 13:06:50,477:INFO:strategy:ready_for_next_candle:Strategy:303: now not> nextcandletime last timestamp processed 2023-10-04 13:05:00, next candle time 2023-10-04 13:07:00
+2023-10-04 13:06:50,477:INFO:strategy:update:Strategy:303: not ready for next candle
+2023-10-04 13:06:50,477:INFO:strategy:update_order_status:Strategy:303:none updated order status
+2023-10-04 13:06:50,536:INFO:orders:place_limit_sell_nfo:Orders: limit sell order sent NIFTY23O0519600PE 50 249.5 tp 231004601967713
+2023-10-04 13:06:50,537:INFO:strategy:send_tp_orders:Strategy:303:tp order sent {'symbol': 'NIFTY23O0519600PE', 'quantity': 50, 'limit_price': 249.5, 'oid': '231004601967713', 'status': ''}
+2023-10-04 13:06:50,607:INFO:orders:place_sl_market_sell_nfo:Orders: sl order sent NIFTY23O0519600PE 50 211.9 global_sl 231004601967728
+2023-10-04 13:06:50,608:INFO:strategy:send_global_sl:Strategy:303:global sl sent {'symbol': 'NIFTY23O0519600PE', 'quantity': 50, 'limit_price': 211.9, 'oid': '231004601967728', 'status': ''}
+2023-10-04 13:06:50,608:INFO:strategy:send_sl_tp_orders:Strategy:304:takeprofit and global sl orders sent

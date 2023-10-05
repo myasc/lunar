@@ -1,0 +1,40 @@
+INFO:2023-10-03 10:31:16,831:strategy:init_strategy_csv_log:Strategy:500:added csv row to csv_files/strategy_20231003.csv
+INFO:2023-10-03 10:31:16,832:strategy:init_strategy_json:Strategy:500:created new json file json_files/strategy_20231003.json
+INFO:2023-10-03 10:31:16,832:strategy:initialise_logs_n_files:Strategy:500:logs and json initialised
+INFO:2023-10-03 10:31:25,817:strategy:_set_dataprocessor_obj:Strategy:500:instrument objects created
+INFO:2023-10-03 10:31:33,584:strategy:_update_dataprocessor:Strategy:500:added csv row to csv_files/strategy_20231003.csv
+INFO:2023-10-03 10:31:44,053:strategy:_update_dataprocessor:Strategy:500:added csv row to csv_files/strategy_20231003.csv
+INFO:2023-10-03 10:31:44,054:strategy:check_for_signal:Strategy:500:signal for None no rank conditions matched
+INFO:2023-10-03 10:31:44,054:strategy:set_strategy_kill_switch_codes:Strategy:500:none kill switch condition triggered
+INFO:2023-10-03 10:31:44,054:strategy:update_order_status:Strategy:500:none updated order status
+INFO:2023-10-03 10:31:44,054:utils:printer_logger:placing entry order after valid signal
+INFO:2023-10-03 10:31:44,106:strategy:send_buy_order_if_signal_n_valid_code:Strategy:301:entry buy order sent for {'symbol': 'NIFTY23O0519600PE', 'quantity': 50, 'limit_price': 111.3, 'oid': '231003600952206', 'status': ''}
+INFO:2023-10-03 10:31:44,107:strategy:update_last_processed_timestamp:Strategy:301: updated last processes timestamp 2023-10-03 10:30:00
+INFO:2023-10-03 10:31:44,107:strategy:update_unrealised_pnl:Strategy:301: none updated unrealised pnl
+INFO:2023-10-03 10:31:44,107:strategy:set_status_beacon:Strategy:301: status beacon updated ON-WT
+INFO:2023-10-03 10:31:44,171:strategy:update_order_status:Strategy:301:updated order status for entry
+INFO:2023-10-03 10:31:44,172:strategy:if_buy_filled_or_cancelled:Strategy:301:entry buy order open
+INFO:2023-10-03 10:32:14,125:strategy:_update_dataprocessor:Strategy:301:added csv row to csv_files/strategy_20231003.csv
+INFO:2023-10-03 10:32:14,125:strategy:check_for_signal:Strategy:301:signal for None no rank conditions matched
+INFO:2023-10-03 10:32:14,125:strategy:set_strategy_kill_switch_codes:Strategy:301:none kill switch condition triggered
+INFO:2023-10-03 10:32:14,166:strategy:update_order_status:Strategy:301:updated order status for entry
+INFO:2023-10-03 10:32:14,166:strategy:if_buy_filled_or_cancelled:Strategy:301:entry buy order open
+INFO:2023-10-03 10:32:14,166:strategy:update_last_processed_timestamp:Strategy:301: updated last processes timestamp 2023-10-03 10:31:00
+INFO:2023-10-03 10:32:14,166:strategy:update_unrealised_pnl:Strategy:301: none updated unrealised pnl
+INFO:2023-10-03 10:32:14,166:strategy:set_status_beacon:Strategy:301: status beacon updated ON-WT
+INFO:2023-10-03 10:32:14,221:strategy:update_order_status:Strategy:301:updated order status for entry
+INFO:2023-10-03 10:32:14,221:strategy:if_buy_filled_or_cancelled:Strategy:301:entry buy order open
+INFO:2023-10-03 10:32:34,296:strategy:update_order_status:Strategy:301:updated order status for entry
+INFO:2023-10-03 10:32:34,297:strategy:if_buy_filled_or_cancelled:Strategy:303:entry buy order complete
+INFO:2023-10-03 10:32:54,325:strategy:update_order_status:Strategy:303:none updated order status
+INFO:2023-10-03 10:32:54,377:strategy:send_tp_orders:Strategy:303:tp order sent {'symbol': 'NIFTY23O0519600PE', 'quantity': 50, 'limit_price': 118.4, 'oid': '231003600959519', 'status': ''}
+INFO:2023-10-03 10:32:54,430:strategy:send_global_sl:Strategy:303:global sl sent {'symbol': 'NIFTY23O0519600PE', 'quantity': 50, 'limit_price': 66.3, 'oid': '231003600959522', 'status': ''}
+INFO:2023-10-03 10:32:54,430:strategy:send_sl_tp_orders:Strategy:304:takeprofit and global sl orders sent
+INFO:2023-10-03 10:33:24,624:strategy:_update_dataprocessor:Strategy:304:added csv row to csv_files/strategy_20231003.csv
+INFO:2023-10-03 10:33:24,624:strategy:check_for_signal:Strategy:304:signal for None no rank conditions matched
+INFO:2023-10-03 10:33:24,625:strategy:set_strategy_kill_switch_codes:Strategy:304:none kill switch condition triggered
+INFO:2023-10-03 10:33:24,715:strategy:update_order_status:Strategy:304:updated order status for tp1, slglobal
+INFO:2023-10-03 10:33:24,716:strategy:update_last_processed_timestamp:Strategy:304: updated last processes timestamp 2023-10-03 10:32:00
+INFO:2023-10-03 10:33:24,716:strategy:update_unrealised_pnl:Strategy:304: updated unrealised pnl
+INFO:2023-10-03 10:33:24,716:strategy:set_status_beacon:Strategy:304: status beacon updated IN-POS
+INFO:2023-10-03 10:33:24,815:strategy:update_order_status:Strategy:304:updated order status for tp1, slglobal

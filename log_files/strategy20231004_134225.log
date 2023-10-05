@@ -1,0 +1,283 @@
+2023-10-04 13:42:25,823:INFO:strategy:init_strategy_csv_log:Strategy:500:added csv row to csv_files/strategy_20231004.csv
+2023-10-04 13:42:25,824:INFO:strategy:init_strategy_json:Strategy:301:read previous not empty strategy state from json_files/strategy_20231004.json
+2023-10-04 13:42:25,824:INFO:strategy:initialise_logs_n_files:Strategy:301:logs and json initialised
+2023-10-04 13:42:34,132:INFO:strategy:_set_dataprocessor_obj:Strategy:301:instrument objects created
+2023-10-04 13:42:35,399:INFO:fnodataprocessor:read_instruments_df:FnoDataProcessor: fetched instruments df from kite
+2023-10-04 13:42:35,407:INFO:fnodataprocessor:get_instru_basic_data:FnoDataProcessor: instrument data fetched name:NIFTY, symbol:NIFTY23OCTFUT expiry:2023-10-26 strike:0.0 lot:50 tick:0.05 type:FUT
+2023-10-04 13:42:35,416:INFO:fnodataprocessor:create_hist_data_obj:FnoDataProcessor: historical data object created
+2023-10-04 13:42:35,417:INFO:fnodataprocessor:set_indicator_enable:FnoDataProcessor: enabled indicators 1:True 2:True 3:True 4:True 5:True
+2023-10-04 13:42:35,417:INFO:fnodataprocessor:initialise:FnoDataProcessor: instruToken: 8980226, instruSymbol: NIFTY23OCTFUT, object initialised
+2023-10-04 13:42:36,677:INFO:fnodataprocessor:read_instruments_df:FnoDataProcessor: fetched instruments df from kite
+2023-10-04 13:42:36,685:INFO:fnodataprocessor:get_instru_basic_data:FnoDataProcessor: instrument data fetched name:NIFTY, symbol:NIFTY23O0519600CE expiry:2023-10-05 strike:19600.0 lot:50 tick:0.05 type:CE
+2023-10-04 13:42:36,693:INFO:fnodataprocessor:create_hist_data_obj:FnoDataProcessor: historical data object created
+2023-10-04 13:42:36,693:INFO:fnodataprocessor:set_indicator_enable:FnoDataProcessor: enabled indicators 1:True 2:True 3:True 4:True 5:True
+2023-10-04 13:42:36,693:INFO:fnodataprocessor:initialise:FnoDataProcessor: instruToken: 14578690, instruSymbol: NIFTY23O0519600CE, object initialised
+2023-10-04 13:42:37,943:INFO:fnodataprocessor:read_instruments_df:FnoDataProcessor: fetched instruments df from kite
+2023-10-04 13:42:37,949:INFO:fnodataprocessor:get_instru_basic_data:FnoDataProcessor: instrument data fetched name:NIFTY, symbol:NIFTY23O0519600PE expiry:2023-10-05 strike:19600.0 lot:50 tick:0.05 type:PE
+2023-10-04 13:42:37,956:INFO:fnodataprocessor:create_hist_data_obj:FnoDataProcessor: historical data object created
+2023-10-04 13:42:37,957:INFO:fnodataprocessor:set_indicator_enable:FnoDataProcessor: enabled indicators 1:True 2:True 3:True 4:True 5:True
+2023-10-04 13:42:37,957:INFO:fnodataprocessor:initialise:FnoDataProcessor: instruToken: 14578946, instruSymbol: NIFTY23O0519600PE, object initialised
+2023-10-04 13:42:39,223:INFO:fnodataprocessor:read_instruments_df:FnoDataProcessor: fetched instruments df from kite
+2023-10-04 13:42:39,230:INFO:fnodataprocessor:get_instru_basic_data:FnoDataProcessor: instrument data fetched name:BANKNIFTY, symbol:BANKNIFTY23OCTFUT expiry:2023-10-26 strike:0.0 lot:15 tick:0.05 type:FUT
+2023-10-04 13:42:39,237:INFO:fnodataprocessor:create_hist_data_obj:FnoDataProcessor: historical data object created
+2023-10-04 13:42:39,237:INFO:fnodataprocessor:set_indicator_enable:FnoDataProcessor: enabled indicators 1:True 2:True 3:True 4:True 5:True
+2023-10-04 13:42:39,237:INFO:fnodataprocessor:initialise:FnoDataProcessor: instruToken: 8979970, instruSymbol: BANKNIFTY23OCTFUT, object initialised
+2023-10-04 13:42:40,503:INFO:fnodataprocessor:read_instruments_df:FnoDataProcessor: fetched instruments df from kite
+2023-10-04 13:42:40,510:INFO:fnodataprocessor:get_instru_basic_data:FnoDataProcessor: instrument data fetched name:BANKNIFTY, symbol:BANKNIFTY23O0444600CE expiry:2023-10-04 strike:44600.0 lot:15 tick:0.05 type:CE
+2023-10-04 13:42:40,517:INFO:fnodataprocessor:create_hist_data_obj:FnoDataProcessor: historical data object created
+2023-10-04 13:42:40,517:INFO:fnodataprocessor:set_indicator_enable:FnoDataProcessor: enabled indicators 1:True 2:True 3:True 4:True 5:True
+2023-10-04 13:42:40,517:INFO:fnodataprocessor:initialise:FnoDataProcessor: instruToken: 14510594, instruSymbol: BANKNIFTY23O0444600CE, object initialised
+2023-10-04 13:42:41,770:INFO:fnodataprocessor:read_instruments_df:FnoDataProcessor: fetched instruments df from kite
+2023-10-04 13:42:41,777:INFO:fnodataprocessor:get_instru_basic_data:FnoDataProcessor: instrument data fetched name:BANKNIFTY, symbol:BANKNIFTY23O0444600PE expiry:2023-10-04 strike:44600.0 lot:15 tick:0.05 type:PE
+2023-10-04 13:42:41,784:INFO:fnodataprocessor:create_hist_data_obj:FnoDataProcessor: historical data object created
+2023-10-04 13:42:41,784:INFO:fnodataprocessor:set_indicator_enable:FnoDataProcessor: enabled indicators 1:True 2:True 3:True 4:True 5:True
+2023-10-04 13:42:41,784:INFO:fnodataprocessor:initialise:FnoDataProcessor: instruToken: 14510850, instruSymbol: BANKNIFTY23O0444600PE, object initialised
+2023-10-04 13:42:41,784:INFO:strategy:_update_dataprocessor:Strategy:301:added csv row to csv_files/strategy_20231004.csv
+2023-10-04 13:42:41,785:INFO:orders:initialise_csv_logs:Orders: csv log initialised
+2023-10-04 13:42:41,785:INFO:strategy:set_order_object:Strategy:301:order class object created
+2023-10-04 13:42:41,785:INFO:strategy:initialise:Strategy:301: initialised strategy object
+2023-10-04 13:42:41,787:INFO:strategy:update:Strategy:500: not a market holiday
+2023-10-04 13:42:41,788:INFO:strategy:update:Strategy:500: market is open
+2023-10-04 13:42:41,789:INFO:strategy:ready_for_next_candle:Strategy:500: candle interval 1min last timestamp processed 2023-10-04 13:35:00, next candle time 2023-10-04 13:37:00
+2023-10-04 13:42:41,789:INFO:strategy:ready_for_next_candle:Strategy:500: now>nextcandletime last timestamp processed 2023-10-04 13:35:00, next candle time 2023-10-04 13:37:00
+2023-10-04 13:42:41,789:INFO:strategy:update:Strategy:500: ready for next candle
+2023-10-04 13:42:42,194:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: historical data fetched size (7767, 5)
+2023-10-04 13:42:42,194:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: latest timestamp set to 2023-10-04 13:41:00+05:30
+2023-10-04 13:42:42,195:INFO:fnodataprocessor:set_last_close_price:FnoDataProcessor: last close price set lcp:19385.0 lastfuturecloseprice19385.0
+2023-10-04 13:42:42,197:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 1 set value:19384.43 signal:1 config:20
+2023-10-04 13:42:42,200:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 2 set value:19419.1 signal:-1 config:VWAP
+2023-10-04 13:42:43,772:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 3 set value:0.0 signal:0 config:[7, 3]
+2023-10-04 13:42:43,774:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 4 set value:-0.45 signal:0 config:[12, 26, 9]
+2023-10-04 13:42:43,776:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 5 set value:61.03 signal:0 config:14
+2023-10-04 13:42:43,777:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 1 set value:19383.14 signal:1 config:10
+2023-10-04 13:42:43,777:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 2 set value:19383.28 signal:1 config:15
+2023-10-04 13:42:43,778:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 3 set value:19384.43 signal:1 config:20
+2023-10-04 13:42:43,778:INFO:fnodataprocessor:set_level_signal:FnoDataProcessor: NIFTY level set value:None signal:0
+2023-10-04 13:42:43,778:INFO:fnodataprocessor:set_sl_indi_sell_signal:FnoDataProcessor: NIFTY NIFTY23OCTFUT sl indicator sell signal set as False
+2023-10-04 13:42:43,778:INFO:fnodataprocessor:set_rank:FnoDataProcessor: weights for rank set as 1:5 2:0 3:0 4:0 5:0 level:0
+2023-10-04 13:42:43,778:INFO:fnodataprocessor:set_rank:FnoDataProcessor: rank set as 5
+2023-10-04 13:42:43,778:INFO:fnodataprocessor:update:FnoDataProcessor: instruToken: 8980226, instruSymbol: NIFTY23OCTFUT, object updated
+2023-10-04 13:42:44,138:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: historical data fetched size (6942, 5)
+2023-10-04 13:42:44,138:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: latest timestamp set to 2023-10-04 13:41:00+05:30
+2023-10-04 13:42:44,138:INFO:fnodataprocessor:set_last_close_price:FnoDataProcessor: last close price set lcp:3.9 lastfuturecloseprice3.9
+2023-10-04 13:42:44,139:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 1 set value:3.86 signal:1 config:20
+2023-10-04 13:42:44,141:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 2 set value:7.01 signal:-1 config:VWAP
+2023-10-04 13:42:45,320:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 3 set value:0 signal:0 config:[7, 3]
+2023-10-04 13:42:45,322:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 4 set value:-0.06 signal:0 config:[12, 26, 9]
+2023-10-04 13:42:45,323:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 5 set value:66.67 signal:1 config:14
+2023-10-04 13:42:45,324:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 1 set value:3.85 signal:1 config:10
+2023-10-04 13:42:45,324:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 2 set value:3.83 signal:1 config:15
+2023-10-04 13:42:45,325:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 3 set value:3.86 signal:1 config:20
+2023-10-04 13:42:45,325:INFO:fnodataprocessor:set_level_signal:FnoDataProcessor:  NIFTY level set value:(19400, 19200) signal:1
+2023-10-04 13:42:45,325:INFO:fnodataprocessor:set_sl_indi_sell_signal:FnoDataProcessor: NIFTY NIFTY23O0519600CE sl indicator sell signal set as False
+2023-10-04 13:42:45,325:INFO:fnodataprocessor:set_rank:FnoDataProcessor: weights for rank set as 1:5 2:0 3:0 4:0 5:20 level:20
+2023-10-04 13:42:45,325:INFO:fnodataprocessor:set_rank:FnoDataProcessor: rank set as 45
+2023-10-04 13:42:45,325:INFO:fnodataprocessor:update:FnoDataProcessor: instruToken: 14578690, instruSymbol: NIFTY23O0519600CE, object updated
+2023-10-04 13:42:45,653:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: historical data fetched size (7352, 5)
+2023-10-04 13:42:45,653:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: latest timestamp set to 2023-10-04 13:41:00+05:30
+2023-10-04 13:42:45,653:INFO:fnodataprocessor:set_last_close_price:FnoDataProcessor: last close price set lcp:240.4 lastfuturecloseprice240.4
+2023-10-04 13:42:45,654:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 1 set value:239.73 signal:1 config:20
+2023-10-04 13:42:45,656:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 2 set value:214.32 signal:1 config:VWAP
+2023-10-04 13:42:46,886:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 3 set value:0 signal:0 config:[7, 3]
+2023-10-04 13:42:46,888:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 4 set value:-0.08 signal:0 config:[12, 26, 9]
+2023-10-04 13:42:46,889:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 5 set value:41.45 signal:0 config:14
+2023-10-04 13:42:46,890:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 1 set value:241.89 signal:-1 config:10
+2023-10-04 13:42:46,890:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 2 set value:241.1 signal:-1 config:15
+2023-10-04 13:42:46,891:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 3 set value:239.73 signal:1 config:20
+2023-10-04 13:42:46,891:INFO:fnodataprocessor:set_level_signal:FnoDataProcessor:  NIFTY level set value:(19400, 19200) signal:1
+2023-10-04 13:42:46,891:INFO:fnodataprocessor:set_sl_indi_sell_signal:FnoDataProcessor: NIFTY NIFTY23O0519600PE sl indicator sell signal set as False
+2023-10-04 13:42:46,891:INFO:fnodataprocessor:set_rank:FnoDataProcessor: weights for rank set as 1:5 2:15 3:0 4:0 5:0 level:20
+2023-10-04 13:42:46,891:INFO:fnodataprocessor:set_rank:FnoDataProcessor: rank set as 40
+2023-10-04 13:42:46,891:INFO:fnodataprocessor:update:FnoDataProcessor: instruToken: 14578946, instruSymbol: NIFTY23O0519600PE, object updated
+2023-10-04 13:42:47,323:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: historical data fetched size (7767, 5)
+2023-10-04 13:42:47,323:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: latest timestamp set to 2023-10-04 13:41:00+05:30
+2023-10-04 13:42:47,323:INFO:fnodataprocessor:set_last_close_price:FnoDataProcessor: last close price set lcp:44117.55 lastfuturecloseprice44117.55
+2023-10-04 13:42:47,323:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 1 set value:44123.99 signal:-1 config:20
+2023-10-04 13:42:47,325:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 2 set value:44165.29 signal:-1 config:VWAP
+2023-10-04 13:42:49,063:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 3 set value:44104.37 signal:0 config:[7, 3]
+2023-10-04 13:42:49,064:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 4 set value:-0.33 signal:0 config:[12, 26, 9]
+2023-10-04 13:42:49,066:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 5 set value:34.74 signal:0 config:14
+2023-10-04 13:42:49,067:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 1 set value:44115.94 signal:1 config:10
+2023-10-04 13:42:49,068:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 2 set value:44120.14 signal:-1 config:15
+2023-10-04 13:42:49,069:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 3 set value:44123.99 signal:-1 config:20
+2023-10-04 13:42:49,069:INFO:fnodataprocessor:set_level_signal:FnoDataProcessor: BANKNIFTY level set value:None signal:0
+2023-10-04 13:42:49,069:INFO:fnodataprocessor:set_sl_indi_sell_signal:FnoDataProcessor: BANKNIFTY BANKNIFTY23OCTFUT sl indicator sell signal set as False
+2023-10-04 13:42:49,069:INFO:fnodataprocessor:set_rank:FnoDataProcessor: weights for rank set as 1:0 2:0 3:0 4:0 5:0 level:0
+2023-10-04 13:42:49,069:INFO:fnodataprocessor:set_rank:FnoDataProcessor: rank set as 0
+2023-10-04 13:42:49,069:INFO:fnodataprocessor:update:FnoDataProcessor: instruToken: 8979970, instruSymbol: BANKNIFTY23OCTFUT, object updated
+2023-10-04 13:42:49,388:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: historical data fetched size (6596, 5)
+2023-10-04 13:42:49,388:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: latest timestamp set to 2023-10-04 13:41:00+05:30
+2023-10-04 13:42:49,388:INFO:fnodataprocessor:set_last_close_price:FnoDataProcessor: last close price set lcp:2.05 lastfuturecloseprice2.05
+2023-10-04 13:42:49,389:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 1 set value:2.29 signal:-1 config:20
+2023-10-04 13:42:49,390:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 2 set value:4.29 signal:-1 config:VWAP
+2023-10-04 13:42:50,598:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 3 set value:0.0 signal:0 config:[7, 3]
+2023-10-04 13:42:50,600:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 4 set value:-0.15 signal:0 config:[12, 26, 9]
+2023-10-04 13:42:50,601:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 5 set value:9.09 signal:0 config:14
+2023-10-04 13:42:50,602:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 1 set value:2.13 signal:-1 config:10
+2023-10-04 13:42:50,602:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 2 set value:2.18 signal:-1 config:15
+2023-10-04 13:42:50,603:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 3 set value:2.29 signal:-1 config:20
+2023-10-04 13:42:50,603:INFO:fnodataprocessor:set_level_signal:FnoDataProcessor: BANKNIFTY level set value:(44200, 43800) signal:1
+2023-10-04 13:42:50,603:INFO:fnodataprocessor:set_sl_indi_sell_signal:FnoDataProcessor: BANKNIFTY BANKNIFTY23O0444600CE sl indicator sell signal set as False
+2023-10-04 13:42:50,603:INFO:fnodataprocessor:set_rank:FnoDataProcessor: weights for rank set as 1:0 2:0 3:0 4:0 5:0 level:20
+2023-10-04 13:42:50,603:INFO:fnodataprocessor:set_rank:FnoDataProcessor: rank set as 20
+2023-10-04 13:42:50,603:INFO:fnodataprocessor:update:FnoDataProcessor: instruToken: 14510594, instruSymbol: BANKNIFTY23O0444600CE, object updated
+2023-10-04 13:42:50,909:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: historical data fetched size (5268, 5)
+2023-10-04 13:42:50,909:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: latest timestamp set to 2023-10-04 13:41:00+05:30
+2023-10-04 13:42:50,909:INFO:fnodataprocessor:set_last_close_price:FnoDataProcessor: last close price set lcp:703.75 lastfuturecloseprice703.75
+2023-10-04 13:42:50,910:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 1 set value:690.67 signal:1 config:20
+2023-10-04 13:42:50,912:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 2 set value:634.18 signal:1 config:VWAP
+2023-10-04 13:42:51,802:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 3 set value:0 signal:0 config:[7, 3]
+2023-10-04 13:42:51,803:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 4 set value:0.71 signal:0 config:[12, 26, 9]
+2023-10-04 13:42:51,805:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 5 set value:78.08 signal:1 config:14
+2023-10-04 13:42:51,805:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 1 set value:700.82 signal:1 config:10
+2023-10-04 13:42:51,806:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 2 set value:694.66 signal:1 config:15
+2023-10-04 13:42:51,806:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 3 set value:690.67 signal:1 config:20
+2023-10-04 13:42:51,806:INFO:fnodataprocessor:set_level_signal:FnoDataProcessor: BANKNIFTY level set value:(44200, 43800) signal:1
+2023-10-04 13:42:51,806:INFO:fnodataprocessor:set_sl_indi_sell_signal:FnoDataProcessor: BANKNIFTY BANKNIFTY23O0444600PE sl indicator sell signal set as False
+2023-10-04 13:42:51,806:INFO:fnodataprocessor:set_rank:FnoDataProcessor: weights for rank set as 1:5 2:15 3:0 4:0 5:20 level:20
+2023-10-04 13:42:51,806:INFO:fnodataprocessor:set_rank:FnoDataProcessor: rank set as 60
+2023-10-04 13:42:51,806:INFO:fnodataprocessor:update:FnoDataProcessor: instruToken: 14510850, instruSymbol: BANKNIFTY23O0444600PE, object updated
+2023-10-04 13:42:51,806:INFO:strategy:_update_dataprocessor:Strategy:500:added csv row to csv_files/strategy_20231004.csv
+2023-10-04 13:42:51,806:INFO:strategy:check_for_signal:Strategy:500:signal for None no rank conditions matched
+2023-10-04 13:42:51,806:INFO:strategy:set_strategy_kill_switch_codes:Strategy:500:none kill switch condition triggered
+2023-10-04 13:42:51,806:INFO:strategy:update_order_status:Strategy:500:none updated order status
+2023-10-04 13:42:51,806:INFO:utils:printer_logger:placing entry order after valid signal
+2023-10-04 13:42:51,859:INFO:orders:place_validity_limit_buy_nfo:Orders: limit validity buy order sent NIFTY23O0519600PE 50 240.4 1 entry 231004602193892
+2023-10-04 13:42:51,860:INFO:strategy:send_buy_order_if_signal_n_valid_code:Strategy:301:entry buy order sent for {'symbol': 'NIFTY23O0519600PE', 'quantity': 50, 'limit_price': 240.4, 'oid': '231004602193892', 'status': ''}
+2023-10-04 13:42:51,861:INFO:strategy:update_last_processed_timestamp:Strategy:301: updated last processes timestamp 2023-10-04 13:41:00
+2023-10-04 13:42:51,861:INFO:strategy:update_unrealised_pnl:Strategy:301: none updated unrealised pnl 0
+2023-10-04 13:42:51,861:INFO:strategy:set_status_beacon:Strategy:301: status beacon updated ON-WT
+2023-10-04 13:42:51,862:INFO:strategy:write_csv_n_json:Strategy:301: saving json to json_files/strategy_20231004.json and csv to csv_files/strategy_20231004.csv
+2023-10-04 13:42:51,864:INFO:strategy:update:Strategy:301: not a market holiday
+2023-10-04 13:42:51,866:INFO:strategy:update:Strategy:301: market is open
+2023-10-04 13:42:51,867:INFO:strategy:ready_for_next_candle:Strategy:301: candle interval 1min last timestamp processed 2023-10-04 13:41:00, next candle time 2023-10-04 13:43:00
+2023-10-04 13:42:51,867:INFO:strategy:ready_for_next_candle:Strategy:301: now not> nextcandletime last timestamp processed 2023-10-04 13:41:00, next candle time 2023-10-04 13:43:00
+2023-10-04 13:42:51,867:INFO:strategy:update:Strategy:301: not ready for next candle
+2023-10-04 13:42:51,909:INFO:orders:get_orders:Orders: fetched existing orders for tag lunar
+2023-10-04 13:42:51,911:INFO:orders:get_order_status:Orders: order status fetched oid:231004602193892 COMPLETE
+2023-10-04 13:42:51,911:INFO:strategy:update_order_status:Strategy:301:updated order status for entry COMPLETE
+2023-10-04 13:42:51,911:INFO:strategy:if_buy_filled_or_cancelled:Strategy:303:entry buy order complete
+2023-10-04 13:43:11,925:INFO:strategy:update:Strategy:303: not a market holiday
+2023-10-04 13:43:11,929:INFO:strategy:update:Strategy:303: market is open
+2023-10-04 13:43:11,931:INFO:strategy:ready_for_next_candle:Strategy:303: candle interval 1min last timestamp processed 2023-10-04 13:41:00, next candle time 2023-10-04 13:43:00
+2023-10-04 13:43:11,931:INFO:strategy:ready_for_next_candle:Strategy:303: now>nextcandletime last timestamp processed 2023-10-04 13:41:00, next candle time 2023-10-04 13:43:00
+2023-10-04 13:43:11,931:INFO:strategy:update:Strategy:303: ready for next candle
+2023-10-04 13:43:12,430:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: historical data fetched size (7768, 5)
+2023-10-04 13:43:12,430:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: latest timestamp set to 2023-10-04 13:42:00+05:30
+2023-10-04 13:43:12,430:INFO:fnodataprocessor:set_last_close_price:FnoDataProcessor: last close price set lcp:19389.4 lastfuturecloseprice19385.0
+2023-10-04 13:43:12,431:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 1 set value:19384.6 signal:1 config:20
+2023-10-04 13:43:12,434:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 2 set value:19419.06 signal:-1 config:VWAP
+2023-10-04 13:43:14,057:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 3 set value:0.0 signal:0 config:[7, 3]
+2023-10-04 13:43:14,058:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 4 set value:-0.32 signal:0 config:[12, 26, 9]
+2023-10-04 13:43:14,060:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 5 set value:91.38 signal:0 config:14
+2023-10-04 13:43:14,060:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 1 set value:19384.19 signal:1 config:10
+2023-10-04 13:43:14,061:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 2 set value:19383.72 signal:1 config:15
+2023-10-04 13:43:14,061:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 3 set value:19384.6 signal:1 config:20
+2023-10-04 13:43:14,061:INFO:fnodataprocessor:set_level_signal:FnoDataProcessor: NIFTY level set value:None signal:0
+2023-10-04 13:43:14,061:INFO:fnodataprocessor:set_sl_indi_sell_signal:FnoDataProcessor: NIFTY NIFTY23OCTFUT sl indicator sell signal set as False
+2023-10-04 13:43:14,061:INFO:fnodataprocessor:set_rank:FnoDataProcessor: weights for rank set as 1:5 2:0 3:0 4:0 5:0 level:0
+2023-10-04 13:43:14,061:INFO:fnodataprocessor:set_rank:FnoDataProcessor: rank set as 5
+2023-10-04 13:43:14,061:INFO:fnodataprocessor:update:FnoDataProcessor: instruToken: 8980226, instruSymbol: NIFTY23OCTFUT, object updated
+2023-10-04 13:43:14,386:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: historical data fetched size (6943, 5)
+2023-10-04 13:43:14,386:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: latest timestamp set to 2023-10-04 13:42:00+05:30
+2023-10-04 13:43:14,386:INFO:fnodataprocessor:set_last_close_price:FnoDataProcessor: last close price set lcp:3.85 lastfuturecloseprice3.9
+2023-10-04 13:43:14,387:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 1 set value:3.86 signal:-1 config:20
+2023-10-04 13:43:14,389:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 2 set value:7.01 signal:-1 config:VWAP
+2023-10-04 13:43:15,574:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 3 set value:0 signal:0 config:[7, 3]
+2023-10-04 13:43:15,575:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 4 set value:-0.06 signal:0 config:[12, 26, 9]
+2023-10-04 13:43:15,577:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 5 set value:50.0 signal:-1 config:14
+2023-10-04 13:43:15,578:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 1 set value:3.84 signal:1 config:10
+2023-10-04 13:43:15,578:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 2 set value:3.84 signal:1 config:15
+2023-10-04 13:43:15,578:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 3 set value:3.86 signal:-1 config:20
+2023-10-04 13:43:15,578:INFO:fnodataprocessor:set_level_signal:FnoDataProcessor:  NIFTY level set value:(19400, 19200) signal:1
+2023-10-04 13:43:15,578:INFO:fnodataprocessor:set_sl_indi_sell_signal:FnoDataProcessor: NIFTY NIFTY23O0519600CE sl indicator sell signal set as False
+2023-10-04 13:43:15,578:INFO:fnodataprocessor:set_rank:FnoDataProcessor: weights for rank set as 1:0 2:0 3:0 4:0 5:0 level:20
+2023-10-04 13:43:15,579:INFO:fnodataprocessor:set_rank:FnoDataProcessor: rank set as 20
+2023-10-04 13:43:15,579:INFO:fnodataprocessor:update:FnoDataProcessor: instruToken: 14578690, instruSymbol: NIFTY23O0519600CE, object updated
+2023-10-04 13:43:15,938:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: historical data fetched size (7354, 5)
+2023-10-04 13:43:15,938:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: latest timestamp set to 2023-10-04 13:42:00+05:30
+2023-10-04 13:43:15,938:INFO:fnodataprocessor:set_last_close_price:FnoDataProcessor: last close price set lcp:237.05 lastfuturecloseprice240.4
+2023-10-04 13:43:15,939:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 1 set value:239.72 signal:-1 config:20
+2023-10-04 13:43:15,941:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 2 set value:214.32 signal:1 config:VWAP
+2023-10-04 13:43:17,342:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 3 set value:0 signal:0 config:[7, 3]
+2023-10-04 13:43:17,343:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 4 set value:-0.14 signal:-1 config:[12, 26, 9]
+2023-10-04 13:43:17,345:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 5 set value:6.25 signal:0 config:14
+2023-10-04 13:43:17,345:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 1 set value:240.88 signal:-1 config:10
+2023-10-04 13:43:17,346:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 2 set value:240.83 signal:-1 config:15
+2023-10-04 13:43:17,346:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 3 set value:239.72 signal:-1 config:20
+2023-10-04 13:43:17,346:INFO:fnodataprocessor:set_level_signal:FnoDataProcessor:  NIFTY level set value:(19400, 19200) signal:1
+2023-10-04 13:43:17,346:INFO:fnodataprocessor:set_sl_indi_sell_signal:FnoDataProcessor: NIFTY NIFTY23O0519600PE sl indicator sell signal set as False
+2023-10-04 13:43:17,346:INFO:fnodataprocessor:set_rank:FnoDataProcessor: weights for rank set as 1:0 2:15 3:0 4:0 5:0 level:20
+2023-10-04 13:43:17,346:INFO:fnodataprocessor:set_rank:FnoDataProcessor: rank set as 35
+2023-10-04 13:43:17,346:INFO:fnodataprocessor:update:FnoDataProcessor: instruToken: 14578946, instruSymbol: NIFTY23O0519600PE, object updated
+2023-10-04 13:43:17,747:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: historical data fetched size (7768, 5)
+2023-10-04 13:43:17,748:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: latest timestamp set to 2023-10-04 13:42:00+05:30
+2023-10-04 13:43:17,748:INFO:fnodataprocessor:set_last_close_price:FnoDataProcessor: last close price set lcp:44122.25 lastfuturecloseprice44117.55
+2023-10-04 13:43:17,749:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 1 set value:44123.78 signal:-1 config:20
+2023-10-04 13:43:17,751:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 2 set value:44165.7 signal:-1 config:VWAP
+2023-10-04 13:43:19,582:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 3 set value:44104.58 signal:0 config:[7, 3]
+2023-10-04 13:43:19,584:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 4 set value:-0.52 signal:0 config:[12, 26, 9]
+2023-10-04 13:43:19,587:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 5 set value:44.18 signal:0 config:14
+2023-10-04 13:43:19,587:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 1 set value:44116.28 signal:1 config:10
+2023-10-04 13:43:19,588:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 2 set value:44120.34 signal:1 config:15
+2023-10-04 13:43:19,589:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 3 set value:44123.78 signal:-1 config:20
+2023-10-04 13:43:19,589:INFO:fnodataprocessor:set_level_signal:FnoDataProcessor: BANKNIFTY level set value:None signal:0
+2023-10-04 13:43:19,589:INFO:fnodataprocessor:set_sl_indi_sell_signal:FnoDataProcessor: BANKNIFTY BANKNIFTY23OCTFUT sl indicator sell signal set as False
+2023-10-04 13:43:19,589:INFO:fnodataprocessor:set_rank:FnoDataProcessor: weights for rank set as 1:0 2:0 3:0 4:0 5:0 level:0
+2023-10-04 13:43:19,589:INFO:fnodataprocessor:set_rank:FnoDataProcessor: rank set as 0
+2023-10-04 13:43:19,589:INFO:fnodataprocessor:update:FnoDataProcessor: instruToken: 8979970, instruSymbol: BANKNIFTY23OCTFUT, object updated
+2023-10-04 13:43:19,889:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: historical data fetched size (6597, 5)
+2023-10-04 13:43:19,889:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: latest timestamp set to 2023-10-04 13:42:00+05:30
+2023-10-04 13:43:19,889:INFO:fnodataprocessor:set_last_close_price:FnoDataProcessor: last close price set lcp:2.1 lastfuturecloseprice2.05
+2023-10-04 13:43:19,890:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 1 set value:2.25 signal:-1 config:20
+2023-10-04 13:43:19,892:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 2 set value:4.27 signal:-1 config:VWAP
+2023-10-04 13:43:21,033:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 3 set value:0.0 signal:0 config:[7, 3]
+2023-10-04 13:43:21,034:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 4 set value:-0.15 signal:0 config:[12, 26, 9]
+2023-10-04 13:43:21,036:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 5 set value:18.18 signal:0 config:14
+2023-10-04 13:43:21,037:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 1 set value:2.12 signal:-1 config:10
+2023-10-04 13:43:21,037:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 2 set value:2.18 signal:-1 config:15
+2023-10-04 13:43:21,038:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 3 set value:2.25 signal:-1 config:20
+2023-10-04 13:43:21,038:INFO:fnodataprocessor:set_level_signal:FnoDataProcessor: BANKNIFTY level set value:(44200, 43800) signal:1
+2023-10-04 13:43:21,038:INFO:fnodataprocessor:set_sl_indi_sell_signal:FnoDataProcessor: BANKNIFTY BANKNIFTY23O0444600CE sl indicator sell signal set as False
+2023-10-04 13:43:21,038:INFO:fnodataprocessor:set_rank:FnoDataProcessor: weights for rank set as 1:0 2:0 3:0 4:0 5:0 level:20
+2023-10-04 13:43:21,038:INFO:fnodataprocessor:set_rank:FnoDataProcessor: rank set as 20
+2023-10-04 13:43:21,038:INFO:fnodataprocessor:update:FnoDataProcessor: instruToken: 14510594, instruSymbol: BANKNIFTY23O0444600CE, object updated
+2023-10-04 13:43:21,321:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: historical data fetched size (5269, 5)
+2023-10-04 13:43:21,321:INFO:fnodataprocessor:set_hist_data:FnoDataProcessor: latest timestamp set to 2023-10-04 13:42:00+05:30
+2023-10-04 13:43:21,321:INFO:fnodataprocessor:set_last_close_price:FnoDataProcessor: last close price set lcp:698.45 lastfuturecloseprice703.75
+2023-10-04 13:43:21,322:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 1 set value:691.64 signal:1 config:20
+2023-10-04 13:43:21,324:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 2 set value:634.22 signal:1 config:VWAP
+2023-10-04 13:43:22,267:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 3 set value:0 signal:0 config:[7, 3]
+2023-10-04 13:43:22,269:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 4 set value:1.08 signal:0 config:[12, 26, 9]
+2023-10-04 13:43:22,270:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator 5 set value:65.52 signal:0 config:14
+2023-10-04 13:43:22,271:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 1 set value:700.84 signal:-1 config:10
+2023-10-04 13:43:22,271:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 2 set value:695.7 signal:1 config:15
+2023-10-04 13:43:22,271:INFO:fnodataprocessor:get_indicator_value_signal:FnoDataProcessor: indicator tp 3 set value:691.64 signal:1 config:20
+2023-10-04 13:43:22,271:INFO:fnodataprocessor:set_level_signal:FnoDataProcessor: BANKNIFTY level set value:(44200, 43800) signal:1
+2023-10-04 13:43:22,271:INFO:fnodataprocessor:set_sl_indi_sell_signal:FnoDataProcessor: BANKNIFTY BANKNIFTY23O0444600PE sl indicator sell signal set as False
+2023-10-04 13:43:22,271:INFO:fnodataprocessor:set_rank:FnoDataProcessor: weights for rank set as 1:5 2:15 3:0 4:0 5:0 level:20
+2023-10-04 13:43:22,272:INFO:fnodataprocessor:set_rank:FnoDataProcessor: rank set as 40
+2023-10-04 13:43:22,272:INFO:fnodataprocessor:update:FnoDataProcessor: instruToken: 14510850, instruSymbol: BANKNIFTY23O0444600PE, object updated
+2023-10-04 13:43:22,272:INFO:strategy:_update_dataprocessor:Strategy:303:added csv row to csv_files/strategy_20231004.csv
+2023-10-04 13:43:22,272:INFO:strategy:check_for_signal:Strategy:303:signal for None no rank conditions matched
+2023-10-04 13:43:22,272:INFO:strategy:set_strategy_kill_switch_codes:Strategy:303:none kill switch condition triggered
+2023-10-04 13:43:22,272:INFO:strategy:update_order_status:Strategy:303:none updated order status
+2023-10-04 13:43:22,333:INFO:orders:place_limit_sell_nfo:Orders: limit sell order sent NIFTY23O0519600PE 50 240.9 tp 231004602196003
+2023-10-04 13:43:22,334:INFO:strategy:send_tp_orders:Strategy:303:tp order sent {'symbol': 'NIFTY23O0519600PE', 'quantity': 50, 'limit_price': 240.9, 'oid': '231004602196003', 'status': ''}
+2023-10-04 13:43:22,390:INFO:orders:place_sl_market_sell_nfo:Orders: sl order sent NIFTY23O0519600PE 50 195.4 global_sl 231004602196007
+2023-10-04 13:43:22,390:INFO:strategy:send_global_sl:Strategy:303:global sl sent {'symbol': 'NIFTY23O0519600PE', 'quantity': 50, 'limit_price': 195.4, 'oid': '231004602196007', 'status': ''}
+2023-10-04 13:43:22,390:INFO:strategy:send_sl_tp_orders:Strategy:304:takeprofit and global sl orders sent
+2023-10-04 13:43:22,390:INFO:strategy:update_last_processed_timestamp:Strategy:304: updated last processes timestamp 2023-10-04 13:42:00
+2023-10-04 13:43:22,390:INFO:strategy:update_unrealised_pnl:Strategy:304: updated unrealised pnl -167.49999999999972
+2023-10-04 13:43:22,390:INFO:strategy:set_status_beacon:Strategy:304: status beacon updated IN-POS
+2023-10-04 13:43:22,392:INFO:strategy:write_csv_n_json:Strategy:304: saving json to json_files/strategy_20231004.json and csv to csv_files/strategy_20231004.csv
+2023-10-04 13:43:22,395:INFO:strategy:update:Strategy:304: not a market holiday
+2023-10-04 13:43:22,398:INFO:strategy:update:Strategy:304: market is open
+2023-10-04 13:43:22,399:INFO:strategy:ready_for_next_candle:Strategy:304: candle interval 1min last timestamp processed 2023-10-04 13:42:00, next candle time 2023-10-04 13:44:00
+2023-10-04 13:43:22,399:INFO:strategy:ready_for_next_candle:Strategy:304: now not> nextcandletime last timestamp processed 2023-10-04 13:42:00, next candle time 2023-10-04 13:44:00
+2023-10-04 13:43:22,399:INFO:strategy:update:Strategy:304: not ready for next candle
+2023-10-04 13:43:22,442:INFO:orders:get_orders:Orders: fetched existing orders for tag lunar
+2023-10-04 13:43:22,443:INFO:orders:get_order_status:Orders: order status fetched oid:231004602196003 OPEN
+2023-10-04 13:43:22,491:INFO:orders:get_orders:Orders: fetched existing orders for tag lunar
+2023-10-04 13:43:22,492:INFO:orders:get_order_status:Orders: order status fetched oid:231004602196007 REJECTED
+2023-10-04 13:43:22,493:INFO:strategy:update_order_status:Strategy:304:updated order status for tp1 OPEN, slglobal REJECTED

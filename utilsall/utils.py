@@ -43,7 +43,7 @@ def fetch_instru_token(kite_obj, underlying, strike, instrument):
 def logger_intialise(logfile_suffix):
     logger_obj = logging.getLogger(__name__)
     logger_obj.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(levelname)s:%(name)s:%(asctime)s:%(message)s")
+    formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(module)s:%(funcName)s:%(message)s")
     dt_str = str(dt.datetime.now()).replace(" ", "_").replace("-", "").replace(":", "").split(".")[0]
     filename = logfile_suffix + dt_str
     pwd = os.getcwd()
@@ -56,7 +56,7 @@ def logger_intialise(logfile_suffix):
     return logger_obj
 
 
-def printer_logger(mssg, logger, loglevel="info", print_=False):
+def printer_logger(mssg, logger,loglevel="info", print_=False):
     if print_:
         print(mssg)
 
@@ -70,6 +70,20 @@ def printer_logger(mssg, logger, loglevel="info", print_=False):
         logger.critical(mssg)
     elif loglevel == "exception":
         logger.exception(mssg)
+def printer_logger2(mssg, logger, name,loglevel="info", print_=False):
+    if print_:
+        print(name + ":" + mssg)
+
+    if loglevel == "info":
+        logger.info(name + ":" + mssg)
+    elif loglevel == "debug":
+        logger.debug(name + ":" + mssg)
+    elif loglevel == "error":
+        logger.error(name + ":" + mssg)
+    elif loglevel == "critical":
+        logger.critical(name + ":" + mssg)
+    elif loglevel == "exception":
+        logger.exception(name + ":" + mssg)
 
 
 def add_row_to_csv(row, file_path, print_=False):

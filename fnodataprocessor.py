@@ -5,11 +5,11 @@ pd.set_option("display.max_columns", 50)
 from utilsall.historicaldata import HistoricalData
 from utilsall import indicators
 from config1 import config
-from utilsall.misc import test_prints
 
 class FnoDataProcessor:
-    def __init__(self, kite_obj, instru_token, candle_interval, last_fut_close_price=None):
+    def __init__(self, kite_obj, instru_token, candle_interval, last_fut_close_price=None, logger=None):
         self.kite_obj = kite_obj
+        self.logger = logger
         self.instru_token = instru_token
         self.candle_interval = candle_interval
         self.instru_name = None
@@ -67,8 +67,6 @@ class FnoDataProcessor:
 
         self.fno_dataproc_initialised = False
 
-        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object created")
-
     def read_instruments_df(self):
         """fetching instruments and info from api"""
         if self.instruments_fetched:
@@ -78,8 +76,8 @@ class FnoDataProcessor:
             instru_df = pd.DataFrame(instru)
             instru_df.to_csv("NFO_instruments.csv")
             self.instruments_fetched = True
-
-        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, fetched instruments df from kite")
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: fetched instruments df from kite")
         return instru_df
 
     def get_instru_basic_data(self):
@@ -95,44 +93,46 @@ class FnoDataProcessor:
                 self.lot_size = this_instru_data["lot_size"]
                 self.tick_size = this_instru_data["tick_size"]
                 self.instru_type = this_instru_data["instrument_type"]
-
-        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set instrument meta data")
+                if self.logger is not None:
+                    self.logger.info(f"{__class__.__name__}: instrument data fetched name:{self.instru_name}, symbol:{self.trading_symbol} expiry:{self.expiry_date} strike:{self.strike} lot:{self.lot_size} tick:{self.tick_size} type:{self.instru_type}")
+            else:
+                self.logger.info(f"{__class__.__name__}: none fetched instruments df from kite for token {self.instru_token}")
+                pass
+        else:
+            self.logger.info(f"{__class__.__name__}: none fetched instruments df from kite empty")
+            pass
 
 
     def create_hist_data_obj(self):
         self.hist_data_obj = HistoricalData(self.kite_obj, self.instru_token, self.candle_interval)
-        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, historical data object created")
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: historical data object created")
 
 
     def set_hist_data(self):
         self.data_end_datetime = dt.datetime.now().date()
         self.data_start_datetime = self.data_end_datetime - dt.timedelta(days=90)
         data_w_last_candle_changing = self.hist_data_obj.fetch(self.data_start_datetime, self.data_end_datetime)
+        # print(data_w_last_candle_changing.tail(2))
         if not data_w_last_candle_changing.empty:
             self.historical_data_df = data_w_last_candle_changing.iloc[:-1].copy()
-            # print(data_w_last_candle_changing.tail(5))
-            # print(self.historical_data_df.tail(5))
-            if not self.historical_data_df.empty:
-                self.latest_timestamp = pd.to_datetime(self.historical_data_df.index[-1])
-                # print(last_ts)
-                # print(type(last_ts))
-                # last_ts_str = str(last_ts)
-                # print(last_ts_str)
-                # print(type(last_ts_str))
-                # last_ts_dt = pd.to_datetime(last_ts_str)
-                # print(last_ts_dt)
-                # print(type(last_ts_dt))
+            if self.logger is not None:
+                self.logger.info(f"{__class__.__name__}: historical data fetched size {self.historical_data_df.shape}")
+            self.latest_timestamp = pd.to_datetime(self.historical_data_df.index[-1])
+            if self.logger is not None:
+                self.logger.info(f"{__class__.__name__}: latest timestamp set to {self.latest_timestamp}")
         else:
             self.historical_data_df = pd.DataFrame()
-        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, fetched historical data ")
+            if self.logger is not None:
+                self.logger.info(f"{__class__.__name__}: none historical data emtpy dataframe")
 
 
     def set_last_close_price(self):
         if not self.historical_data_df.empty:
             self.last_close_price = self.historical_data_df.iloc[-1]["close"]
         self.last_fut_close_price = self.last_fut_close_price if self.last_fut_close_price is not None else self.last_close_price
-        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set last close price")
-
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: last close price set lcp:{self.last_close_price} lastfuturecloseprice{self.last_fut_close_price}")
 
     def set_indicator_enable(self):
         enable_indi_list = config["ti_enabled_list"]
@@ -141,57 +141,83 @@ class FnoDataProcessor:
         self.ti_3_enabled = True if 3 in enable_indi_list else False
         self.ti_4_enabled = True if 4 in enable_indi_list else False
         self.ti_5_enabled = True if 5 in enable_indi_list else False
-        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set which indicator enabled")
-
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: enabled indicators 1:{self.ti_1_enabled} 2:{self.ti_2_enabled} 3:{self.ti_3_enabled} 4:{self.ti_4_enabled} 5:{self.ti_5_enabled}")
 
     def get_indicator_value_signal(self):
         if self.ti_1_enabled:
             self.ti_1_value, self.ti_1_signal = indicators.simple_moving_average(self.historical_data_df, config["ti_1_config"])
         else:
             pass
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: indicator 1 set value:{self.ti_1_value} signal:{self.ti_1_signal} config:{config['ti_1_config']}")
         if self.ti_2_enabled:
             self.ti_2_value, self.ti_2_signal = indicators.not_anchored_vwap(self.historical_data_df)
         else:
             pass
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: indicator 2 set value:{self.ti_2_value} signal:{self.ti_2_signal} config:{config['ti_2_config']}")
         if self.ti_3_enabled:
             self.ti_3_value, self.ti_3_signal = indicators.supertrend(self.historical_data_df, config["ti_3_config"][0], config["ti_3_config"][1])
         else:
             pass
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: indicator 3 set value:{self.ti_3_value} signal:{self.ti_3_signal} config:{config['ti_3_config']}")
         if self.ti_4_enabled:
             self.ti_4_value, self.ti_4_signal = indicators.macd(self.historical_data_df, config["ti_4_config"][0], config["ti_4_config"][1], config["ti_4_config"][2])
         else:
             pass
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: indicator 4 set value:{self.ti_4_value} signal:{self.ti_4_signal} config:{config['ti_4_config']}")
         if self.ti_5_enabled:
             self.ti_5_value, self.ti_5_signal = indicators.stochastic(self.historical_data_df, config["ti_5_config"])
         else:
             pass
+        if self.logger is not None:
+            if self.logger is not None:
+                self.logger.info(f"{__class__.__name__}: indicator 5 set value:{self.ti_5_value} signal:{self.ti_5_signal} config:{config['ti_5_config']}")
 
         self.ti_1_tp_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_1_tp_config"])
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: indicator tp 1 set value:{self.ti_1_tp_value} signal:{dummy} config:{config['ti_1_tp_config']}")
         self.ti_2_tp_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_2_tp_config"])
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: indicator tp 2 set value:{self.ti_2_tp_value} signal:{dummy} config:{config['ti_2_tp_config']}")
         self.ti_3_tp_value, dummy = indicators.simple_moving_average(self.historical_data_df, config["ti_3_tp_config"])
-        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, indicator value&signal set")
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: indicator tp 3 set value:{self.ti_3_tp_value} signal:{dummy} config:{config['ti_3_tp_config']}")
 
 
     def set_level_signal(self):
         if self.instru_name == "NIFTY":
             if (self.last_fut_close_price > config["nifty_level_up"]) or (self.last_fut_close_price < config["nifty_level_down"]):
                 self.level_signal = 1
-                self.level_value = f"{config['nifty_level_up'], config['nifty_level_down'],}"
+                self.level_value = f"{config['nifty_level_up'], config['nifty_level_down']}"
+                if self.logger is not None:
+                    self.logger.info(f"{__class__.__name__}:  {self.instru_name} level set value:{self.level_value} signal:{self.level_signal}")
             else:
                 self.level_signal = 0
+                if self.logger is not None:
+                    self.logger.info(f"{__class__.__name__}: {self.instru_name} level set value:{self.level_value} signal:{self.level_signal}")
         elif self.instru_name == "BANKNIFTY":
             if (self.last_fut_close_price > config["banknifty_level_up"]) or (self.last_fut_close_price < config["banknifty_level_down"]):
                 self.level_signal = 1
-                self.level_value = f"{config['banknifty_level_up'], config['banknifty_level_down'],}"
+                self.level_value = f"{config['banknifty_level_up'], config['banknifty_level_down']}"
+                if self.logger is not None:
+                    self.logger.info(f"{__class__.__name__}: {self.instru_name} level set value:{self.level_value} signal:{self.level_signal}")
             else:
                 self.level_signal = 0
+                if self.logger is not None:
+                    self.logger.info(f"{__class__.__name__}: {self.instru_name} level set value:{self.level_value} signal:{self.level_signal}")
         else:
             self.level_signal = 0
-
-        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set levels signal")
+            if self.logger is not None:
+                self.logger.info(f"{__class__.__name__}: {self.instru_name} level set value:{self.level_value} signal:{self.level_signal}")
 
     def set_sl_indi_sell_signal(self):
         self.sl_indi_sell_signal = True if self.ti_3_signal == -1 else False
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: {self.instru_name} {self.trading_symbol} sl indicator sell signal set as {self.sl_indi_sell_signal}")
 
     def set_rank(self):
         self.ti_1_weight = config["ti_1_rank"] if (self.ti_1_enabled and self.ti_1_signal == 1) else 0
@@ -201,19 +227,19 @@ class FnoDataProcessor:
         self.ti_5_weight = config["ti_5_rank"] if (self.ti_5_enabled and self.ti_5_signal == 1) else 0
         self.level_weight = self.level_signal * config["future_levels_rank"] if config["future_levels_enabled"] else 0
 
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: weights for rank set as 1:{self.ti_1_weight} 2:{self.ti_2_weight} 3:{self.ti_3_weight} 4:{self.ti_4_weight} 5:{self.ti_5_weight} level:{self.level_weight}")
         self.rank = self.ti_1_weight + self.ti_2_weight + self.ti_3_weight + self.ti_4_weight + self.ti_5_weight + self.level_weight
-        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, set rank from weight, enabled, signal")
-
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: rank set as {self.rank}")
 
     def initialise(self):
         self.get_instru_basic_data()
         self.create_hist_data_obj()
         self.set_indicator_enable()
         self.fno_dataproc_initialised = True
-        print(self.trading_symbol)
-        test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object initialised")
-
-        # time.sleep(5)
+        if self.logger is not None:
+            self.logger.info(f"{__class__.__name__}: instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object initialised")
 
     def update(self):
         if not self.fno_dataproc_initialised:
@@ -225,7 +251,8 @@ class FnoDataProcessor:
             self.set_level_signal()
             self.set_sl_indi_sell_signal()
             self.set_rank()
-            test_prints(f"{__class__.__name__}, instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object updated")
+            if self.logger is not None:
+                self.logger.info(f"{__class__.__name__}: instruToken: {self.instru_token}, instruSymbol: {self.trading_symbol}, object updated")
 
 
 if __name__ == "__main__":

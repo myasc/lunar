@@ -1,0 +1,63 @@
+2023-10-05 12:37:04,639:INFO:strategy:init_strategy_csv_log:Strategy:500:added csv row to csv_files/strategy_20231005.csv
+2023-10-05 12:37:04,639:INFO:strategy:init_strategy_json:Strategy:500:created new json file json_files/strategy_20231005.json
+2023-10-05 12:37:04,639:INFO:strategy:initialise_logs_n_files:Strategy:500:logs and json initialised
+2023-10-05 12:37:12,685:INFO:strategy:_set_dataprocessor_obj:Strategy:500:instrument objects created
+2023-10-05 12:37:14,369:INFO:fnodataprocessor:read_instruments_df:FnoDataProcessor: fetched instruments df from kite
+2023-10-05 12:37:14,385:INFO:fnodataprocessor:get_instru_basic_data:FnoDataProcessor: instrument data fetched name:NIFTY, symbol:NIFTY23OCTFUT expiry:2023-10-26 strike:0.0 lot:50 tick:0.05 type:FUT
+2023-10-05 12:37:14,397:INFO:fnodataprocessor:create_hist_data_obj:FnoDataProcessor: historical data object created
+2023-10-05 12:37:14,397:INFO:fnodataprocessor:set_indicator_enable:FnoDataProcessor: enabled indicators 1:True 2:True 3:True 4:True 5:True
+2023-10-05 12:37:14,397:INFO:fnodataprocessor:initialise:FnoDataProcessor: instruToken: 8980226, instruSymbol: NIFTY23OCTFUT, object initialised
+2023-10-05 12:37:15,715:INFO:fnodataprocessor:read_instruments_df:FnoDataProcessor: fetched instruments df from kite
+2023-10-05 12:37:15,723:INFO:fnodataprocessor:get_instru_basic_data:FnoDataProcessor: instrument data fetched name:NIFTY, symbol:NIFTY23O0519600CE expiry:2023-10-05 strike:19600.0 lot:50 tick:0.05 type:CE
+2023-10-05 12:37:15,732:INFO:fnodataprocessor:create_hist_data_obj:FnoDataProcessor: historical data object created
+2023-10-05 12:37:15,733:INFO:fnodataprocessor:set_indicator_enable:FnoDataProcessor: enabled indicators 1:True 2:True 3:True 4:True 5:True
+2023-10-05 12:37:15,733:INFO:fnodataprocessor:initialise:FnoDataProcessor: instruToken: 14578690, instruSymbol: NIFTY23O0519600CE, object initialised
+2023-10-05 12:37:17,033:INFO:fnodataprocessor:read_instruments_df:FnoDataProcessor: fetched instruments df from kite
+2023-10-05 12:37:17,039:INFO:fnodataprocessor:get_instru_basic_data:FnoDataProcessor: instrument data fetched name:NIFTY, symbol:NIFTY23O0519600PE expiry:2023-10-05 strike:19600.0 lot:50 tick:0.05 type:PE
+2023-10-05 12:37:17,047:INFO:fnodataprocessor:create_hist_data_obj:FnoDataProcessor: historical data object created
+2023-10-05 12:37:17,047:INFO:fnodataprocessor:set_indicator_enable:FnoDataProcessor: enabled indicators 1:True 2:True 3:True 4:True 5:True
+2023-10-05 12:37:17,047:INFO:fnodataprocessor:initialise:FnoDataProcessor: instruToken: 14578946, instruSymbol: NIFTY23O0519600PE, object initialised
+2023-10-05 12:37:18,335:INFO:fnodataprocessor:read_instruments_df:FnoDataProcessor: fetched instruments df from kite
+2023-10-05 12:37:18,343:INFO:fnodataprocessor:get_instru_basic_data:FnoDataProcessor: instrument data fetched name:BANKNIFTY, symbol:BANKNIFTY23OCTFUT expiry:2023-10-26 strike:0.0 lot:15 tick:0.05 type:FUT
+2023-10-05 12:37:18,351:INFO:fnodataprocessor:create_hist_data_obj:FnoDataProcessor: historical data object created
+2023-10-05 12:37:18,351:INFO:fnodataprocessor:set_indicator_enable:FnoDataProcessor: enabled indicators 1:True 2:True 3:True 4:True 5:True
+2023-10-05 12:37:18,351:INFO:fnodataprocessor:initialise:FnoDataProcessor: instruToken: 8979970, instruSymbol: BANKNIFTY23OCTFUT, object initialised
+2023-10-05 12:37:19,635:INFO:fnodataprocessor:read_instruments_df:FnoDataProcessor: fetched instruments df from kite
+2023-10-05 12:37:19,642:INFO:fnodataprocessor:get_instru_basic_data:FnoDataProcessor: instrument data fetched name:BANKNIFTY, symbol:BANKNIFTY23O1144600CE expiry:2023-10-11 strike:44600.0 lot:15 tick:0.05 type:CE
+2023-10-05 12:37:19,651:INFO:fnodataprocessor:create_hist_data_obj:FnoDataProcessor: historical data object created
+2023-10-05 12:37:19,651:INFO:fnodataprocessor:set_indicator_enable:FnoDataProcessor: enabled indicators 1:True 2:True 3:True 4:True 5:True
+2023-10-05 12:37:19,651:INFO:fnodataprocessor:initialise:FnoDataProcessor: instruToken: 10270210, instruSymbol: BANKNIFTY23O1144600CE, object initialised
+2023-10-05 12:37:20,963:INFO:fnodataprocessor:read_instruments_df:FnoDataProcessor: fetched instruments df from kite
+2023-10-05 12:37:20,971:INFO:fnodataprocessor:get_instru_basic_data:FnoDataProcessor: instrument data fetched name:BANKNIFTY, symbol:BANKNIFTY23O1144600PE expiry:2023-10-11 strike:44600.0 lot:15 tick:0.05 type:PE
+2023-10-05 12:37:20,980:INFO:fnodataprocessor:create_hist_data_obj:FnoDataProcessor: historical data object created
+2023-10-05 12:37:20,980:INFO:fnodataprocessor:set_indicator_enable:FnoDataProcessor: enabled indicators 1:True 2:True 3:True 4:True 5:True
+2023-10-05 12:37:20,980:INFO:fnodataprocessor:initialise:FnoDataProcessor: instruToken: 10270722, instruSymbol: BANKNIFTY23O1144600PE, object initialised
+2023-10-05 12:37:20,980:INFO:strategy:_update_dataprocessor:Strategy:500: instrument objects update called
+2023-10-05 12:37:20,980:INFO:orders:initialise_csv_logs:Orders: csv log initialised
+2023-10-05 12:37:20,980:INFO:strategy:set_order_object:Strategy:500:order class object created
+2023-10-05 12:37:20,980:INFO:strategy:initialise:Strategy:500: initialised strategy object
+2023-10-05 12:37:20,986:INFO:strategy:update:Strategy:500: not a market holiday
+2023-10-05 12:37:20,988:INFO:strategy:update:Strategy:500: market is open
+2023-10-05 12:37:20,988:INFO:strategy:ready_for_next_candle:Strategy:500: last timestamp processed None, next candle time 2023-10-05 09:19:00
+2023-10-05 12:37:20,988:INFO:strategy:ready_for_next_candle:Strategy:500: now>nextcandletime last timestamp processed None, next candle time 2023-10-05 09:19:00
+2023-10-05 12:37:20,988:INFO:strategy:update:Strategy:500: ready for next candle
+2023-10-05 12:37:21,028:INFO:strategy:update:Strategy:500: exception
+2023-10-05 12:37:21,028:ERROR:strategy:update:Incorrect `api_key` or `access_token`.
+Traceback (most recent call last):
+  File "/Users/anirudh/Documents/lunar/strategy.py", line 649, in update
+    self._update_dataprocessor()
+  File "/Users/anirudh/Documents/lunar/strategy.py", line 139, in _update_dataprocessor
+    self.all_instru_obj_ref_dict[objname].update()
+  File "/Users/anirudh/Documents/lunar/fnodataprocessor.py", line 248, in update
+    self.set_hist_data()
+  File "/Users/anirudh/Documents/lunar/fnodataprocessor.py", line 115, in set_hist_data
+    data_w_last_candle_changing = self.hist_data_obj.fetch(self.data_start_datetime, self.data_end_datetime)
+  File "/Users/anirudh/Documents/lunar/utilsall/historicaldata.py", line 14, in fetch
+    data = pd.DataFrame(self.kite_obj.historical_data(self.instrument_id,
+  File "/Users/anirudh/Documents/lunar/venv/lib/python3.9/site-packages/kiteconnect/connect.py", line 631, in historical_data
+    data = self._get("market.historical",
+  File "/Users/anirudh/Documents/lunar/venv/lib/python3.9/site-packages/kiteconnect/connect.py", line 851, in _get
+    return self._request(route, "GET", url_args=url_args, params=params, is_json=is_json)
+  File "/Users/anirudh/Documents/lunar/venv/lib/python3.9/site-packages/kiteconnect/connect.py", line 927, in _request
+    raise exp(data["message"], code=r.status_code)
+kiteconnect.exceptions.TokenException: Incorrect `api_key` or `access_token`.
