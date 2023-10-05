@@ -232,6 +232,7 @@ class Strategy:
                                                                 self.config["entry_order_valid_min"],
                                                                 "entry")
             self.order_dict["entry_order"]["oid"] = buy_resp
+            self.raise_error_if_order_status_invalid(self.order_dict["entry_order"]["oid"])
             self.strategy_state_dict["status_code"] = 301
             self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:entry buy order sent for {self.order_dict['entry_order']}")
         else:
@@ -261,6 +262,16 @@ class Strategy:
         self.strategy_state_dict["holding_qty"] = 0 # will be already zero, because not updated until order complete
         self.order_dict["entry_order"] = creat_empty_order_dict()
         self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:buy order cancelled process done")
+
+    def raise_error_if_order_status_invalid(self, oid):
+        status = self.orders.get_order_status(oid)
+        if status in ["COMPLETE", "OPEN", "CANCELLED"]:
+            pass
+        else:
+            self.strategy_state_dict["status_code"] = 602
+            raise Exception(f"Order status invalid {status} for oid {oid}")
+
+
     def send_sl_tp_orders(self):
         # called in orders handler if status code 303, buy order complete
         self.send_tp_orders()
@@ -289,16 +300,19 @@ class Strategy:
                 for tp_od in [self.order_dict["tp_order1"]]:
                     tp_od["oid"] = self.orders.place_limit_sell_nfo(tp_od["symbol"], tp_od["quantity"], tp_od["limit_price"],
                                                                "tp")
+                    self.raise_error_if_order_status_invalid(tp_od["oid"])
                     self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:tp order sent {tp_od}")
             elif self.config["num_of_sets"] * self.config["lots_per_set"] == 2:
                 for tp_od in [self.order_dict["tp_order1"], self.order_dict["tp_order2"]]:
                     tp_od["oid"] = self.orders.place_limit_sell_nfo(tp_od["symbol"], tp_od["quantity"], tp_od["limit_price"],
                                                                "tp")
+                    self.raise_error_if_order_status_invalid(tp_od["oid"])
                     self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:tp order sent {tp_od}")
             elif self.config["num_of_sets"] * self.config["lots_per_set"] >= 3:
                 for tp_od in [self.order_dict["tp_order1"], self.order_dict["tp_order2"], self.order_dict["tp_order3"]]:
                     tp_od["oid"] = self.orders.place_limit_sell_nfo(tp_od["symbol"], tp_od["quantity"], tp_od["limit_price"],
                                                                "tp")
+                    self.raise_error_if_order_status_invalid(tp_od["oid"])
                     self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:tp order sent {tp_od}")
         else:
             self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:none takeprofit orders, security set as {self.trading_security}, passing")
@@ -311,6 +325,7 @@ class Strategy:
                 self.order_dict["sl_global"]["oid"] = self.orders.modify_qty_from_orderid(self.order_dict["sl_global"]["oid"],
                                                                                          self.strategy_state_dict["holding_qty"])
                 # pprint(self.order_dict["sl_global"])
+                self.raise_error_if_order_status_invalid(self.order_dict["sl_global"]["oid"])
                 self.order_dict["sl_global"]["quantity"] = self.strategy_state_dict["holding_qty"]
                 self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:global sl modified {self.order_dict['sl_global']}")
             else:
@@ -323,6 +338,7 @@ class Strategy:
                                                                self.order_dict["sl_global"]["quantity"],
                                                                self.order_dict["sl_global"]["limit_price"],
                                                                "global_sl")
+                self.raise_error_if_order_status_invalid(self.order_dict["sl_global"]["oid"])
                 self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:global sl sent {self.order_dict['sl_global']}")
         else:
             self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:none global sl orders, security set as {self.trading_security}, passing")
@@ -336,6 +352,7 @@ class Strategy:
             self.order_dict["sl_indicator"]["oid"] = self.orders.place_market_sell_nfo(self.order_dict["sl_indicator"]["symbol"],
                                                                                       self.order_dict["sl_indicator"]["quantity"],
                                                                                       "indicator_sl")
+            self.raise_error_if_order_status_invalid(self.order_dict["sl_global"]["oid"])
             self.strategy_state_dict["status_code"] = 405
             self.strategy_state_dict["sl_hit"] += 1
             self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:indicator sl sent {self.order_dict['sl_indicator']}")

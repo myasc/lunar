@@ -1,0 +1,3 @@
+2023-10-05 12:43:54,119:INFO:strategy:init_strategy_csv_log:Strategy:500:added csv row to csv_files/strategy_20231005.csv
+2023-10-05 12:43:54,120:INFO:strategy:init_strategy_json:Strategy:301:read previous not empty strategy state from json_files/strategy_20231005.json
+2023-10-05 12:43:54,120:INFO:strategy:initialise_logs_n_files:Strategy:301:logs and json initialised
