@@ -191,9 +191,9 @@ class Strategy:
             self.signal_security = None
             self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:signal for {self.signal_security} no rank conditions matched")
 
-        # todo remove when not testing
-        self.signal_security = "niftype"
-        print("for testing signal security set as: ", self.signal_security)
+        # # todo remove when not testing
+        # self.signal_security = "niftype"
+        # print("for testing signal security set as: ", self.signal_security)
 
     def set_strategy_kill_switch_codes(self):
         # called in update

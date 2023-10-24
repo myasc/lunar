@@ -2,8 +2,8 @@ import datetime as dt
 
 config = {"program_trade_live": True,
           "program_start_time": dt.time(9, 30),
-          "program_exit_time": dt.time(15, 30),
-          "candle_interval": "1minute",
+          "program_exit_time": dt.time(15, 15),
+          "candle_interval": "5minute",
           "future_max_prev_days": 90,
           "options_max_prev_days": 60,
           "max_trades_per_day": 3,
