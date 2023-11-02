@@ -4,7 +4,7 @@ import pandas as pd
 pd.set_option("display.max_columns", 50)
 from utilsall.historicaldata import HistoricalData
 from utilsall import indicators
-from config1 import config
+from config_nf import config
 
 class FnoDataProcessor:
     def __init__(self, kite_obj, instru_token, candle_interval, last_fut_close_price=None, logger=None):

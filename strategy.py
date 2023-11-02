@@ -17,7 +17,7 @@ class Strategy:
     def __init__(self, kite_obj, config, testing=False):
         self.kite_obj = kite_obj
         self.config = config
-        self.testing = testing
+        self.testing = testing # if true only logs the orders doesn't execute
         self.nf_fut_obj = None
         self.nf_ce_obj = None
         self.nf_pe_obj = None
@@ -334,12 +334,15 @@ class Strategy:
                 self.order_dict["sl_global"]["limit_price"] = round_to_nearest_005(self.order_dict["entry_order"]["limit_price"] - \
                                                                   self.config["global_sl"])
                 pprint(self.order_dict["sl_global"])
-                self.order_dict["sl_global"]["oid"] = self.orders.place_sl_market_sell_nfo(self.order_dict["sl_global"]["symbol"],
-                                                               self.order_dict["sl_global"]["quantity"],
-                                                               self.order_dict["sl_global"]["limit_price"],
-                                                               "global_sl")
-                self.raise_error_if_order_status_invalid(self.order_dict["sl_global"]["oid"])
-                self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:global sl sent {self.order_dict['sl_global']}")
+                if self.order_dict["sl_global"]["limit_price"] <= 0:
+                    self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:global sl rejected due to price {self.order_dict['sl_global']}")
+                else:
+                    self.order_dict["sl_global"]["oid"] = self.orders.place_sl_market_sell_nfo(self.order_dict["sl_global"]["symbol"],
+                                                                   self.order_dict["sl_global"]["quantity"],
+                                                                   self.order_dict["sl_global"]["limit_price"],
+                                                                   "global_sl")
+                    self.raise_error_if_order_status_invalid(self.order_dict["sl_global"]["oid"])
+                    self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:global sl sent {self.order_dict['sl_global']}")
         else:
             self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:none global sl orders, security set as {self.trading_security}, passing")
 
