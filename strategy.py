@@ -70,6 +70,7 @@ class Strategy:
 
     def init_strategy_json(self):
         # called in initialise_logs_n_files
+        # this is a test line
         """
         creates filename with suffix strategy_ and today's date
         goes to json files directory and checks
