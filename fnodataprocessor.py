@@ -70,11 +70,12 @@ class FnoDataProcessor:
     def read_instruments_df(self):
         """fetching instruments and info from api"""
         if self.instruments_fetched:
-            instru_df = pd.read_csv("NFO_instruments.csv")
+            # instru_df = pd.read_csv("NFO_instruments.csv")
+            pass
         else:
             instru = self.kite_obj.instruments(exchange="NFO")
             instru_df = pd.DataFrame(instru)
-            instru_df.to_csv("NFO_instruments.csv")
+            # instru_df.to_csv("NFO_instruments.csv")
             self.instruments_fetched = True
         if self.logger is not None:
             self.logger.info(f"{__class__.__name__}: fetched instruments df from kite")
