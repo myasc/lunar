@@ -9,7 +9,7 @@ import os
 from fnodataprocessor import FnoDataProcessor
 from utilsall.utils import fetch_instru_token, save_dict_to_json_file, sleep_till_time
 from utilsall.orders import Orders
-from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv, get_latest_json_dict, is_market_open, is_market_holiday
+from utilsall.utils import logger_intialise, printer_logger, add_row_to_csv, get_latest_json_dict, is_market_open, is_market_holiday, is_ltp_lessthanequal_limitprice
 from utilsall.misc import creat_empty_order_dict, reach_project_dir
 from utilsall.misc import create_print_dict, round_to_nearest_005
 
@@ -132,7 +132,6 @@ class Strategy:
                                         }
         if self.logger is not None:
             self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:instrument objects created")
-
 
     def _update_dataprocessor(self):
         # called in initialise and update
@@ -272,80 +271,87 @@ class Strategy:
             self.strategy_state_dict["status_code"] = 602
             raise Exception(f"Order status invalid {status} for oid {oid}")
 
-
-    def send_sl_tp_orders(self):
+    def send_tp1_order(self):
         # called in orders handler if status code 303, buy order complete
-        self.send_tp_orders()
-        self.send_global_sl()
-        self.strategy_state_dict["status_code"] = 304
-        self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:takeprofit and global sl orders sent")
-    def send_tp_orders(self):
-        # called in send_sl_tp_orders
-        if self.trading_security in self.trading_instru_obj_ref_dict.keys():
-            self.order_dict["tp_order1"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
-            self.order_dict["tp_order1"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
-            self.order_dict["tp_order1"]["limit_price"] = round_to_nearest_005(self.trading_instru_obj_ref_dict[self.trading_security].ti_1_tp_value)
+        self.order_dict["tp_order1"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
+        self.order_dict["tp_order1"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
+        self.order_dict["tp_order1"]["limit_price"] = round_to_nearest_005(self.trading_instru_obj_ref_dict[self.trading_security].ti_1_tp_value)
 
-            self.order_dict["tp_order2"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
-            self.order_dict["tp_order2"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
-            self.order_dict["tp_order2"]["limit_price"] = round_to_nearest_005(self.trading_instru_obj_ref_dict[self.trading_security].ti_2_tp_value)
+        if self.config["num_of_sets"] * self.config["lots_per_set"] <= 0:
+            raise Exception(f"{self.strategy_state_dict['status_code']}:invalid qty for tp1 order qty:{self.config['num_of_sets'] * self.config['lots_per_set']}")
+        elif self.config["num_of_sets"] * self.config["lots_per_set"] >= 1:
+            self.order_dict["tp_order1"]["oid"] = self.orders.place_limit_sell_nfo(self.order_dict["tp_order1"]["symbol"],
+                                                                                   self.order_dict["tp_order1"]["quantity"],
+                                                                                   self.order_dict["tp_order1"]["limit_price"],
+                                                                                   "tp")
+            self.raise_error_if_order_status_invalid(self.order_dict["tp_order1"]["oid"])
+            self.strategy_state_dict["status_code"] = 304
+            self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:takeprofit 1 order sent")
 
-            self.order_dict["tp_order3"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
-            self.order_dict["tp_order3"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
-            self.order_dict["tp_order3"]["limit_price"] = round_to_nearest_005(self.trading_instru_obj_ref_dict[self.trading_security].ti_3_tp_value)
+    # def send_tp_orders_old(self):
+    #     # called in send_sl_tp_orders
+    #     if self.trading_security in self.trading_instru_obj_ref_dict.keys():
+    #         # todo
+    #         self.order_dict["tp_order1"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
+    #         self.order_dict["tp_order1"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
+    #         self.order_dict["tp_order1"]["limit_price"] = round_to_nearest_005(self.trading_instru_obj_ref_dict[self.trading_security].ti_1_tp_value)
+    #
+    #         self.order_dict["tp_order2"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
+    #         self.order_dict["tp_order2"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
+    #         self.order_dict["tp_order2"]["limit_price"] = round_to_nearest_005(self.trading_instru_obj_ref_dict[self.trading_security].ti_2_tp_value)
+    #
+    #         self.order_dict["tp_order3"]["symbol"] = self.trading_instru_obj_ref_dict[self.trading_security].trading_symbol
+    #         self.order_dict["tp_order3"]["quantity"] = self.trading_instru_obj_ref_dict[self.trading_security].lot_size * self.config["num_of_sets"]
+    #         self.order_dict["tp_order3"]["limit_price"] = round_to_nearest_005(self.trading_instru_obj_ref_dict[self.trading_security].ti_3_tp_value)
+    #
+    #         if self.config["num_of_sets"] * self.config["lots_per_set"] <= 0:
+    #             self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:none tp orders because qty zero")
+    #             pass
+    #         elif self.config["num_of_sets"] * self.config["lots_per_set"] == 1:
+    #             for tp_od in [self.order_dict["tp_order1"]]:
+    #                 tp_od["oid"] = self.orders.place_limit_sell_nfo(tp_od["symbol"], tp_od["quantity"], tp_od["limit_price"],
+    #                                                            "tp")
+    #                 self.raise_error_if_order_status_invalid(tp_od["oid"])
+    #                 self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:tp order sent {tp_od}")
+    #         elif self.config["num_of_sets"] * self.config["lots_per_set"] == 2:
+    #             for tp_od in [self.order_dict["tp_order1"], self.order_dict["tp_order2"]]:
+    #                 tp_od["oid"] = self.orders.place_limit_sell_nfo(tp_od["symbol"], tp_od["quantity"], tp_od["limit_price"],
+    #                                                            "tp")
+    #                 self.raise_error_if_order_status_invalid(tp_od["oid"])
+    #                 self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:tp order sent {tp_od}")
+    #         elif self.config["num_of_sets"] * self.config["lots_per_set"] >= 3:
+    #             for tp_od in [self.order_dict["tp_order1"], self.order_dict["tp_order2"], self.order_dict["tp_order3"]]:
+    #                 tp_od["oid"] = self.orders.place_limit_sell_nfo(tp_od["symbol"], tp_od["quantity"], tp_od["limit_price"],
+    #                                                            "tp")
+    #                 self.raise_error_if_order_status_invalid(tp_od["oid"])
+    #                 self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:tp order sent {tp_od}")
+    #     else:
+    #         self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:none takeprofit orders, security set as {self.trading_security}, passing")
 
-            if self.config["num_of_sets"] * self.config["lots_per_set"] <= 0:
-                self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:none tp orders because qty zero")
-                pass
-            elif self.config["num_of_sets"] * self.config["lots_per_set"] == 1:
-                for tp_od in [self.order_dict["tp_order1"]]:
-                    tp_od["oid"] = self.orders.place_limit_sell_nfo(tp_od["symbol"], tp_od["quantity"], tp_od["limit_price"],
-                                                               "tp")
-                    self.raise_error_if_order_status_invalid(tp_od["oid"])
-                    self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:tp order sent {tp_od}")
-            elif self.config["num_of_sets"] * self.config["lots_per_set"] == 2:
-                for tp_od in [self.order_dict["tp_order1"], self.order_dict["tp_order2"]]:
-                    tp_od["oid"] = self.orders.place_limit_sell_nfo(tp_od["symbol"], tp_od["quantity"], tp_od["limit_price"],
-                                                               "tp")
-                    self.raise_error_if_order_status_invalid(tp_od["oid"])
-                    self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:tp order sent {tp_od}")
-            elif self.config["num_of_sets"] * self.config["lots_per_set"] >= 3:
-                for tp_od in [self.order_dict["tp_order1"], self.order_dict["tp_order2"], self.order_dict["tp_order3"]]:
-                    tp_od["oid"] = self.orders.place_limit_sell_nfo(tp_od["symbol"], tp_od["quantity"], tp_od["limit_price"],
-                                                               "tp")
-                    self.raise_error_if_order_status_invalid(tp_od["oid"])
-                    self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:tp order sent {tp_od}")
-        else:
-            self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:none takeprofit orders, security set as {self.trading_security}, passing")
-
-    def send_global_sl(self):
-        # called in send_sl_tp_orders
-        if self.trading_security in self.trading_instru_obj_ref_dict.keys():
-            # if existing global sl exist but holding qty change due to take profit order complete
-            if (self.order_dict["sl_global"]["status"] == "OPEN") and (self.order_dict["sl_global"]["quantity"] != self.strategy_state_dict["holding_qty"]):
-                self.order_dict["sl_global"]["oid"] = self.orders.modify_qty_from_orderid(self.order_dict["sl_global"]["oid"],
-                                                                                         self.strategy_state_dict["holding_qty"])
-                # pprint(self.order_dict["sl_global"])
-                self.raise_error_if_order_status_invalid(self.order_dict["sl_global"]["oid"])
-                self.order_dict["sl_global"]["quantity"] = self.strategy_state_dict["holding_qty"]
-                self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:global sl modified {self.order_dict['sl_global']}")
+    def modify_global_sl_send_if_trigger(self):
+        # todo needs to be called after buy complete and then everytime in loop to update quantity and send order if triggered
+        # todo here add shifting of sl price, where limit price is set in global sl dict
+        # setting empty order dict to as per new position
+        if (self.order_dict["sl_global"]["quantity"] == 0) and (self.strategy_state_dict["status_code"] == 303):
+            self.order_dict["sl_global"]["symbol"] = self.order_dict["entry_order"]["symbol"]
+            self.order_dict["sl_global"]["quantity"] = self.order_dict["entry_order"]["quantity"]
+            self.order_dict["sl_global"]["limit_price"] = round_to_nearest_005(self.order_dict["entry_order"]["limit_price"] - self.config["global_sl"])
+            self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:global sl initialised {self.order_dict['sl_global']}")
+        # updating qty to match new holding qty e.g.after tp hit
+        if self.order_dict["sl_global"]["quantity"] != self.strategy_state_dict["holding_qty"]:
+            self.order_dict["sl_global"]["quantity"] = self.strategy_state_dict["holding_qty"]
+            self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:global sl qty modified {self.order_dict['sl_global']}")
+        if is_ltp_lessthanequal_limitprice(self.trading_instru_obj_ref_dict[self.trading_security].last_close_price, self.order_dict["sl_global"]["limit_price"]):
+            if self.order_dict["sl_global"]["limit_price"] <= 0:
+                self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:global sl price negative {self.order_dict['sl_global']}")
             else:
-                self.order_dict["sl_global"]["symbol"] = self.order_dict["entry_order"]["symbol"]
-                self.order_dict["sl_global"]["quantity"] = self.order_dict["entry_order"]["quantity"]
-                self.order_dict["sl_global"]["limit_price"] = round_to_nearest_005(self.order_dict["entry_order"]["limit_price"] - \
-                                                                  self.config["global_sl"])
-                pprint(self.order_dict["sl_global"])
-                if self.order_dict["sl_global"]["limit_price"] <= 0:
-                    self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:global sl rejected due to price {self.order_dict['sl_global']}")
-                else:
-                    self.order_dict["sl_global"]["oid"] = self.orders.place_sl_market_sell_nfo(self.order_dict["sl_global"]["symbol"],
-                                                                   self.order_dict["sl_global"]["quantity"],
-                                                                   self.order_dict["sl_global"]["limit_price"],
-                                                                   "global_sl")
-                    self.raise_error_if_order_status_invalid(self.order_dict["sl_global"]["oid"])
-                    self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:global sl sent {self.order_dict['sl_global']}")
-        else:
-            self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:none global sl orders, security set as {self.trading_security}, passing")
+                self.order_dict["sl_global"]["oid"] = self.orders.place_market_sell_nfo(self.order_dict["sl_global"]["symbol"],
+                                                                                        self.order_dict["sl_global"]["quantity"],
+                                                                                        "global_sl")
+                self.raise_error_if_order_status_invalid(self.order_dict["sl_global"]["oid"])
+                self.strategy_state_dict["status_code"] = 404
+                self.strategy_state_dict["sl_hit"] += 1
+                self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:global sl marketorder sent {self.order_dict['sl_global']}")
 
     def send_indi_sl_if_trigger(self):
         # called in orders handler if status code 304/401/402 i.e. in position with more than 0 holding qty
@@ -356,23 +362,15 @@ class Strategy:
             self.order_dict["sl_indicator"]["oid"] = self.orders.place_market_sell_nfo(self.order_dict["sl_indicator"]["symbol"],
                                                                                       self.order_dict["sl_indicator"]["quantity"],
                                                                                       "indicator_sl")
-            self.raise_error_if_order_status_invalid(self.order_dict["sl_global"]["oid"])
+            self.raise_error_if_order_status_invalid(self.order_dict["sl_indicator"]["oid"])
             self.strategy_state_dict["status_code"] = 405
             self.strategy_state_dict["sl_hit"] += 1
             self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:indicator sl sent {self.order_dict['sl_indicator']}")
         else:
             pass
 
-    def if_global_sl_complete(self):
-        # called in orders handler if status code 304/401/402 i.e. in position with more than 0 holding qty
-        if self.order_dict["sl_global"]["status"] == "COMPLETE":
-            self.strategy_state_dict["status_code"] = 404
-            self.strategy_state_dict["sl_hit"] += 1
-            self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:global sl complete status:{self.order_dict['sl_global']['status']}")
-
-
     def if_tp_1_complete(self):
-        # called in orders handler if status code 304 i.e. sl & tp orders sent
+        # called in orders handler if status code 304 i.e. tp1 order sent
         if self.order_dict["tp_order1"]["status"] == "COMPLETE":
             if self.config["num_of_sets"] * self.config["lots_per_set"] == 1:
                 self.strategy_state_dict["status_code"] = 403
@@ -382,10 +380,10 @@ class Strategy:
                 self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:take profit 1 complete status:{self.order_dict['tp_order1']['status']}")
             self.strategy_state_dict["holding_qty"] = self.strategy_state_dict["holding_qty"] - self.order_dict["tp_order1"]["quantity"]
             self.update_realised_pnl()
-            self.send_global_sl()
+            self.modify_global_sl_send_if_trigger()
     def if_tp_2_complete(self):
         if self.order_dict["tp_order2"]["status"] == "COMPLETE":
-            # called in orders handler if status code 401 i.e. sl & tp1 complete
+            # called in orders handler if status code 401 i.e. tp1 complete
             if self.config["num_of_sets"] * self.config["lots_per_set"] == 2:
                 self.strategy_state_dict["status_code"] = 403
                 self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:final take profit 2 complete status:{self.order_dict['tp_order2']['status']}")
@@ -394,9 +392,9 @@ class Strategy:
                 self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:take profit 2 complete status:{self.order_dict['tp_order2']['status']}")
             self.strategy_state_dict["holding_qty"] = self.strategy_state_dict["holding_qty"] - self.order_dict["tp_order2"]["quantity"]
             self.update_realised_pnl()
-            self.send_global_sl()
+            self.modify_global_sl_send_if_trigger()
     def if_tp_3_complete(self):
-        # called in orders handler if status code 402 i.e. sl & tp2 complete
+        # called in orders handler if status code 402 i.e. tp2 complete
         if self.order_dict["tp_order3"]["status"] == "COMPLETE":
             self.strategy_state_dict["status_code"] = 403
             self.strategy_state_dict["tp_hit"] += 1
@@ -409,16 +407,13 @@ class Strategy:
             self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:updated order status for entry {self.order_dict['entry_order']['status']}")
         elif self.strategy_state_dict["status_code"] in [304]:
             self.order_dict["tp_order1"]["status"] = self.orders.get_order_status(self.order_dict["tp_order1"]["oid"])
-            self.order_dict["sl_global"]["status"] = self.orders.get_order_status(self.order_dict["sl_global"]["oid"])
-            self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:updated order status for tp1 {self.order_dict['tp_order1']['status']}, slglobal {self.order_dict['sl_global']['status']}")
+            self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:updated order status for tp1 {self.order_dict['tp_order1']['status']}")
         elif self.strategy_state_dict["status_code"] in [401]:
             self.order_dict["tp_order2"]["status"] = self.orders.get_order_status(self.order_dict["tp_order2"]["oid"])
-            self.order_dict["sl_global"]["status"] = self.orders.get_order_status(self.order_dict["sl_global"]["oid"])
-            self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:updated order status for tp2 {self.order_dict['tp_order2']['status']}, slglobal {self.order_dict['sl_global']['status']}")
+            self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:updated order status for tp2 {self.order_dict['tp_order2']['status']}")
         elif self.strategy_state_dict["status_code"] in [402]:
             self.order_dict["tp_order3"]["status"] = self.orders.get_order_status(self.order_dict["tp_order3"]["oid"])
-            self.order_dict["sl_global"]["status"] = self.orders.get_order_status(self.order_dict["sl_global"]["oid"])
-            self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:updated order status for tp3 {self.order_dict['tp_order3']['status']}, slglobal {self.order_dict['sl_global']['status']}")
+            self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:updated order status for tp3 {self.order_dict['tp_order3']['status']}")
         elif self.strategy_state_dict["status_code"] in [403, 404, 405]:
             # trade exited
             self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:none updated order status")
@@ -454,28 +449,37 @@ class Strategy:
         # called in update, triggers respective action as per state
         self.update_order_status()
         if self.strategy_state_dict["status_code"] in [500]:
+            # 500 - if waiting to take position
             self.send_buy_order_if_signal_n_valid_code()
         elif self.strategy_state_dict["status_code"] in [301]:
+            # 301 - if waiting for buy order to get filled
             self.if_buy_filled_or_cancelled()
         elif self.strategy_state_dict["status_code"] in [302]:
+            # 302 - if buy order was cancelled
             self.buy_cancel_process()
         elif self.strategy_state_dict["status_code"] in [303]:
-            self.send_sl_tp_orders()
+            # 303 - if buy order is complete
+            self.send_tp1_order()
         elif self.strategy_state_dict["status_code"] in [304]:
+            # 304 - tp1 order sent
             self.if_tp_1_complete()
-            self.if_global_sl_complete()
+            self.modify_global_sl_send_if_trigger()
             self.send_indi_sl_if_trigger()
         elif self.strategy_state_dict["status_code"] in [401]:
+            # 401 - tp1 limit order is filled
             self.if_tp_2_complete()
-            self.if_global_sl_complete()
+            self.modify_global_sl_send_if_trigger()
             self.send_indi_sl_if_trigger()
         elif self.strategy_state_dict["status_code"] in [402]:
+            # 402 - tp2 limit order is filled
             self.if_tp_3_complete()
-            self.if_global_sl_complete()
+            self.modify_global_sl_send_if_trigger()
             self.send_indi_sl_if_trigger()
         elif self.strategy_state_dict["status_code"] in [403, 404, 405]:
+            # [403, 404, 405] position exited either through tp3, global sl or indicator sl
             self.trade_exit_process()
         elif self.strategy_state_dict["status_code"] in [202, 203, 204]:
+            # [202, 203, 204] - strategy kill switch activated
             self.pull_the_plug()
         else:
             self.logger.info(f"{__class__.__name__}:{self.strategy_state_dict['status_code']}:no action from orders handler")

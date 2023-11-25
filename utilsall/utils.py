@@ -210,3 +210,12 @@ def sleep_till_time(hour, minute, quick_check_at_secs=30):
         time.sleep(sleep_sec)
     else:
         pass
+
+def is_ltp_lessthanequal_limitprice(ltp, limitprice):
+    if limitprice != 0:
+        if ltp <= limitprice:
+            return True
+        else:
+            return False
+    else:
+        return False
